@@ -1,0 +1,7 @@
+service: () -> {
+    closeDeploymentAkash: (text) -> (text);
+    createCertificateAkash: () -> (text);
+    createDeploymentAkash: () -> (text);
+    createLeaseAkash: (text) -> (text);
+    getAkashAddress: () -> (text);
+}
