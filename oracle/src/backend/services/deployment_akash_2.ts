@@ -14,13 +14,14 @@ import {
     TxBodyEncodeObject,
     EncodeObject,
   } from '@cosmjs/proto-signing';
+import Long from "long";
 import {
     MsgCloseDeployment,
     MsgCreateDeployment,
   } from '@akashnetwork/akashjs/build/protobuf/akash/deployment/v1beta3/deploymentmsg';
 import {
     MsgCreateLease
-  } from '@akashnetwork/akashjs/build/protobuf/akash/market/v1beta3/lease';
+  } from '@akashnetwork/akashjs/build/protobuf/akash/market/v1beta4/lease';
 
 import { akash } from 'akashjs';
 import { SDL } from '@akashnetwork/akashjs/build/sdl';
@@ -155,6 +156,83 @@ export const createDeploymentAkash = update([], text, async () => {
     // }
   })
 
+export const transferAkashTokens = update([text, text], text, async (toAddress: string, amount: string) => {
+    try {
+        const fromAddress = await getAddAkash();
+        const pubKeyEncoded = await getEcdsaPublicKeyBase64();
+
+        const registry = new Registry();
+        registry.register('/cosmos.bank.v1beta1.MsgSend', MsgSend);
+
+        const client = await StargateClient.connect(akashPubRPC);
+
+        const msgSend: MsgSend = {
+            fromAddress,
+            toAddress,
+            amount: [
+                {
+                    denom: "uakt",
+                    amount
+                }
+            ]
+        };
+
+        const newBodyBytes = registry.encode({
+            typeUrl: "/cosmos.tx.v1beta1.TxBody",
+            value: {
+                messages: [
+                    {
+                        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                        value: msgSend,
+                    },
+                ],
+            },
+        } as EncodeObject);
+
+        const { accountNumber, sequence } = await client.getSequence(fromAddress);
+        const feeAmount = coins(20000, "uakt");
+        const gasLimit = 800000;
+        const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit);
+
+        const chainId = await client.getChainId();
+        const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+        const signBytes = makeSignBytes(signDoc);
+        const hashedMessage = sha256(signBytes);
+
+        const caller = ic.caller().toUint8Array();
+        const signatureResult = await ic.call(
+            managementCanister.sign_with_ecdsa,
+            {
+                args: [
+                    {
+                        message_hash: hashedMessage,
+                        derivation_path: [caller],
+                        key_id: {
+                            curve: { secp256k1: null },
+                            name: 'dfx_test_key'
+                        }
+                    }
+                ],
+                cycles: 10_000_000_000n
+            }
+        );
+
+        const txRaw = TxRaw.fromPartial({
+            bodyBytes: newBodyBytes,
+            authInfoBytes: authInfoBytes,
+            signatures: [signatureResult.signature],
+        });
+
+        const txRawBytes = TxRaw.encode(txRaw).finish();
+
+        const txResult = await client.broadcastTxSync(txRawBytes);
+        return `Transaction Result: ${txResult}`;
+    } catch (error) {
+        console.error(error);
+        throw new Error(`Failed to transfer tokens: ${error.message}`);
+    }
+});
+
 export const closeDeploymentAkash = update([text], text, async (dseq: string) => {
   console.log('value I received')
   console.log(dseq)
@@ -241,32 +319,31 @@ export const closeDeploymentAkash = update([text], text, async (dseq: string) =>
     // }
   })
 
+let globalVar = {
+  crtpem: ``,
+  pubpem: ``,
+  privpem: ``,
+}
+export const createAndStoreCertificateKeys = update([], text, async () => {
+  const fromAddress = await getAddAkash()
+  const { cert: crtpem, publicKey: pubpem, privateKey: privpem } = certificateManager.generatePEM(fromAddress);
+
+  globalVar[`crtpem`] = crtpem
+  globalVar[`pubpem`] = pubpem
+  globalVar[`privpem`] = privpem
+
+  return `200`
+ })
+
 export const createCertificateAkash = update([], text, async () => {
   const fromAddress = await getAddAkash()
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
-  console.log('from address')
-  console.log(fromAddress)
+
   const registry = new Registry();
   
   registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
   
   const client = await StargateClient.connect(akashPubRPC);
-
-  console.log('generating certificate')
-  const { cert: crtpem, publicKey: pubpem, privateKey: encryptedKey } = certificateManager.generatePEM(fromAddress);
-
-  console.log('pubkey')
-  console.log(pubpem)
-  const currentHeight = await getCurrentHeight(client);
-  const dseq = currentHeight.toString();
-  const yamlStr = YAML.parse(yamlObj);
-  console.log('after yaml string')
-  const certificateData = await NewCreateCertificateData(
-    Buffer.from(pubpem),
-    Buffer.from(crtpem),
-    fromAddress,
-  );
-  console.log('after deployment data')
 
   const newBodyBytes = registry.encode({
     typeUrl: "/cosmos.tx.v1beta1.TxBody",
@@ -274,7 +351,11 @@ export const createCertificateAkash = update([], text, async () => {
       messages: [
         {
           typeUrl: "/akash.cert.v1beta3.MsgCreateCertificate",
-          value: certificateData,
+          value: {
+            owner: fromAddress,
+            cert: Buffer.from(globalVar[`crtpem`]).toString("base64"),
+            pubkey: Buffer.from(globalVar[`pubpem`]).toString("base64")
+          },
         },
       ],
     },
@@ -342,12 +423,12 @@ export const createCertificateAkash = update([], text, async () => {
     // }
   })
 
-export const createLeaseAkash = update([text], text, async (
+export const createLeaseAkash = update([text, text, text, text, text], text, async (
+  dseq: string,
   owner?: string,
-  dseq?: string,
-  gseq?: number,
+  gseq?: string,
   provider?: string,
-  oseq?: number) => {
+  oseq?: string) => {
   console.log('value I received')
   console.log(dseq)
   const fromAddress = await getAddAkash()
@@ -355,26 +436,26 @@ export const createLeaseAkash = update([text], text, async (
 
   const registry = new Registry();
   
-  registry.register('/akash.market.v1beta3.MsgCreateLease', MsgCreateLease);
+  registry.register('/akash.market.v1beta4.MsgCreateLease', MsgCreateLease);
   
   const client = await StargateClient.connect(akashPubRPC);
-
-  const leaseData = await NewCreateLeaseData(
-    owner,
-    dseq,
-    gseq,
-    provider,
-    oseq
-  );
-  console.log('after deployment data')
 
   const newBodyBytes = registry.encode({
     typeUrl: "/cosmos.tx.v1beta1.TxBody",
     value: {
       messages: [
         {
-          typeUrl: "/akash.market.v1beta3.MsgCreateLease",
-          value: leaseData,
+          typeUrl: "/akash.market.v1beta4.MsgCreateLease",
+            value: 
+            {
+              bidId: {
+                owner,
+                dseq: Long.fromString(dseq, true),
+                gseq,
+                oseq,
+                provider,
+            }
+          },
         },
       ],
     },
@@ -382,7 +463,7 @@ export const createLeaseAkash = update([text], text, async (
 
     const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
     const feeAmount = coins(20000, "uakt");
-    const gasLimit = 800000;
+    const gasLimit = 808000;
 
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);

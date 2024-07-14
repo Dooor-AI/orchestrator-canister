@@ -1,0 +1,1 @@
+{"canister_methods":{"queries":[{"name":"transformResponse","composite":false}],"updates":[{"name":"getAkashAddress"},{"name":"createDeploymentAkash"},{"name":"createLeaseAkash"},{"name":"getManifestProviderList"},{"name":"createCertificateAkash"},{"name":"closeDeploymentAkash"}],"callbacks":{}},"env_vars":[]}
