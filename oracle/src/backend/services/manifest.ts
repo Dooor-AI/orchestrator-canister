@@ -12,6 +12,7 @@ import {
     None,
     StableBTreeMap,     
     Canister,
+    blob,
 } from 'azle';
 import {
     HttpResponse,
@@ -69,6 +70,7 @@ import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash
 import { wait } from './timer';
 import { ApiProviderList } from './provider';
 import { PROVIDER_PROXY_URL } from './constants';
+import { globalVar } from './deployment_akash_2';
 
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
@@ -82,43 +84,86 @@ export type LocalCert = {
     address: string;
 };
 
+export let providerList: string
+
 
 // export default Canister({
 
 // });
 
 
-export const sendManifestToProvider = async (providerInfo: ApiProviderList, manifest: any, dseq: string, localCert: LocalCert) => {
-    console.log("Sending manifest to " + providerInfo?.owner);
+export const sendManifestToProvider = async (providerURI: string, manifest: any, dseq: string, certPem: string, keyPem: string) => {
   
     let jsonStr = JSON.stringify(manifest);
-    jsonStr = jsonStr.replace(/"quantity":\{"val/g, '"size":{"val');
+    // jsonStr = jsonStr.replace(/"quantity":\{"val/g, '"size":{"val');
   
     // Waiting for 5 sec for provider to have lease
     await wait(5000);
   
     let response;
-  
+    const uri = providerURI + '/deployment/' + dseq + '/manifest'
+
+    console.log('dados')
+    console.log(uri)
+    console.log('prox')
+    console.log(jsonStr)
     for (let i = 1; i <= 3; i++) {
       console.log("Try #" + i);
       try {
         if (!response) {
-          response = await axios.post(PROVIDER_PROXY_URL, {
-            method: "PUT",
-            url: providerInfo.hostUri + "/deployment/" + dseq + "/manifest",
-            certPem: localCert?.certPem,
-            keyPem: localCert?.keyPem,
-            body: jsonStr,
-            timeout: 60_000
-          });
+            ic.setOutgoingHttpOptions({
+                maxResponseBytes: 2_000n,
+                cycles: 50_000_000n,
+                transformMethodName: 'transformResponse'
+            });
+    
+            const response = await ic.call(managementCanister.http_request, {
+                args: [
+                    {
+                        url: `https://akash-provider-proxy.omnia-network.com/`,
+                        max_response_bytes: Some(2_000n),
+                        method: {
+                            post: null
+                        },
+                        headers: [],
+                        body: Some(
+                            Buffer.from(
+                                JSON.stringify({
+                                    method: 'PUT',
+                                    url: uri,
+                                    certPem: certPem,
+                                    keyPem: keyPem,
+                                    body: jsonStr,
+                                    timeout: 60_000
+                                }),
+                                'utf-8'
+                            )
+                        ),
+                        transform: Some({
+                            function: [ic.id(), 'transformResponse'] as [Principal, string],
+                            context: Uint8Array.from([])
+                        })
+                    }
+                ],
+                cycles: 50_000_000n
+            });
+    
+            const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+            console.log('deu bom sending url');
+            console.log(responseText);
+    
   
-          i = 3;
+            i = 3;
+
+            return responseText;
         }
       } catch (err: any) {
+        console.log(err)
         if (err.includes && err.includes("no lease for deployment") && i < 3) {
           console.log("Lease not found, retrying...");
           await wait(6000); // Waiting for 6 sec
         } else {
+          console.log('deu erro')
           console.log(err)
           throw new Error(err?.response?.data || err);
         }
@@ -129,9 +174,57 @@ export const sendManifestToProvider = async (providerInfo: ApiProviderList, mani
     await wait(5000);
   
     return response;
-  };
+};
 
-  export const getManifestProviderList = update([], text, async () => {
+export const getDeploymentManifestInfo = update([text, text, text, text], text, async (providerURI: string, dseq: string, gseq: string, oseq: string) => {
+    try {
+        ic.setOutgoingHttpOptions({
+            maxResponseBytes: 2_000n,
+            cycles: 50_000_000n,
+            transformMethodName: 'transformResponse'
+        });
+        const newUrl = providerURI + '/lease/' + dseq + '/' + gseq + '/' + oseq + '/status'
+        console.log(newUrl)
+        const response = await ic.call(managementCanister.http_request, {
+            args: [
+                {
+                    url: 'https://akash-provider-proxy.omnia-network.com/',
+                    max_response_bytes: Some(2_000n),
+                    method: {
+                        post: null
+                    },
+                    headers: [],
+                    body: Some(
+                        Buffer.from(
+                            JSON.stringify({
+                                method: 'GET',
+                                url: newUrl,
+                                certPem: globalVar?.crtpem,
+                                keyPem: globalVar?.privpem,
+                            }),
+                            'utf-8'
+                        )
+                    ),
+                    transform: Some({
+                        function: [ic.id(), 'transformResponse'] as [Principal, string],
+                        context: Uint8Array.from([])
+                    })
+                }
+            ],
+            cycles: 50_000_000n
+        });
+
+        const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+        console.log(responseText);
+
+        return responseText;
+    } catch (err: any) {
+        console.log(err);
+        throw new Error(err.message || err);
+    }
+});
+
+export const getManifestProviderUriValue = async (providerAddress: string) => {
     try {
         ic.setOutgoingHttpOptions({
             maxResponseBytes: 2_000_000n,
@@ -159,11 +252,15 @@ export const sendManifestToProvider = async (providerInfo: ApiProviderList, mani
         });
 
         const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-        console.log(responseText);
 
-        return responseText;
+        const value = JSON.parse(responseText).find((p: any) => p.owner === providerAddress)
+
+        console.log("achei essa uri de probvider")
+        console.log(value)
+
+        return value.hostUri;
     } catch (err: any) {
         console.log(err);
         throw new Error(err.message || err);
     }
-});
+}

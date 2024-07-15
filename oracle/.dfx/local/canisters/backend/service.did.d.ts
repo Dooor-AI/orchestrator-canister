@@ -4,6 +4,7 @@ import type { IDL } from '@dfinity/candid';
 
 export interface _SERVICE {
   'closeDeploymentAkash' : ActorMethod<[string], string>,
+  'createAndStoreCertificateKeys' : ActorMethod<[], string>,
   'createCertificateAkash' : ActorMethod<[], string>,
   'createDeploymentAkash' : ActorMethod<[], string>,
   'createLeaseAkash' : ActorMethod<
@@ -11,7 +12,12 @@ export interface _SERVICE {
     string
   >,
   'getAkashAddress' : ActorMethod<[], string>,
-  'getManifestProviderList' : ActorMethod<[], string>,
+  'getDeploymentManifestInfo' : ActorMethod<
+    [string, string, string, string],
+    string
+  >,
+  'sendManifestAkash' : ActorMethod<[string, string], string>,
+  'transferAkashTokens' : ActorMethod<[string, string], string>,
   'transformResponse' : ActorMethod<
     [
       {

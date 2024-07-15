@@ -1,10 +1,13 @@
 service : () -> {
   closeDeploymentAkash : (text) -> (text);
+  createAndStoreCertificateKeys : () -> (text);
   createCertificateAkash : () -> (text);
   createDeploymentAkash : () -> (text);
   createLeaseAkash : (text, text, text, text, text) -> (text);
   getAkashAddress : () -> (text);
-  getManifestProviderList : () -> (text);
+  getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  sendManifestAkash : (text, text) -> (text);
+  transferAkashTokens : (text, text) -> (text);
   transformResponse : (
       record {
         context : vec nat8;

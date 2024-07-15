@@ -45,11 +45,11 @@ import * as crypto from 'crypto';
 import { decodeTxRaw } from "@cosmjs/proto-signing"
 import { encodeLen } from "@dfinity/agent";
 import { TxRaw, TxBody, Tx } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { MsgSend } from 'akashjs/types/proto/cosmos/bank/v1beta1/tx';
 import { assert } from "@cosmjs/utils";
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
+import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
 
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
@@ -162,11 +162,10 @@ export const transferAkashTokens = update([text, text], text, async (toAddress: 
         const pubKeyEncoded = await getEcdsaPublicKeyBase64();
 
         const registry = new Registry();
-        registry.register('/cosmos.bank.v1beta1.MsgSend', MsgSend);
 
         const client = await StargateClient.connect(akashPubRPC);
 
-        const msgSend: MsgSend = {
+        const msgSend = {
             fromAddress,
             toAddress,
             amount: [
@@ -227,7 +226,7 @@ export const transferAkashTokens = update([text, text], text, async (toAddress: 
 
         const txResult = await client.broadcastTxSync(txRawBytes);
         return `Transaction Result: ${txResult}`;
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         throw new Error(`Failed to transfer tokens: ${error.message}`);
     }
@@ -319,7 +318,7 @@ export const closeDeploymentAkash = update([text], text, async (dseq: string) =>
     // }
   })
 
-let globalVar = {
+export let globalVar = {
   crtpem: ``,
   pubpem: ``,
   privpem: ``,
@@ -331,6 +330,10 @@ export const createAndStoreCertificateKeys = update([], text, async () => {
   globalVar[`crtpem`] = crtpem
   globalVar[`pubpem`] = pubpem
   globalVar[`privpem`] = privpem
+
+  console.log(JSON.stringify(crtpem))
+  console.log(JSON.stringify(pubpem))
+  console.log(JSON.stringify(privpem))
 
   return `200`
  })
@@ -463,7 +466,7 @@ export const createLeaseAkash = update([text, text, text, text, text], text, asy
 
     const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
     const feeAmount = coins(20000, "uakt");
-    const gasLimit = 808000;
+    const gasLimit = 890000;
 
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
@@ -516,6 +519,23 @@ export const createLeaseAkash = update([text, text, text, text, text], text, asy
     //     return 'err';
     // }
   })
+
+export const sendManifestAkash = update([text, text], text, async (
+    dseq: string,
+    provider: string,
+) => {
+    const providerUri = await getManifestProviderUriValue(provider)
+
+    console.log('sending manifest')
+
+    const yamlStr = YAML.parse(yamlObj);
+    console.log('after yaml string')
+  
+    const manifestReturn = await sendManifestToProvider(providerUri, yamlStr, dseq, globalVar.crtpem, globalVar.privpem)
+  
+    console.log('passou manifest return')
+    return 'done'
+})
 
 // Função para criar um Uint8Array de um objeto TxRaw
 function createTxRawBytes(txRaw: TxRaw): Uint8Array {
