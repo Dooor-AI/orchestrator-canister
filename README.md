@@ -1,1 +1,1 @@
-# depin-oracle
+# Accelar Agg Depin Protocol
