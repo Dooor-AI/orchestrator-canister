@@ -9,14 +9,18 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
-    'getAkashAddress' : IDL.Func([], [IDL.Text], []),
+    'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getDeploymentManifestInfo' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
-    'transferAkashTokens' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'transferAkashTokens' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'transformResponse' : IDL.Func(
         [
           IDL.Record({

@@ -55,7 +55,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as YAML from 'yaml';
 import axios from 'axios';
-import { getAddAkash, getEcdsaPublicKeyBase64 } from './get_address_akash';
+import { getAddressAkash, getEcdsaPublicKeyBase64 } from './get_address_akash';
 import { waitForTransaction, yamlObj } from './deployment_akash';
 const CryptoJS = require("crypto-js");
 import * as crypto from 'crypto';

@@ -10,9 +10,10 @@ import {
   } from '@cosmjs/proto-signing';
   import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAkashDeployment } from './services/deployment_akash';  // Atualize o caminho conforme necessário
-import { closeDeploymentAkash, createAndStoreCertificateKeys, createCertificateAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
+import { closeDeploymentAkash, createCertificateAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
 import { getAkashAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
+import { createAndStoreCertificateKeys } from './services/new-test';
 const Signature = Record({
     signature: blob
 });

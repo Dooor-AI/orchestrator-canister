@@ -11,13 +11,13 @@ export interface _SERVICE {
     [string, string, string, string, string],
     string
   >,
-  'getAkashAddress' : ActorMethod<[], string>,
+  'getAkashAddress' : ActorMethod<[string], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string
   >,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
-  'transferAkashTokens' : ActorMethod<[string, string], string>,
+  'transferAkashTokens' : ActorMethod<[string, string, string], string>,
   'transformResponse' : ActorMethod<
     [
       {

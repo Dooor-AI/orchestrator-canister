@@ -37,7 +37,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as YAML from 'yaml';
 import axios from 'axios';
-import { getAddAkash, getEcdsaPublicKeyBase64 } from './get_address_akash';
+import { getAddressAkash, getAddressAkashFromEVM, getDerivationPathFromAddressEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { waitForTransaction, yamlObj } from './deployment_akash';
 const CryptoJS = require("crypto-js");
 import { managementCanister } from 'azle/canisters/management';
@@ -59,7 +59,7 @@ const defaultInitialDeposit = 500000;
 
 // Função para preparar uma mensagem de transação
 export const createDeploymentAkash = update([], text, async () => {
-  const fromAddress = await getAddAkash()
+  const fromAddress = await getAddressAkash()
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
 
   const registry = new Registry();
@@ -156,10 +156,10 @@ export const createDeploymentAkash = update([], text, async () => {
     // }
   })
 
-export const transferAkashTokens = update([text, text], text, async (toAddress: string, amount: string) => {
+export const transferAkashTokens = update([text, text, text], text, async (fromAddressEVM: string, toAddress: string, amount: string) => {
     try {
-        const fromAddress = await getAddAkash();
-        const pubKeyEncoded = await getEcdsaPublicKeyBase64();
+        const fromAddress = await getAddressAkashFromEVM(fromAddressEVM);
+        const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(fromAddressEVM);
 
         const registry = new Registry();
 
@@ -199,13 +199,14 @@ export const transferAkashTokens = update([text, text], text, async (toAddress: 
         const hashedMessage = sha256(signBytes);
 
         const caller = ic.caller().toUint8Array();
+        const derivationPath = await getDerivationPathFromAddressEVM(fromAddressEVM);
         const signatureResult = await ic.call(
             managementCanister.sign_with_ecdsa,
             {
                 args: [
                     {
                         message_hash: hashedMessage,
-                        derivation_path: [caller],
+                        derivation_path: derivationPath,
                         key_id: {
                             curve: { secp256k1: null },
                             name: 'dfx_test_key'
@@ -235,7 +236,7 @@ export const transferAkashTokens = update([text, text], text, async (toAddress: 
 export const closeDeploymentAkash = update([text], text, async (dseq: string) => {
   console.log('value I received')
   console.log(dseq)
-  const fromAddress = await getAddAkash()
+  const fromAddress = await getAddressAkash()
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
 
   const registry = new Registry();
@@ -323,23 +324,9 @@ export let globalVar = {
   pubpem: ``,
   privpem: ``,
 }
-export const createAndStoreCertificateKeys = update([], text, async () => {
-  const fromAddress = await getAddAkash()
-  const { cert: crtpem, publicKey: pubpem, privateKey: privpem } = certificateManager.generatePEM(fromAddress);
-
-  globalVar[`crtpem`] = crtpem
-  globalVar[`pubpem`] = pubpem
-  globalVar[`privpem`] = privpem
-
-  console.log(JSON.stringify(crtpem))
-  console.log(JSON.stringify(pubpem))
-  console.log(JSON.stringify(privpem))
-
-  return `200`
- })
 
 export const createCertificateAkash = update([], text, async () => {
-  const fromAddress = await getAddAkash()
+  const fromAddress = await getAddressAkash()
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
 
   const registry = new Registry();
@@ -434,7 +421,7 @@ export const createLeaseAkash = update([text, text, text, text, text], text, asy
   oseq?: string) => {
   console.log('value I received')
   console.log(dseq)
-  const fromAddress = await getAddAkash()
+  const fromAddress = await getAddressAkash()
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
 
   const registry = new Registry();
