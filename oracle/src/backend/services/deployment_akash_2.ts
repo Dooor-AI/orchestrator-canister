@@ -54,7 +54,7 @@ import { getManifestProviderUriValue, sendManifestToProvider } from './manifest'
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
 
-const akashPubRPC = 'https://akash-rpc.publicnode.com:443';
+export const akashPubRPC = 'https://akash-rpc.publicnode.com:443';
 const defaultInitialDeposit = 500000;
 
 // Função para preparar uma mensagem de transação

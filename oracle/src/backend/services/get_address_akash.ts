@@ -1,35 +1,9 @@
-// random_address.ts
-
 import { update, text, ic, None } from 'azle';
-import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
-import { ethers } from 'ethers';
 import { encodePubkey, makeSignBytes } from "@cosmjs/proto-signing";
-import {
-    MsgCloseDeployment,
-    MsgCreateDeployment,
-  } from '@akashnetwork/akashjs/build/protobuf/akash/deployment/v1beta3/deploymentmsg';
-import { akash } from 'akashjs';
-import { SDL } from '@akashnetwork/akashjs/build/sdl';
-import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
-import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
-import {
-getAkashTypeRegistry,
-getTypeUrl,
-} from '@akashnetwork/akashjs/build/stargate/index';
-import { StargateClient, SigningStargateClient, coins } from '@cosmjs/stargate';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as YAML from 'yaml';
-import axios from 'axios';
 const crypto = require('crypto');
 const { bech32 } = require('bech32');
-const secp256k1 = require('secp256k1');
-const keccak256 = require('keccak256');
 import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
-
-const akashPubRPC = 'https://rpc.akashnet.net:443';
-const defaultInitialDeposit = 500000;
 
 const yamlObj = `
 `
@@ -89,7 +63,7 @@ export async function getDerivationPathFromAddressEVM(ethereumAddress: string) {
     const hashedEthAddressArray = new Uint8Array(hashedEthAddress);
 
     // Usa o hash do endereço Ethereum como parte do caminho de derivação
-    const derivationPath = [hashedEthAddressArray];
+    const derivationPath = hashedEthAddressArray;
     return derivationPath
 }
 
