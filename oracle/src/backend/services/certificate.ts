@@ -52,7 +52,7 @@ import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
 import { akashPubRPC } from './deployment_akash_2';
 
-export const createCertificateAkash = update([text, text, text, text], text, async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
+export const createCertificateAkashTest = update([text, text, text, text], text, async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
     const registry = new Registry();
     
     registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
@@ -127,3 +127,79 @@ export const createCertificateAkash = update([text, text, text, text], text, asy
           return 'error';
       }
     })
+
+export const createCertificateAkash = async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
+  const registry = new Registry();
+  
+  registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
+  
+  const client = await StargateClient.connect(akashPubRPC);
+
+  const newBodyBytes = registry.encode({
+    typeUrl: "/cosmos.tx.v1beta1.TxBody",
+    value: {
+      messages: [
+        {
+          typeUrl: "/akash.cert.v1beta3.MsgCreateCertificate",
+          value: {
+            owner: fromAddress,
+            cert: certPem,
+            pubkey: certPubpem
+          },
+        },
+      ],
+    },
+  } as EncodeObject);
+
+    console.log('go to encode')
+    const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+    const feeAmount = coins(20000, "uakt");
+    const gasLimit = 800000;
+    console.log('go to make auth')
+    const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+
+    const chainId = await client.getChainId();
+
+    const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+    const signBytes = makeSignBytes(signDoc);
+    const hashedMessage = (sha256(signBytes));
+
+
+    const caller = await getDerivationPathFromAddressEVM(fromAddress)
+    const signatureResult = await ic.call(
+      managementCanister.sign_with_ecdsa,
+      {
+          args: [
+              {
+                  message_hash: hashedMessage,
+                  derivation_path: [caller],
+                  key_id: {
+                      curve: { secp256k1: null },
+                      name: 'dfx_test_key'
+                  }
+              }
+          ],
+          cycles: 10_000_000_000n
+      }
+    );
+
+    const txRaw = TxRaw.fromPartial({
+      bodyBytes: newBodyBytes,
+      authInfoBytes: authInfoBytes,
+      signatures: [signatureResult.signature], // Usar Uint8Array aqui
+    });
+  
+    // Serializando o objeto TxRaw para Uint8Array
+    const txRawBytes = TxRaw.encode(txRaw).finish();
+
+    const txResult = await client.broadcastTxSync(txRawBytes);
+
+    try {
+      const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
+      console.log('Transaction confirmed:', result);
+      return result.hash;
+    } catch (error) {
+        console.error(error);
+        return 'error';
+    }
+  }

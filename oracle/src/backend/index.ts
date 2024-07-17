@@ -10,10 +10,11 @@ import {
   } from '@cosmjs/proto-signing';
   import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAkashDeployment } from './services/deployment_akash';  // Atualize o caminho conforme necessário
-import { closeDeploymentAkash, createCertificateAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
+import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
 import { getAkashAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
+import { updateAkashAddress } from './services/user';
 const Signature = Record({
     signature: blob
 });
@@ -23,7 +24,7 @@ export default Canister({
     createDeploymentAkash,
     createLeaseAkash,
     createAndStoreCertificateKeys,
-    createCertificateAkash,
+    updateAkashAddress,
     closeDeploymentAkash,
     transferAkashTokens,
     getDeploymentManifestInfo,

@@ -4,7 +4,7 @@ service: () -> {
     createCertificateAkash: () -> (text);
     createDeploymentAkash: () -> (text);
     createLeaseAkash: (text, text, text, text, text) -> (text);
-    getAkashAddress: (text) -> (text);
+    getAkashAddress2: (text) -> (text);
     getDeploymentManifestInfo: (text, text, text, text) -> (text);
     sendManifestAkash: (text, text) -> (text);
     transferAkashTokens: (text, text, text) -> (text);

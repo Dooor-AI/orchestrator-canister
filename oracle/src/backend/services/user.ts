@@ -5,15 +5,16 @@ const { bech32 } = require('bech32');
 import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import {ethers} from 'ethers'
+import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
+import { createCertificateAkash } from './certificate';
 const yamlObj = `
 `
 
 const User = Record({
     id: text, // evm address
     akashAddress: text, // the akash address
+    akashPubEncod: text,
     akashCertpem: text, // akash certificate - base64
-    akashCertPubpem: text, // the akash certificate pub key - base64
-    akashCertPrivpem: text // the akash certificate priv key - base64
 });
 
 type User = typeof User.tsType;
@@ -29,21 +30,27 @@ let db: Db = {
 };
 
 // certPem and certPubpem as base64
-export const updateAkashAddress = update([text, text, text], User, (certPem: string, certPubpem: string, signatureHex: string) => {
+export const updateAkashAddress = update([text, text, text], User, async (certPem: string, certPubpem: string, signatureHex: string) => {
     const message = 'update-akash-address' + certPem + certPubpem
     const messageHash = ethers.utils.hashMessage(message);
     const recoveredAddress = ethers.utils.recoverAddress(messageHash, signatureHex);
     console.log('the address recovered:')
     console.log(recoveredAddress)
 
-    const id = Object.keys(db.users).length.toString();
+    // const userExist = db.users[recoveredAddress];
+
+    console.log('user do not exist, creating akash address')
+    const akashAddress = await getAddressAkashFromEVM(recoveredAddress)
+    const pubEncod = await getEcdsaPublicKeyBase64FromEVM(recoveredAddress)
+    await createCertificateAkash(akashAddress, String(pubEncod), certPem, certPubpem)
     const user: User = {
-        id,
-        username
+        id: recoveredAddress,
+        akashAddress: akashAddress,
+        akashPubEncod: String(pubEncod),
+        akashCertpem: certPem,
     };
 
-    db.users[id] = user;
-
+    db.users[recoveredAddress] = user;
     return user;
 })
 

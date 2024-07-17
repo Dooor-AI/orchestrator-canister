@@ -206,7 +206,7 @@ export const transferAkashTokens = update([text, text, text], text, async (fromA
                 args: [
                     {
                         message_hash: hashedMessage,
-                        derivation_path: derivationPath,
+                        derivation_path: [derivationPath],
                         key_id: {
                             curve: { secp256k1: null },
                             name: 'dfx_test_key'
