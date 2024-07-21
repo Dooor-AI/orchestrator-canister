@@ -14,7 +14,6 @@ import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendMani
 import { getAkashAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
-import { updateAkashAddress } from './services/user';
 const Signature = Record({
     signature: blob
 });
@@ -24,7 +23,6 @@ export default Canister({
     createDeploymentAkash,
     createLeaseAkash,
     createAndStoreCertificateKeys,
-    updateAkashAddress,
     closeDeploymentAkash,
     transferAkashTokens,
     getDeploymentManifestInfo,

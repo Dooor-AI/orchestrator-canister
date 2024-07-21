@@ -36,7 +36,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as YAML from 'yaml';
 import axios from 'axios';
-import { getAddAkash, getEcdsaPublicKeyBase64 } from './get_address_akash';
+import { getAddressAkash, getEcdsaPublicKeyBase64 } from './get_address_akash';
 import { waitForTransaction, yamlObj } from './deployment_akash';
 const CryptoJS = require("crypto-js");
 import { managementCanister } from 'azle/canisters/management';
@@ -57,7 +57,7 @@ const defaultInitialDeposit = 500000;
 // Função para preparar uma mensagem de transação
 export const createDeploymentAkash = update([], text, async () => {
     // const accountAddress = 'akash14hh96u4tgzp64c5hvdkxzfdzx8vphsas9d2f8p'
-    const fromAddress = await getAddAkash()
+    const fromAddress = await getAddressAkash()
     const pubKeyEncoded = await getEcdsaPublicKeyBase64()
   
     console.log('address to use')

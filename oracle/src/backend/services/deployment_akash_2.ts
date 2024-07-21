@@ -436,8 +436,7 @@ export const createLeaseAkash = update([text, text, text, text, text], text, asy
       messages: [
         {
           typeUrl: "/akash.market.v1beta4.MsgCreateLease",
-            value: 
-            {
+          value: {
               bidId: {
                 owner,
                 dseq: Long.fromString(dseq, true),

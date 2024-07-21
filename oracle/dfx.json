@@ -24,6 +24,24 @@
                     "content": "azle"
                 }
             ]
+        },
+        "cert_manager_backend": {
+            "type": "custom",
+            "main": "src/cert_manager_backend/index.ts",
+            "candid": "src/cert_manager_backend/index.did",
+            "build": "npx azle cert_manager_backend",
+            "wasm": ".azle/cert_manager_backend/cert_manager_backend.wasm",
+            "gzip": true,
+            "metadata": [
+                {
+                    "name": "candid:service",
+                    "path": "src/cert_manager_backend/index.did"
+                },
+                {
+                    "name": "cdk:name",
+                    "content": "azle"
+                }
+            ]
         }
     }
 }
