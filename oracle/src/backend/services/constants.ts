@@ -14,6 +14,8 @@ export const drawerWidth = 240;
 export const closedDrawerWidth = 57;
 export const accountBarHeight = 57;
 
+export const crossfiRPCTestnet = "https://rpc.testnet.ms"
+
 // Deployment creation
 export enum RouteStepKeys {
   chooseTemplate = "choose-template",

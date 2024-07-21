@@ -23,14 +23,28 @@ const User = Record({
 
 type User = typeof User.tsType;
 
+const Deployment = Record({
+    id: text, // evm address
+    status: text,
+    akashHashDeployment: text,
+    dseq: text,
+    userId: text, // akash certificate - base64 (optional)
+});
+
+type Deployment = typeof Deployment.tsType;
+
 type Db = {
     users: {
         [id: string]: User;
-    };
+    },
+    deployments: {
+        [id: string]: Deployment
+    }
 };
 
-let db: Db = {
-    users: {}
+export let db: Db = {
+    users: {},
+    deployments: {}
 };
 
 // certPem and certPubpem as base64
@@ -65,8 +79,8 @@ export const createUser = update([text], text, async (signatureHex: string) => {
 // certPem and certPubpem as base64
 export const getNewAkashCertificate = update([text, text], text, async (signatureHex: string, nonce: text) => {
     const message = 'update-akash-address' + nonce;
-    const messageHash = ethers.hashMessage(message); // Updated to v6
-    const recoveredAddress = ethers.recoverAddress(messageHash, signatureHex); // Updated to v6
+    const messageHash = ethers.hashMessage(message);
+    const recoveredAddress = ethers.recoverAddress(messageHash, signatureHex);
 
     if (!db.users[recoveredAddress]) {
         throw ('User does not exist');
@@ -82,6 +96,8 @@ export const getNewAkashCertificate = update([text, text], text, async (signatur
     db.users[recoveredAddress].akashCert = keys.cert;
     db.users[recoveredAddress].akashCertPub = keys.publicKey;
     db.users[recoveredAddress].akashCertPriv = keys.privateKey;
+    db.users[recoveredAddress].nonce = String(Number(db.users[recoveredAddress].nonce) + 1);
+
     return 'done';
 });
 

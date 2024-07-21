@@ -51,6 +51,7 @@ import { certificateManager } from '@akashnetwork/akashjs/build/certificates/cer
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
 import { akashPubRPC } from './deployment_akash_2';
+import { db } from './user';
 
 export const createCertificateAkashTest = update([text, text, text, text], text, async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
     const registry = new Registry();
@@ -68,6 +69,103 @@ export const createCertificateAkashTest = update([text, text, text, text], text,
             value: {
               owner: fromAddress,
               cert: certPem,
+              pubkey: certPubpem
+            },
+          },
+        ],
+      },
+    } as EncodeObject);
+  
+      console.log('go to encode')
+      const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+      const feeAmount = coins(20000, "uakt");
+      const gasLimit = 800000;
+      console.log('go to make auth')
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+  
+      const chainId = await client.getChainId();
+
+      const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+      const signBytes = makeSignBytes(signDoc);
+      const hashedMessage = (sha256(signBytes));
+
+  
+      const caller = await getDerivationPathFromAddressEVM(fromAddress)
+      const signatureResult = await ic.call(
+        managementCanister.sign_with_ecdsa,
+        {
+            args: [
+                {
+                    message_hash: hashedMessage,
+                    derivation_path: [caller],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: 'dfx_test_key'
+                    }
+                }
+            ],
+            cycles: 10_000_000_000n
+        }
+      );
+  
+      const txRaw = TxRaw.fromPartial({
+        bodyBytes: newBodyBytes,
+        authInfoBytes: authInfoBytes,
+        signatures: [signatureResult.signature], // Usar Uint8Array aqui
+      });
+    
+      // Serializando o objeto TxRaw para Uint8Array
+      const txRawBytes = TxRaw.encode(txRaw).finish();
+  
+      const txResult = await client.broadcastTxSync(txRawBytes);
+  
+      try {
+        const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
+        console.log('Transaction confirmed:', result);
+        return result.hash;
+      } catch (error) {
+          console.error(error);
+          return 'error';
+      }
+    })
+
+export const newCreateCertificateAkash = update([text, text], text, async (signatureHex: string, nonce: text) => {
+    const message = 'create-new-certificate' + nonce;
+    const messageHash = ethers.hashMessage(message);
+    const recoveredAddress = ethers.recoverAddress(messageHash, signatureHex);
+
+    
+    if (!db.users[recoveredAddress]) {
+      throw ('User does not exist');
+    }
+    if (Number(db.users[recoveredAddress].nonce) + 1 !== Number(nonce)) {
+        throw ('Invalid nonce');
+    }
+    if (!(db.users[recoveredAddress].akashCert?.length > 0 && db.users[recoveredAddress].akashCertPub?.length > 0 && db.users[recoveredAddress].akashCertPriv?.length > 0)) {
+      throw ('Invalid certificate');
+    }
+
+    const certPubpem = db.users[recoveredAddress].akashCertPub
+    const certPEM = certificateManager.accelarGetPEM(db.users[recoveredAddress].akashCert)
+
+    const fromAddress = db.users[recoveredAddress].akashAddress
+    const pubKeyEncoded = db.users[recoveredAddress].akashPubEncod
+
+    const registry = new Registry();
+    
+    registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
+    
+    const client = await StargateClient.connect(akashPubRPC);
+  
+    const newBodyBytes = registry.encode({
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: {
+        messages: [
+          {
+            typeUrl: "/akash.cert.v1beta3.MsgCreateCertificate",
+            value: {
+              owner: fromAddress,
+              cert: certPEM,
               pubkey: certPubpem
             },
           },
