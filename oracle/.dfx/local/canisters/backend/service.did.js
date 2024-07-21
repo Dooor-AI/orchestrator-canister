@@ -8,12 +8,21 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
+    'createUser' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getDeploymentManifestInfo' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),
+    'getNewAkashCertificate' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'getUsers' : IDL.Func([], [IDL.Text], ['query']),
+    'newCreateCertificateAkash' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
+    'newDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'transferAkashTokens' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
@@ -43,18 +52,6 @@ export const idlFactory = ({ IDL }) => {
           }),
         ],
         ['query'],
-      ),
-    'updateAkashAddress' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text],
-        [
-          IDL.Record({
-            'id' : IDL.Text,
-            'akashAddress' : IDL.Text,
-            'akashCertpem' : IDL.Text,
-            'akashPubEncod' : IDL.Text,
-          }),
-        ],
-        [],
       ),
   });
 };

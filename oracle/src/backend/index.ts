@@ -14,6 +14,9 @@ import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendMani
 import { getAkashAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
+import { newDeployment } from './services/deployment_workflow';
+import { createUser, getNewAkashCertificate, getUsers } from './services/user';
+import { newCreateCertificateAkash } from './services/certificate';
 const Signature = Record({
     signature: blob
 });
@@ -22,10 +25,15 @@ export default Canister({
     getAkashAddress,
     createDeploymentAkash,
     createLeaseAkash,
+    createUser,
     createAndStoreCertificateKeys,
     closeDeploymentAkash,
+    getUsers,
     transferAkashTokens,
     getDeploymentManifestInfo,
+    getNewAkashCertificate,
+    newCreateCertificateAkash,
+    newDeployment,
     sendManifestAkash,
     transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
         return {

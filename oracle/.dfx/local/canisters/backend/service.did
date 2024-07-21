@@ -3,8 +3,13 @@ service : {
   createAndStoreCertificateKeys : () -> (text);
   createDeploymentAkash : () -> (text);
   createLeaseAkash : (text, text, text, text, text) -> (text);
+  createUser : (text) -> (text);
   getAkashAddress : (text) -> (text);
   getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  getNewAkashCertificate : (text, text) -> (text);
+  getUsers : () -> (text) query;
+  newCreateCertificateAkash : (text, text) -> (text);
+  newDeployment : (text) -> (text);
   sendManifestAkash : (text, text) -> (text);
   transferAkashTokens : (text, text, text) -> (text);
   transformResponse : (
@@ -23,12 +28,4 @@ service : {
         headers : vec record { value : text; name : text };
       },
     ) query;
-  updateAkashAddress : (text, text, text) -> (
-      record {
-        id : text;
-        akashAddress : text;
-        akashCertpem : text;
-        akashPubEncod : text;
-      },
-    );
 }

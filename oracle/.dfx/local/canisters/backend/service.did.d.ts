@@ -10,11 +10,16 @@ export interface _SERVICE {
     [string, string, string, string, string],
     string
   >,
+  'createUser' : ActorMethod<[string], string>,
   'getAkashAddress' : ActorMethod<[string], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string
   >,
+  'getNewAkashCertificate' : ActorMethod<[string, string], string>,
+  'getUsers' : ActorMethod<[], string>,
+  'newCreateCertificateAkash' : ActorMethod<[string, string], string>,
+  'newDeployment' : ActorMethod<[string], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
   'transformResponse' : ActorMethod<
@@ -32,15 +37,6 @@ export interface _SERVICE {
       'status' : bigint,
       'body' : Uint8Array | number[],
       'headers' : Array<{ 'value' : string, 'name' : string }>,
-    }
-  >,
-  'updateAkashAddress' : ActorMethod<
-    [string, string, string],
-    {
-      'id' : string,
-      'akashAddress' : string,
-      'akashCertpem' : string,
-      'akashPubEncod' : string,
     }
   >,
 }

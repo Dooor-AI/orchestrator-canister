@@ -20368,6 +20368,90 @@ var require_jsrsasign = __commonJS({
   }
 });
 
+// node_modules/flatted/cjs/index.js
+var require_cjs = __commonJS({
+  "node_modules/flatted/cjs/index.js"(exports4) {
+    "use strict";
+    var { parse: $parse, stringify: $stringify } = JSON;
+    var { keys } = Object;
+    var Primitive2 = String;
+    var primitive = "string";
+    var ignore = {};
+    var object2 = "object";
+    var noop3 = (_, value) => value;
+    var primitives = (value) => value instanceof Primitive2 ? Primitive2(value) : value;
+    var Primitives = (_, value) => typeof value === primitive ? new Primitive2(value) : value;
+    var revive = (input2, parsed, output3, $) => {
+      const lazy = [];
+      for (let ke = keys(output3), { length } = ke, y2 = 0; y2 < length; y2++) {
+        const k = ke[y2];
+        const value = output3[k];
+        if (value instanceof Primitive2) {
+          const tmp = input2[value];
+          if (typeof tmp === object2 && !parsed.has(tmp)) {
+            parsed.add(tmp);
+            output3[k] = ignore;
+            lazy.push({ k, a: [input2, parsed, tmp, $] });
+          } else
+            output3[k] = $.call(output3, k, tmp);
+        } else if (output3[k] !== ignore)
+          output3[k] = $.call(output3, k, value);
+      }
+      for (let { length } = lazy, i2 = 0; i2 < length; i2++) {
+        const { k, a: a2 } = lazy[i2];
+        output3[k] = $.call(output3, k, revive.apply(null, a2));
+      }
+      return output3;
+    };
+    var set = (known, input2, value) => {
+      const index = Primitive2(input2.push(value) - 1);
+      known.set(value, index);
+      return index;
+    };
+    var parse4 = (text3, reviver) => {
+      const input2 = $parse(text3, Primitives).map(primitives);
+      const value = input2[0];
+      const $ = reviver || noop3;
+      const tmp = typeof value === object2 && value ? revive(input2, /* @__PURE__ */ new Set(), value, $) : value;
+      return $.call({ "": tmp }, "", tmp);
+    };
+    exports4.parse = parse4;
+    var stringify4 = (value, replacer, space) => {
+      const $ = replacer && typeof replacer === object2 ? (k, v2) => k === "" || -1 < replacer.indexOf(k) ? v2 : void 0 : replacer || noop3;
+      const known = /* @__PURE__ */ new Map();
+      const input2 = [];
+      const output3 = [];
+      let i2 = +set(known, input2, $.call({ "": value }, "", value));
+      let firstRun = !i2;
+      while (i2 < input2.length) {
+        firstRun = true;
+        output3[i2] = $stringify(input2[i2++], replace, space);
+      }
+      return "[" + output3.join(",") + "]";
+      function replace(key, value2) {
+        if (firstRun) {
+          firstRun = !firstRun;
+          return value2;
+        }
+        const after = $.call(this, key, value2);
+        switch (typeof after) {
+          case object2:
+            if (after === null)
+              return after;
+          case primitive:
+            return known.get(after) || set(known, input2, after);
+        }
+        return after;
+      }
+    };
+    exports4.stringify = stringify4;
+    var toJSON = (value) => $parse(stringify4(value));
+    exports4.toJSON = toJSON;
+    var fromJSON = (value) => parse4($stringify(value));
+    exports4.fromJSON = fromJSON;
+  }
+});
+
 // node_modules/@akashnetwork/akashjs/build/certificates/certificate-manager/CertificateManager.js
 var require_CertificateManager = __commonJS({
   "node_modules/@akashnetwork/akashjs/build/certificates/certificate-manager/CertificateManager.js"(exports4) {
@@ -20378,6 +20462,7 @@ var require_CertificateManager = __commonJS({
     Object.defineProperty(exports4, "__esModule", { value: true });
     exports4.CertificateManager = void 0;
     var jsrsasign_1 = __importDefault(require_jsrsasign());
+    var flatted = require_cjs();
     var CertificateManager = class {
       parsePem(certPEM) {
         const certificate = new jsrsasign_1.default.X509();
@@ -20399,7 +20484,7 @@ var require_CertificateManager = __commonJS({
       }
       async generatePEM(address, options) {
         const { notBeforeStr, notAfterStr } = this.createValidityRange(options);
-        const { prvKeyObj: prvKeyObj2, pubKeyObj } = jsrsasign_1.default.KEYUTIL.generateKeypair("EC", "secp256r1");
+        const { prvKeyObj, pubKeyObj } = jsrsasign_1.default.KEYUTIL.generateKeypair("EC", "secp256r1");
         const cert = new jsrsasign_1.default.KJUR.asn1.x509.Certificate({
           version: 3,
           serial: { int: Math.floor((/* @__PURE__ */ new Date()).getTime() * 1e3) },
@@ -20417,7 +20502,7 @@ var require_CertificateManager = __commonJS({
             { extname: "basicConstraints", cA: true, critical: true }
           ],
           sigalg: "SHA256withECDSA",
-          cakey: prvKeyObj2
+          cakey: prvKeyObj
         });
         const publicKey = jsrsasign_1.default.KEYUTIL.getPEM(pubKeyObj, "PKCS8PUB").replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
         await new Promise((resolve3) => setTimeout(resolve3, 1e4));
@@ -20425,12 +20510,13 @@ var require_CertificateManager = __commonJS({
         return {
           cert: certPEM,
           publicKey,
-          privateKey: jsrsasign_1.default.KEYUTIL.getPEM(prvKeyObj2, "PKCS8PRV")
+          privateKey: jsrsasign_1.default.KEYUTIL.getPEM(prvKeyObj, "PKCS8PRV")
         };
       }
       accelarGeneratePEM(address, options) {
+        console.log("entrei sim aqui");
         const { notBeforeStr, notAfterStr } = this.createValidityRange(options);
-        const { prvKeyObj: prvKeyObj2, pubKeyObj } = jsrsasign_1.default.KEYUTIL.generateKeypair("EC", "secp256r1");
+        const { prvKeyObj, pubKeyObj } = jsrsasign_1.default.KEYUTIL.generateKeypair("EC", "secp256r1");
         const cert = new jsrsasign_1.default.KJUR.asn1.x509.Certificate({
           version: 3,
           serial: { int: Math.floor((/* @__PURE__ */ new Date()).getTime() * 1e3) },
@@ -20448,18 +20534,15 @@ var require_CertificateManager = __commonJS({
             { extname: "basicConstraints", cA: true, critical: true }
           ],
           sigalg: "SHA256withECDSA",
-          cakey: prvKeyObj2
+          cakey: prvKeyObj
         });
         const publicKey = jsrsasign_1.default.KEYUTIL.getPEM(pubKeyObj, "PKCS8PUB").replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
-        return { cert, publicKey, privateKey: jsrsasign_1.default.KEYUTIL.getPEM(prvKeyObj2, "PKCS8PRV") };
+        console.log("the cert:::");
+        return { cert, publicKey, privateKey: jsrsasign_1.default.KEYUTIL.getPEM(prvKeyObj, "PKCS8PRV") };
       }
-      accelarGetPEM(cert, publicKey) {
-        const certPEM = cert.getPEM();
-        return {
-          cert: certPEM,
-          publicKey,
-          privateKey: jsrsasign_1.default.KEYUTIL.getPEM(prvKeyObj, "PKCS8PRV")
-        };
+      accelarGetPEM(certString) {
+        const certPEM = certString.getPEM();
+        return certPEM;
       }
       createValidityRange(options) {
         const notBefore = options?.validFrom || /* @__PURE__ */ new Date();
@@ -69452,7 +69535,7 @@ var DidVisitor = class extends idl_exports.Visitor {
 // src/cert_manager_backend/services/new-test.ts
 var import_certificate_manager = __toESM(require_certificate_manager());
 var createAndStoreCertificateKeys = update([], text, async () => {
-  const { cert, publicKey } = import_certificate_manager.certificateManager.accelarGeneratePEM("akash1kcd420c946rqa9sdl8qkdpaazpcghxdut0fqaz");
+  const { cert, publicKey, privateKey } = import_certificate_manager.certificateManager.accelarGeneratePEM("akash1kcd420c946rqa9sdl8qkdpaazpcghxdut0fqaz");
   return `200`;
 });
 

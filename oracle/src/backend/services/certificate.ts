@@ -51,7 +51,8 @@ import { certificateManager } from '@akashnetwork/akashjs/build/certificates/cer
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
 import { akashPubRPC } from './deployment_akash_2';
-import { db } from './user';
+import { akashCertGlobal, db } from './user';
+import {parse} from 'flatted'
 
 export const createCertificateAkashTest = update([text, text, text, text], text, async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
     const registry = new Registry();
@@ -133,7 +134,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     const message = 'create-new-certificate' + nonce;
     const messageHash = ethers.hashMessage(message);
     const recoveredAddress = ethers.recoverAddress(messageHash, signatureHex);
-
+    console.log(db.users[recoveredAddress])
     
     if (!db.users[recoveredAddress]) {
       throw ('User does not exist');
@@ -141,16 +142,22 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     if (Number(db.users[recoveredAddress].nonce) + 1 !== Number(nonce)) {
         throw ('Invalid nonce');
     }
-    if (!(db.users[recoveredAddress].akashCert?.length > 0 && db.users[recoveredAddress].akashCertPub?.length > 0 && db.users[recoveredAddress].akashCertPriv?.length > 0)) {
-      throw ('Invalid certificate');
-    }
+    // if (!(db.users[recoveredAddress].akashCert?.length > 0 && db.users[recoveredAddress].akashCertPub?.length > 0 && db.users[recoveredAddress].akashCertPriv?.length > 0)) {
+    //   throw ('Invalid certificate');
+    // }
 
     const certPubpem = db.users[recoveredAddress].akashCertPub
-    const certPEM = certificateManager.accelarGetPEM(db.users[recoveredAddress].akashCert)
-
+    console.log('entrie no get')
+    const certPEM = certificateManager.accelarGetPEM(akashCertGlobal)
+    console.log('passou sisisisi')
+    console.log(certPEM)
     const fromAddress = db.users[recoveredAddress].akashAddress
     const pubKeyEncoded = db.users[recoveredAddress].akashPubEncod
-
+    const pubKeyEncoded123 = await getEcdsaPublicKeyBase64FromEVM(recoveredAddress);
+    console.log('the pubkey encoded')
+    console.log(db.users[recoveredAddress].akashPubEncod)
+    console.log('the pubkey encoded 2')
+    console.log(JSON.parse(db.users[recoveredAddress].akashPubEncod))
     const registry = new Registry();
     
     registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
@@ -165,20 +172,22 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
             typeUrl: "/akash.cert.v1beta3.MsgCreateCertificate",
             value: {
               owner: fromAddress,
-              cert: certPEM,
-              pubkey: certPubpem
+              cert: Buffer.from(certPEM).toString("base64"),
+              pubkey: Buffer.from(certPubpem).toString("base64"),
             },
           },
         ],
       },
     } as EncodeObject);
   
-      console.log('go to encode')
-      const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+      console.log('go to encode passei')
+      console.log(fromAddress)
+      console.log(pubKeyEncoded123)
+      const { accountNumber, sequence } = await client.getSequence(fromAddress);
       const feeAmount = coins(20000, "uakt");
       const gasLimit = 800000;
       console.log('go to make auth')
-      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded123, sequence }], feeAmount, gasLimit);
   
       const chainId = await client.getChainId();
 
@@ -186,7 +195,8 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
       const signBytes = makeSignBytes(signDoc);
       const hashedMessage = (sha256(signBytes));
 
-  
+      console.log( `signing`)
+
       const caller = await getDerivationPathFromAddressEVM(fromAddress)
       const signatureResult = await ic.call(
         managementCanister.sign_with_ecdsa,
@@ -215,7 +225,8 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
       const txRawBytes = TxRaw.encode(txRaw).finish();
   
       const txResult = await client.broadcastTxSync(txRawBytes);
-  
+      console.log( `Transaction Result: ${txResult}`)
+
       try {
         const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
         console.log('Transaction confirmed:', result);

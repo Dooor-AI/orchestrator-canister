@@ -8,6 +8,7 @@ import { ethers } from 'ethers';
 import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
+import {parse} from 'flatted'
 
 const yamlObj = ``;
 
@@ -25,13 +26,13 @@ type User = typeof User.tsType;
 
 const Deployment = Record({
     id: text, // evm address
-    status: text,
+    status: text, // nondeployed, deploying, deployed
     akashHashDeployment: text,
     dseq: text,
     userId: text, // akash certificate - base64 (optional)
 });
 
-type Deployment = typeof Deployment.tsType;
+export type Deployment = typeof Deployment.tsType;
 
 type Db = {
     users: {
@@ -61,7 +62,7 @@ export const createUser = update([text], text, async (signatureHex: string) => {
         const user: User = {
             id: recoveredAddress,
             akashAddress: res.akashAddress,
-            akashPubEncod: String(res.pubEncod),
+            akashPubEncod: JSON.stringify(res.pubEncod),
             nonce: "0",
             akashCert: '',
             akashCertPriv: '',
@@ -70,11 +71,13 @@ export const createUser = update([text], text, async (signatureHex: string) => {
     
         db.users[recoveredAddress] = user;
         
-        return 'user';
+        return 'user 1';
     } else {
         return ''
     }
 });
+
+export let akashCertGlobal: any;
 
 // certPem and certPubpem as base64
 export const getNewAkashCertificate = update([text, text], text, async (signatureHex: string, nonce: text) => {
@@ -89,15 +92,21 @@ export const getNewAkashCertificate = update([text, text], text, async (signatur
         throw ('Invalid nonce');
     }
 
-    console.log('the address recovered:');
+    console.log('the address recovered123:');
     console.log(recoveredAddress);
 
     const keys = createCertificateKeys(db.users[recoveredAddress].akashAddress);
-    db.users[recoveredAddress].akashCert = keys.cert;
-    db.users[recoveredAddress].akashCertPub = keys.publicKey;
-    db.users[recoveredAddress].akashCertPriv = keys.privateKey;
-    db.users[recoveredAddress].nonce = String(Number(db.users[recoveredAddress].nonce) + 1);
+    akashCertGlobal = keys.cert
+    db.users[recoveredAddress].akashCertPub = (keys.publicKey);
+    db.users[recoveredAddress].akashCertPriv = (keys.privateKey);
+    db.users[recoveredAddress].nonce = JSON.stringify(Number(db.users[recoveredAddress].nonce) + 1);
 
+    // console.log('akashCert:');
+    // console.log(keys.cert);
+    // console.log('akashCert:');
+    // console.log(keys.publicKey);
+    // console.log('akashCert:');
+    // console.log(keys.privateKey);
     return 'done';
 });
 
@@ -108,9 +117,20 @@ export const getAkashAddressEnd = query([text], text, async (evmAddress: string)
 });
 
 // returns akash address from evm address
+export const getUsers = query([], text, async () => {
+    console.log('a000111!!!!!!!!!!!!!!!!!111000a')
+    console.log(JSON.stringify(db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.nonce))
+    console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCertPub))
+    console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCert))
+    return 'String(db.users)';
+});
+
+// returns akash address from evm address
 export async function getAkashAddress(evmAddress: string) {
     const akashAddress = await getAddressAkashFromEVM(evmAddress);
     const pubEncod = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
+    console.log('the pub encoded')
+    console.log(pubEncod)
 
     return { akashAddress, pubEncod };
 };
