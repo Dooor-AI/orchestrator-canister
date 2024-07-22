@@ -10,6 +10,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'createUser' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'getBidsA' : IDL.Func([], [IDL.Text], []),
     'getDeploymentManifestInfo' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],

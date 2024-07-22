@@ -81,7 +81,7 @@ export async function getBids(owner: string, dseq: string) {
       try {
         if (!response) {
             ic.setOutgoingHttpOptions({
-                maxResponseBytes: 2_000_000_000n,
+                maxResponseBytes: 2_000_000n,
                 cycles: 50_000_000_000n,
                 transformMethodName: 'transformResponse'
             });
@@ -90,7 +90,7 @@ export async function getBids(owner: string, dseq: string) {
                 args: [
                     {
                         url: `https://akash-api.polkachu.com/akash/market/v1beta4/bids/list?filters.owner=${owner}&filters.dseq=${dseq}`,
-                        max_response_bytes: Some(2_000_000_000n),
+                        max_response_bytes: Some(2_000_000n),
                         method: {
                             get: null
                         },
@@ -102,17 +102,17 @@ export async function getBids(owner: string, dseq: string) {
                         })
                     }
                 ],
-                cycles: 50_000_000n
+                cycles: 50_000_000_000n
             });
     
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
             console.log('deu bom sending url');
-            console.log(responseText);
+            console.log(JSON.parse(responseText));
     
   
             i = 3;
 
-            return responseText;
+            return JSON.parse(responseText);
         }
       } catch (err: any) {
         console.log(err)

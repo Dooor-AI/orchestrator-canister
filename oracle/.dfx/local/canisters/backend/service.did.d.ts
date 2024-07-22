@@ -12,6 +12,7 @@ export interface _SERVICE {
   >,
   'createUser' : ActorMethod<[string], string>,
   'getAkashAddress' : ActorMethod<[string], string>,
+  'getBidsA' : ActorMethod<[], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string

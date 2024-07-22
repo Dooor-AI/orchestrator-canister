@@ -5,6 +5,7 @@ service: () -> {
     createLeaseAkash: (text, text, text, text, text) -> (text);
     createUser: (text) -> (text);
     getAkashAddress: (text) -> (text);
+    getBidsA: () -> (text);
     getDeploymentManifestInfo: (text, text, text, text) -> (text);
     getNewAkashCertificate: (text, text) -> (text);
     getUsers: () -> (text) query;

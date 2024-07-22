@@ -139,10 +139,10 @@ export async function createDeployment(fromAddress: string, pubKeyEncoded: any, 
     try {
         const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
         console.log('Transaction confirmed:', result);
-        return result.hash;
+        return {hash: result.hash, dseq};
       } catch (error) {
           console.error(error);
-          return 'error';
+          throw 'error'
       }
   }
 

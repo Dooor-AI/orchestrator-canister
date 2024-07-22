@@ -10,7 +10,8 @@ import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
-import { createDeployment } from './deployment_akash_3';
+import { createDeployment, createLease } from './deployment_akash_3';
+import { getBids } from './external_https';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -70,10 +71,13 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const txDeployment = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
 
     //get bids
-    
+    const bids = await getBids('fromAddress', txDeployment.dseq);
+    const bid = bids.bids[1]?.bid?.bid_id;
 
     //create lease
-    const txLease = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
+    const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], txDeployment.dseq, bid?.gseq, bid?.provider, bid?.oseq)
+
+    
 
     // Retorne o último ID de NFT
     return String('Number(transaction[transaction.length - 1])');

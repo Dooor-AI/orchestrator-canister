@@ -9,6 +9,7 @@ import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_ad
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import {parse} from 'flatted'
+import { getBids } from './external_https';
 
 const yamlObj = ``;
 
@@ -124,6 +125,12 @@ export const getUsers = query([], text, async () => {
     console.log(JSON.stringify(db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.nonce))
     console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCertPub))
     console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCert))
+    return 'String(db.users)';
+});
+
+// returns akash address from evm address
+export const getBidsA = update([], text, async () => {
+    await getBids('akash14hh96u4tgzp64c5hvdkxzfdzx8vphsas9d2f8p', '17244071')
     return 'String(db.users)';
 });
 
