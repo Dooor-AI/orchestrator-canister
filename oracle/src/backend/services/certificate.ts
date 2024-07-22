@@ -147,9 +147,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     // }
 
     const certPubpem = db.users[recoveredAddress].akashCertPub
-    console.log('entrie no get')
-    const certPEM = certificateManager.accelarGetPEM(akashCertGlobal)
-    console.log('passou sisisisi')
+    const certPEM = certificateManager.accelarGetPEM(akashCertGlobal[recoveredAddress])
     console.log(certPEM)
     const fromAddress = db.users[recoveredAddress].akashAddress
     const pubKeyEncoded = db.users[recoveredAddress].akashPubEncod
@@ -157,6 +155,9 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     console.log('the pubkey encoded')
     console.log(db.users[recoveredAddress].akashPubEncod)
     console.log('the pubkey encoded 2')
+    console.log(recoveredAddress)
+    console.log('the from addresssss')
+    console.log(fromAddress)
     console.log(JSON.parse(db.users[recoveredAddress].akashPubEncod))
     const registry = new Registry();
     
@@ -197,7 +198,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
 
       console.log( `signing`)
 
-      const caller = await getDerivationPathFromAddressEVM(fromAddress)
+      const caller = await getDerivationPathFromAddressEVM(recoveredAddress)
       const signatureResult = await ic.call(
         managementCanister.sign_with_ecdsa,
         {

@@ -1,0 +1,249 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@akashnetwork/akash-api/typeRegistry": [
+        "./dist/generated/typeRegistry"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta3/query": [
+        "./dist/generated/akash/deployment/v1beta3/query"
+      ],
+      "@akashnetwork/akash-api/deprecated/akash/cert/v1beta1": [
+        "./dist/deprecated/index.akash.cert.v1beta1"
+      ],
+      "@akashnetwork/akash-api/deprecated/akash/market/v1beta1": [
+        "./dist/deprecated/index.akash.market.v1beta1"
+      ],
+      "@akashnetwork/akash-api/v1beta1": [
+        "./dist/index.v1beta1"
+      ],
+      "@akashnetwork/akash-api/v1beta2": [
+        "./dist/index.v1beta2"
+      ],
+      "@akashnetwork/akash-api/v1beta3": [
+        "./dist/index.v1beta3"
+      ],
+      "@akashnetwork/akash-api/v1beta4": [
+        "./dist/index.v1beta4"
+      ],
+      "@akashnetwork/akash-api/akash/audit": [
+        "./dist/generated/index.akash.audit"
+      ],
+      "@akashnetwork/akash-api/akash/audit/v1beta1": [
+        "./dist/generated/index.akash.audit.v1beta1"
+      ],
+      "@akashnetwork/akash-api/akash/audit/v1beta2": [
+        "./dist/generated/index.akash.audit.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/audit/v1beta3": [
+        "./dist/generated/index.akash.audit.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/base": [
+        "./dist/generated/index.akash.base"
+      ],
+      "@akashnetwork/akash-api/akash/base/v1beta1": [
+        "./dist/generated/index.akash.base.v1beta1"
+      ],
+      "@akashnetwork/akash-api/akash/base/v1beta2": [
+        "./dist/generated/index.akash.base.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/base/v1beta3": [
+        "./dist/patch/index.akash.base.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/cert": [
+        "./dist/generated/index.akash.cert"
+      ],
+      "@akashnetwork/akash-api/akash/cert/v1beta2": [
+        "./dist/generated/index.akash.cert.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/cert/v1beta3": [
+        "./dist/generated/index.akash.cert.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash": [
+        "./dist/generated/index.akash"
+      ],
+      "@akashnetwork/akash-api/akash/deployment": [
+        "./dist/generated/index.akash.deployment"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta1": [
+        "./dist/generated/index.akash.deployment.v1beta1"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta2": [
+        "./dist/patch/index.akash.deployment.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta2/grpc-js": [
+        "./dist/generated/index.akash.deployment.v1beta2.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta3": [
+        "./dist/patch/index.akash.deployment.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/deployment/v1beta3/grpc-js": [
+        "./dist/generated/index.akash.deployment.v1beta3.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/discovery": [
+        "./dist/generated/index.akash.discovery"
+      ],
+      "@akashnetwork/akash-api/akash/discovery/v1": [
+        "./dist/generated/index.akash.discovery.v1"
+      ],
+      "@akashnetwork/akash-api/akash/escrow": [
+        "./dist/generated/index.akash.escrow"
+      ],
+      "@akashnetwork/akash-api/akash/escrow/v1beta1": [
+        "./dist/generated/index.akash.escrow.v1beta1"
+      ],
+      "@akashnetwork/akash-api/akash/escrow/v1beta2": [
+        "./dist/generated/index.akash.escrow.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/escrow/v1beta3": [
+        "./dist/generated/index.akash.escrow.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/gov": [
+        "./dist/generated/index.akash.gov"
+      ],
+      "@akashnetwork/akash-api/akash/gov/v1beta3": [
+        "./dist/generated/index.akash.gov.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/inflation": [
+        "./dist/generated/index.akash.inflation"
+      ],
+      "@akashnetwork/akash-api/akash/inflation/v1beta2": [
+        "./dist/generated/index.akash.inflation.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/inflation/v1beta3": [
+        "./dist/generated/index.akash.inflation.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/inventory": [
+        "./dist/generated/index.akash.inventory"
+      ],
+      "@akashnetwork/akash-api/akash/inventory/v1": [
+        "./dist/generated/index.akash.inventory.v1"
+      ],
+      "@akashnetwork/akash-api/akash/inventory/v1/grpc-js": [
+        "./dist/generated/index.akash.inventory.v1.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/manifest": [
+        "./dist/generated/index.akash.manifest"
+      ],
+      "@akashnetwork/akash-api/akash/manifest/v2beta1": [
+        "./dist/generated/index.akash.manifest.v2beta1"
+      ],
+      "@akashnetwork/akash-api/akash/manifest/v2beta1/grpc-js": [
+        "./dist/generated/index.akash.manifest.v2beta1.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/manifest/v2beta2": [
+        "./dist/generated/index.akash.manifest.v2beta2"
+      ],
+      "@akashnetwork/akash-api/akash/manifest/v2beta2/grpc-js": [
+        "./dist/generated/index.akash.manifest.v2beta2.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/market": [
+        "./dist/generated/index.akash.market"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta2": [
+        "./dist/generated/index.akash.market.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta2/grpc-js": [
+        "./dist/generated/index.akash.market.v1beta2.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta3": [
+        "./dist/generated/index.akash.market.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta3/grpc-js": [
+        "./dist/generated/index.akash.market.v1beta3.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta4": [
+        "./dist/patch/index.akash.market.v1beta4"
+      ],
+      "@akashnetwork/akash-api/akash/market/v1beta4/grpc-js": [
+        "./dist/generated/index.akash.market.v1beta4.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/provider": [
+        "./dist/generated/index.akash.provider"
+      ],
+      "@akashnetwork/akash-api/akash/provider/lease": [
+        "./dist/generated/index.akash.provider.lease"
+      ],
+      "@akashnetwork/akash-api/akash/provider/lease/v1": [
+        "./dist/generated/index.akash.provider.lease.v1"
+      ],
+      "@akashnetwork/akash-api/akash/provider/lease/v1/grpc-js": [
+        "./dist/generated/index.akash.provider.lease.v1.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/provider/v1": [
+        "./dist/generated/index.akash.provider.v1"
+      ],
+      "@akashnetwork/akash-api/akash/provider/v1/grpc-js": [
+        "./dist/generated/index.akash.provider.v1.grpc-js"
+      ],
+      "@akashnetwork/akash-api/akash/provider/v1beta1": [
+        "./dist/generated/index.akash.provider.v1beta1"
+      ],
+      "@akashnetwork/akash-api/akash/provider/v1beta2": [
+        "./dist/generated/index.akash.provider.v1beta2"
+      ],
+      "@akashnetwork/akash-api/akash/provider/v1beta3": [
+        "./dist/generated/index.akash.provider.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/staking": [
+        "./dist/generated/index.akash.staking"
+      ],
+      "@akashnetwork/akash-api/akash/staking/v1beta3": [
+        "./dist/generated/index.akash.staking.v1beta3"
+      ],
+      "@akashnetwork/akash-api/akash/take": [
+        "./dist/generated/index.akash.take"
+      ],
+      "@akashnetwork/akash-api/akash/take/v1beta3": [
+        "./dist/generated/index.akash.take.v1beta3"
+      ],
+      "@akashnetwork/akash-api/cosmos/base": [
+        "./dist/generated/index.cosmos.base"
+      ],
+      "@akashnetwork/akash-api/cosmos/base/query": [
+        "./dist/generated/index.cosmos.base.query"
+      ],
+      "@akashnetwork/akash-api/cosmos/base/query/v1beta1": [
+        "./dist/generated/index.cosmos.base.query.v1beta1"
+      ],
+      "@akashnetwork/akash-api/cosmos/base/v1beta1": [
+        "./dist/generated/index.cosmos.base.v1beta1"
+      ],
+      "@akashnetwork/akash-api/cosmos": [
+        "./dist/generated/index.cosmos"
+      ],
+      "@akashnetwork/akash-api/cosmos_proto": [
+        "./dist/generated/index.cosmos_proto"
+      ],
+      "@akashnetwork/akash-api/gogoproto": [
+        "./dist/generated/index.gogoproto"
+      ],
+      "@akashnetwork/akash-api/google/api": [
+        "./dist/generated/index.google.api"
+      ],
+      "@akashnetwork/akash-api/google": [
+        "./dist/generated/index.google"
+      ],
+      "@akashnetwork/akash-api/google/protobuf": [
+        "./dist/generated/index.google.protobuf"
+      ],
+      "@akashnetwork/akash-api/k8s": [
+        "./dist/generated/index.k8s"
+      ],
+      "@akashnetwork/akash-api/k8s/io/apimachinery": [
+        "./dist/generated/index.k8s.io.apimachinery"
+      ],
+      "@akashnetwork/akash-api/k8s/io/apimachinery/pkg/api": [
+        "./dist/generated/index.k8s.io.apimachinery.pkg.api"
+      ],
+      "@akashnetwork/akash-api/k8s/io/apimachinery/pkg/api/resource": [
+        "./dist/generated/index.k8s.io.apimachinery.pkg.api.resource"
+      ],
+      "@akashnetwork/akash-api/k8s/io/apimachinery/pkg": [
+        "./dist/generated/index.k8s.io.apimachinery.pkg"
+      ],
+      "@akashnetwork/akash-api/k8s/io": [
+        "./dist/generated/index.k8s.io"
+      ]
+    }
+  }
+}

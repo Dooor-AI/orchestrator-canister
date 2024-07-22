@@ -77,7 +77,7 @@ export const createUser = update([text], text, async (signatureHex: string) => {
     }
 });
 
-export let akashCertGlobal: any;
+export let akashCertGlobal: any = {};
 
 // certPem and certPubpem as base64
 export const getNewAkashCertificate = update([text, text], text, async (signatureHex: string, nonce: text) => {
@@ -94,9 +94,11 @@ export const getNewAkashCertificate = update([text, text], text, async (signatur
 
     console.log('the address recovered123:');
     console.log(recoveredAddress);
+    console.log('the akash:');
+    console.log(db.users[recoveredAddress].akashAddress);
 
     const keys = createCertificateKeys(db.users[recoveredAddress].akashAddress);
-    akashCertGlobal = keys.cert
+    akashCertGlobal[recoveredAddress] = keys.cert
     db.users[recoveredAddress].akashCertPub = (keys.publicKey);
     db.users[recoveredAddress].akashCertPriv = (keys.privateKey);
     db.users[recoveredAddress].nonce = JSON.stringify(Number(db.users[recoveredAddress].nonce) + 1);
