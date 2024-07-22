@@ -142,22 +142,16 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     if (Number(db.users[recoveredAddress].nonce) + 1 !== Number(nonce)) {
         throw ('Invalid nonce');
     }
-    // if (!(db.users[recoveredAddress].akashCert?.length > 0 && db.users[recoveredAddress].akashCertPub?.length > 0 && db.users[recoveredAddress].akashCertPriv?.length > 0)) {
-    //   throw ('Invalid certificate');
-    // }
+    if (!(db.users[recoveredAddress].akashCertPub?.length > 0 && db.users[recoveredAddress].akashCertPriv?.length > 0)) {
+      throw ('Invalid certificate');
+    }
 
     const certPubpem = db.users[recoveredAddress].akashCertPub
     const certPEM = certificateManager.accelarGetPEM(akashCertGlobal[recoveredAddress])
     console.log(certPEM)
     const fromAddress = db.users[recoveredAddress].akashAddress
-    const pubKeyEncoded = db.users[recoveredAddress].akashPubEncod
-    const pubKeyEncoded123 = await getEcdsaPublicKeyBase64FromEVM(recoveredAddress);
-    console.log('the pubkey encoded')
-    console.log(db.users[recoveredAddress].akashPubEncod)
-    console.log('the pubkey encoded 2')
-    console.log(recoveredAddress)
-    console.log('the from addresssss')
-    console.log(fromAddress)
+    const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(recoveredAddress);
+
     console.log(JSON.parse(db.users[recoveredAddress].akashPubEncod))
     const registry = new Registry();
     
@@ -183,12 +177,12 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
   
       console.log('go to encode passei')
       console.log(fromAddress)
-      console.log(pubKeyEncoded123)
+      console.log(pubKeyEncoded)
       const { accountNumber, sequence } = await client.getSequence(fromAddress);
       const feeAmount = coins(20000, "uakt");
       const gasLimit = 800000;
       console.log('go to make auth')
-      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded123, sequence }], feeAmount, gasLimit);
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit);
   
       const chainId = await client.getChainId();
 

@@ -10,6 +10,7 @@ import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
+import { createDeployment } from './deployment_akash_3';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -38,7 +39,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
         console.log('user does not exist yet')
         throw ('user does not exist yet')
     }
-    if (db.users[transaction[6]]?.akashCert?.length === 0) {
+    if (db.users[transaction[6]]?.akashCertPub?.length === 0) {
         console.log('user needs to create a cert')
         throw ('user needs to create a cert')
     } 
@@ -62,8 +63,17 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     //start deplyoment
     db.deployments[tokenId].status = 'deploying'
 
+    const fromAddress = db.users[transaction[6]].akashAddress
+    const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
+
     //create deployment
+    const txDeployment = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
+
+    //get bids
     
+
+    //create lease
+    const txLease = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
 
     // Retorne o último ID de NFT
     return String('Number(transaction[transaction.length - 1])');
