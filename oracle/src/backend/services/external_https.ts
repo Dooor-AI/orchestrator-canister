@@ -127,7 +127,7 @@ export async function getBids(owner: string, dseq: string) {
       }}
 }
 
-export async function sendManifest(owner: string, dseq: string) {
+export async function sendManifest(url: string, body: string | null, method: string, certPem: string, keyPem: string) {
     let response;
     console.log('dados')
     for (let i = 1; i <= 3; i++) {
@@ -143,13 +143,24 @@ export async function sendManifest(owner: string, dseq: string) {
             const response = await ic.call(managementCanister.http_request, {
                 args: [
                     {
-                        url: `https://akash-api.polkachu.com/akash/market/v1beta4/bids/list?filters.owner=${owner}&filters.dseq=${dseq}`,
+                        url: `https://api.accelar.io/utils/functions/sendMessageManifestProvider`,
                         max_response_bytes: Some(2_000_000n),
                         method: {
-                            get: null
+                            post: null
                         },
                         headers: [],
-                        body: None,
+                        body: body ? Some(
+                          Buffer.from(
+                              JSON.stringify({
+                                  method: method,
+                                  url: url,
+                                  certPem: certPem,
+                                  keyPem: keyPem,
+                                  body: body,
+                              }),
+                              'utf-8'
+                          )
+                      ) : None,
                         transform: Some({
                             function: [ic.id(), 'transformResponse'] as [Principal, string],
                             context: Uint8Array.from([])
@@ -179,4 +190,60 @@ export async function sendManifest(owner: string, dseq: string) {
           throw new Error(err?.response?.data || err);
         }
       }}
+}
+
+export async function getProviderUri(providerAddress: string) {
+  let response;
+  console.log('dados')
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: 2_000_000n,
+              cycles: 50_000_000_000n,
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  {
+                      url: `https://api.cloudmos.io/v1/providers`,
+                      max_response_bytes: Some(2_000_000n),
+                      method: {
+                          get: null
+                      },
+                      headers: [],
+                      body: None,
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles: 50_000_000_000n
+          });
+  
+          const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+          console.log('deu bom sending url');
+          console.log(JSON.parse(responseText));
+  
+          i = 3;
+          const myData = JSON.parse(responseText).find((dd: any) => dd.owner === providerAddress);
+
+          if (myData) {
+            return myData?.hostUri;
+          }
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
 }

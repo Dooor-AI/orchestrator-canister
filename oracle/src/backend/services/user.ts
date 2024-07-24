@@ -18,7 +18,6 @@ const User = Record({
     akashAddress: text, // the akash address
     akashPubEncod: text,
     nonce: text,
-    akashCert: text, // akash certificate - base64 (optional)
     akashCertPub: text, // akash certificate pubkey - base64 (optional)
     akashCertPriv: text, // akash certificate private key - base64 (optional)
 });
@@ -28,6 +27,7 @@ type User = typeof User.tsType;
 const Deployment = Record({
     id: text, // evm address
     status: text, // nondeployed, deploying, deployed
+    uri: text,
     akashHashDeployment: text,
     dseq: text,
     userId: text, // akash certificate - base64 (optional)
@@ -65,7 +65,6 @@ export const createUser = update([text], text, async (signatureHex: string) => {
             akashAddress: res.akashAddress,
             akashPubEncod: JSON.stringify(res.pubEncod),
             nonce: "0",
-            akashCert: '',
             akashCertPriv: '',
             akashCertPub: '',
         };
@@ -124,7 +123,6 @@ export const getUsers = query([], text, async () => {
     console.log('a000111!!!!!!!!!!!!!!!!!111000a')
     console.log(JSON.stringify(db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.nonce))
     console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCertPub))
-    console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCert))
     return 'String(db.users)';
 });
 

@@ -8,23 +8,28 @@ import { ethers } from 'ethers';
 import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
-import { Deployment, db, getAkashAddress } from './user';
+import { Deployment, akashCertGlobal, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
 import { createDeployment, createLease } from './deployment_akash_3';
-import { getBids } from './external_https';
+import { getBids, getProviderUri, sendManifest } from './external_https';
+import { yamlObj } from './deployment_akash';
+import * as YAML from 'yaml';
+import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
+import { SDL } from '@akashnetwork/akashjs/build/sdl';
+import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
+    console.log('comecei new deployment')
     const provider = new ethers.JsonRpcProvider(chainRPC);
 
-    // Crie uma instância do contrato usando apenas o provider
     const contract = new ethers.Contract(
       contractAddress,
       dplABI,
       provider,
     );
+    console.log('get transaction')
 
-    // Chame a função do contrato para obter todos os IDs de NFT
     const transaction = await contract.Items(tokenId);
 
     console.log('tx feita');
@@ -46,8 +51,10 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     } 
 
     if (!db.deployments[tokenId]) {
+        console.log('deployment nao achado')
         const deployment: Deployment = {
             id: tokenId,
+            uri: '',
             akashHashDeployment: '0x',
             status: 'nondeployed',
             userId: transaction[6],
@@ -68,18 +75,49 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
 
     //create deployment
+    console.log('creating deployment')
     const txDeployment = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
+    console.log('passei creating')
 
     //get bids
     const bids = await getBids('fromAddress', txDeployment.dseq);
     const bid = bids.bids[1]?.bid?.bid_id;
+    console.log('got bid')
 
     //create lease
     const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], txDeployment.dseq, bid?.gseq, bid?.provider, bid?.oseq)
+    console.log('got lease transaction')
 
-    
+    const providerUri = await getProviderUri(bid?.provider)
+    console.log('got provider uri')
 
-    // Retorne o último ID de NFT
+    const yamlStr = YAML.parse(yamlObj);
+
+    const urlSent = `${providerUri}/deployment/${txDeployment.dseq}/manifest`
+    const urlGet = `${providerUri}/lease/${txDeployment.dseq}/${bid?.gseq}/${bid?.oseq}/status`
+    console.log('sdl')
+    const sdl = getSdl(yamlStr, 'beta3', 'mainnet');
+    const mani = sdl.manifest();
+    console.log('sending manifgest')
+
+    const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', akashCertGlobal[transaction[6]], db.users[transaction[6]]?.akashCertPriv);
+    console.log('getting sent get maniges')
+
+    const sentGetManifest = await sendManifest(urlGet, null, 'GET', akashCertGlobal[transaction[6]], db.users[transaction[6]]?.akashCertPriv);
+    console.log(sentGetManifest)
+    db.deployments[tokenId].uri = JSON.stringify(sentGetManifest)
     return String('Number(transaction[transaction.length - 1])');
 });
 
+function isValidString(value: unknown): value is string {
+    return typeof value === 'string' && !!value;
+  }
+function getSdl(
+    yamlJson: string | v2Sdl,
+    networkType: 'beta2' | 'beta3',
+    networkId: NetworkId,
+  ) {
+    return isValidString(yamlJson)
+      ? SDL.fromString(yamlJson, networkType, networkId)
+      : new SDL(yamlJson, networkType, networkId);
+  }
