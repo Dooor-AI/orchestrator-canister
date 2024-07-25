@@ -4,6 +4,7 @@ import type { IDL } from '@dfinity/candid';
 
 export interface _SERVICE {
   'closeDeploymentAkash' : ActorMethod<[string], string>,
+  'closeDeploymentAkashFromAddress' : ActorMethod<[string], string>,
   'createAndStoreCertificateKeys' : ActorMethod<[], string>,
   'createDeploymentAkash' : ActorMethod<[], string>,
   'createLeaseAkash' : ActorMethod<
@@ -17,6 +18,7 @@ export interface _SERVICE {
     [string, string, string, string],
     string
   >,
+  'getEthereumAddress' : ActorMethod<[], string>,
   'getNewAkashCertificate' : ActorMethod<[string, string], string>,
   'getUsers' : ActorMethod<[], string>,
   'newCreateCertificateAkash' : ActorMethod<[string, string], string>,
@@ -40,6 +42,7 @@ export interface _SERVICE {
       'headers' : Array<{ 'value' : string, 'name' : string }>,
     }
   >,
+  'updateContractEVMEnd' : ActorMethod<[], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

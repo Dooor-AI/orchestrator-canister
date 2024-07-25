@@ -11,17 +11,19 @@ import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, akashCertGlobal, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
 import { createDeployment, createLease } from './deployment_akash_3';
-import { getBids, getProviderUri, sendManifest } from './external_https';
+import { getBids, getProviderUri, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
 import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
 import { SDL } from '@akashnetwork/akashjs/build/sdl';
 import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
+import { wait } from './timer';
+import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log('comecei new deployment')
-    const provider = new ethers.JsonRpcProvider(chainRPC);
+    const provider = new ethers.JsonRpcProvider(`https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR`);
 
     const contract = new ethers.Contract(
       contractAddress,
@@ -80,7 +82,11 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log('passei creating')
 
     //get bids
-    const bids = await getBids('fromAddress', txDeployment.dseq);
+    console.log(fromAddress)
+    console.log(txDeployment.dseq)
+    await wait(60000); // Waiting for bids to come
+
+    const bids = await getBids(fromAddress, txDeployment.dseq);
     const bid = bids.bids[1]?.bid?.bid_id;
     console.log('got bid')
 
@@ -100,10 +106,15 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const mani = sdl.manifest();
     console.log('sending manifgest')
 
-    const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', akashCertGlobal[transaction[6]], db.users[transaction[6]]?.akashCertPriv);
+    const finalCert = certificateManager.accelarGetPEM(akashCertGlobal[transaction[6]])
+    console.log(finalCert)
+    console.log('priv')
+    console.log(db.users[transaction[6]]?.akashCertPriv)
+    const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.users[transaction[6]]?.akashCertPriv);
     console.log('getting sent get maniges')
-
-    const sentGetManifest = await sendManifest(urlGet, null, 'GET', akashCertGlobal[transaction[6]], db.users[transaction[6]]?.akashCertPriv);
+    await wait(60000); // Waiting for bids to come
+    console.log(urlGet)
+    const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction[6]]?.akashCertPriv);
     console.log(sentGetManifest)
     db.deployments[tokenId].uri = JSON.stringify(sentGetManifest)
     return String('Number(transaction[transaction.length - 1])');

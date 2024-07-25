@@ -4,9 +4,47 @@ const crypto = require('crypto');
 const { bech32 } = require('bech32');
 import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
+import { ethers } from 'ethers';
 
 const yamlObj = `
 `
+
+export const getEthereumAddress = update([], text, async () => {
+    return await getAddressEVM();
+});
+
+export async function getAddressEVM() {
+    const publicKeyResult = await ic.call(
+        managementCanister.ecdsa_public_key,
+        {
+            args: [
+                {
+                    canister_id: None,
+                    derivation_path: [],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: 'dfx_test_key'
+                    }
+                }
+            ]
+        }
+    );
+
+    console.log(publicKeyResult);
+
+    const publicKey = publicKeyResult.public_key.slice(1);  // Remover o primeiro byte se for 0x04 (não comprimido)
+    console.log('Public Key:', Buffer.from(publicKey).toString('hex'));
+
+    // Calcular o Keccak-256 hash da chave pública
+    const addressBytes = ethers.keccak256(publicKey);
+    console.log('Keccak-256 Hash:', addressBytes);
+
+    // Utilizar os últimos 20 bytes do hash como endereço
+    const ethAddress = '0x' + addressBytes.slice(addressBytes.length - 40); // Últimos 20 bytes
+    console.log('Ethereum Address:', ethAddress);
+
+    return ethAddress;
+}
 
 // Função para preparar uma mensagem de transação
 export const getAkashAddress = update([text], text, async (ethereumAddress: string) => {

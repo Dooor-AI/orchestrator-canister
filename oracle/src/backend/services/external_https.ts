@@ -71,12 +71,13 @@ import { wait } from './timer';
 import { ApiProviderList } from './provider';
 import { PROVIDER_PROXY_URL } from './constants';
 import { globalVar } from './deployment_akash_2';
+import { convertManifest } from './utils';
 
 
 export async function getBids(owner: string, dseq: string) {
     let response;
     console.log('dados')
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 10; i++) {
       console.log("Try #" + i);
       try {
         if (!response) {
@@ -108,15 +109,18 @@ export async function getBids(owner: string, dseq: string) {
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
             console.log('deu bom sending url');
             console.log(JSON.parse(responseText));
-    
+            if (JSON.parse(responseText)?.bids?.length === 0) {
+              console.log('bids zeradas, tentando novamente')
+              continue
+            }
   
-            i = 3;
+            i = 10;
 
             return JSON.parse(responseText);
         }
       } catch (err: any) {
         console.log(err)
-        if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        if (err.includes && err.includes("no lease for deployment") && i < 10) {
           console.log("Lease not found, retrying...");
           await wait(6000); // Waiting for 6 sec
         } else {
@@ -127,7 +131,86 @@ export async function getBids(owner: string, dseq: string) {
       }}
 }
 
-export async function sendManifest(url: string, body: string | null, method: string, certPem: string, keyPem: string) {
+export async function sendManifestTest() {
+  let response;
+  console.log('dados')
+  const body = "[{\"name\":\"dcloud\",\"services\":[{\"name\":\"web\",\"image\":\"akashlytics/hello-akash-world:0.2.0\",\"command\":null,\"args\":null,\"env\":null,\"resources\":{\"id\":1,\"cpu\":{\"units\":{\"val\":\"500\"}},\"memory\":{\"size\":{\"val\":536870912}},\"storage\":[{\"name\":\"default\",\"size\":{\"val\":536870912}}],\"endpoints\":[{\"sequence_number\":0}],\"gpu\":{\"units\":{\"val\":0}}},\"count\":1,\"expose\":[{\"port\":3000,\"externalPort\":80,\"proto\":\"TCP\",\"service\":\"\",\"global\":true,\"hosts\":null,\"httpOptions\":{\"maxBodySize\":1048576,\"readTimeout\":60000,\"sendTimeout\":60000,\"nextTries\":3,\"nextTimeout\":0,\"nextCases\":[\"error\",\"timeout\"]},\"ip\":\"\",\"endpointSequenceNumber\":0}],\"params\":null,\"credentials\":null}]}]"
+  const finalBody2 = convertManifest(body)
+  const finalBody3 = null
+  const finalBody = body.replace(/"quantity":{"val/g, '"size":{"val');
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: 2_000_000n,
+              cycles: 50_000_000_000n,
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  {
+                      url: `https://api.accelar.io/utils/functions/sendMessageManifestProvider`,
+                      max_response_bytes: Some(2_000_000n),
+                      method: {
+                          post: null
+                      },
+                      headers: [{name:'Content-Type', value:'application/json'}],
+                      body: Some(
+                        Buffer.from(
+                            JSON.stringify({
+                                method: "GET",
+                                url: "https://provider.sys5ops4u.cloud:8443/lease/17317602/1/1/status",
+                                certPem: "-----BEGIN CERTIFICATE-----\r\nMIIBnDCCAUGgAwIBAgIHBh4H6A9EmDAKBggqhkjOPQQDAjA3MTUwMwYDVQQDDCxh\r\na2FzaDE0YWY5NnoyOGxlejY3dHBqeW5hMno4aDdtd3N5a3c5MHhocTQ0bDAeFw0y\r\nNDA3MjUwMDU5MjdaFw0yNTA3MjUwMDU5MjdaMDcxNTAzBgNVBAMMLGFrYXNoMTRh\r\nZjk2ejI4bGV6Njd0cGp5bmEyejhoN213c3lrdzkweGhxNDRsMFkwEwYHKoZIzj0C\r\nAQYIKoZIzj0DAQcDQgAEaRE1mJHE6mgDn5IHO7s8L8Yl+kvaj9cciZpJRzuHIPSw\r\n0UG4WOK69sdSd8nInITtOFecrnCkWHBgYo5fb9GZOKM4MDYwDgYDVR0PAQH/BAQD\r\nAgQwMBMGA1UdJQQMMAoGCCsGAQUFBwMCMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZI\r\nzj0EAwIDSQAwRgIhAJyC+f2RIIaPBkn9pCcIylB9T4ntMjDkTm8D78oIJJVdAiEA\r\ntD4fzlQDMYcgwqhAUVPWmLDXZfug9+Uuba6HIsp+11w=\r\n-----END CERTIFICATE-----\r\n",
+                                keyPem: "-----BEGIN PRIVATE KEY-----\r\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgsoeoKRxFFyOiKmDU\r\nma7VbmpTqKbGEu+uzyE/kdF838yhRANCAARpETWYkcTqaAOfkgc7uzwvxiX6S9qP\r\n1xyJmklHO4cg9LDRQbhY4rr2x1J3ycichO04V5yucKRYcGBijl9v0Zk4\r\n-----END PRIVATE KEY-----\r\n",
+                                body: finalBody3,
+                            }),
+                            'utf-8'
+                        )
+                    ),
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles: 50_000_000_000n
+          });
+  
+          const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+          console.log('deu bom sending url');
+          console.log(JSON.parse(responseText));
+  
+
+          i = 3;
+
+          return JSON.parse(responseText);
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
+}
+
+export async function sendManifest(url: string, body: string | null, method: string, certPem: any, keyPem: string) {
+    console.log(url)
+    console.log('body')
+    console.log(body)
+    console.log('method')
+    console.log(method)
+    console.log('certPem')
+    // console.log(certPem)
+    console.log('keyPem')
+    console.log(keyPem)
+    const finalBody = body ? convertManifest(body) : ''
     let response;
     console.log('dados')
     for (let i = 1; i <= 3; i++) {
@@ -148,15 +231,15 @@ export async function sendManifest(url: string, body: string | null, method: str
                         method: {
                             post: null
                         },
-                        headers: [],
-                        body: body ? Some(
+                        headers: [{name:'Content-Type', value:'application/json'}],
+                        body: body && body?.length > 0 ? Some(
                           Buffer.from(
                               JSON.stringify({
                                   method: method,
                                   url: url,
                                   certPem: certPem,
                                   keyPem: keyPem,
-                                  body: body,
+                                  body: finalBody,
                               }),
                               'utf-8'
                           )
@@ -169,15 +252,19 @@ export async function sendManifest(url: string, body: string | null, method: str
                 ],
                 cycles: 50_000_000_000n
             });
-    
-            const responseText = Buffer.from(response.body.buffer).toString('utf-8');
             console.log('deu bom sending url');
-            console.log(JSON.parse(responseText));
-    
-  
-            i = 3;
 
-            return JSON.parse(responseText);
+            try {
+              const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+              if (responseText?.length > 0) {
+                console.log(JSON.parse(responseText));
+                i = 3;
+                return JSON.parse(responseText);
+              }
+            } catch (err) {
+              console.log('there is no data to retunr')
+            }
+
         }
       } catch (err: any) {
         console.log(err)

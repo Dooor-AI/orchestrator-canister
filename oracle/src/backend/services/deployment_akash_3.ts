@@ -151,12 +151,19 @@ export async function createLease(
     pubKeyEncoded: any, 
     evmAddress: string,
     dseq: string,
-    owner?: string,
     gseq?: string,
     provider?: string,
     oseq?: string)  {
     console.log('value I received')
+    console.log(fromAddress)
+    console.log(pubKeyEncoded)
     console.log(dseq)
+    console.log(evmAddress)
+    console.log(gseq)
+    console.log(provider)
+    console.log(oseq)
+    console.log('next')
+
     const registry = new Registry();
 
     registry.register('/akash.market.v1beta4.MsgCreateLease', MsgCreateLease);
@@ -171,7 +178,7 @@ export async function createLease(
             typeUrl: "/akash.market.v1beta4.MsgCreateLease",
             value: {
                 bidId: {
-                    owner,
+                    owner: fromAddress,
                     dseq: Long.fromString(dseq, true),
                     gseq,
                     oseq,
@@ -184,8 +191,8 @@ export async function createLease(
     } as EncodeObject);
 
     const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
-    const feeAmount = coins(20000, "uakt");
-    const gasLimit = 890000;
+    const feeAmount = coins(87500, "uakt");
+    const gasLimit = 3500000;
 
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
@@ -238,6 +245,93 @@ export async function createLease(
     //     return 'err';
     // }
 }
+
+export const closeDeploymentAkashFromAddress = update([text], text, async (dseq: string) => {
+  console.log('value I received')
+  console.log(dseq)
+  const evm = '0xfACF2850792b5e32a0497CfeD8667649B9f5ec97'
+  const fromAddress = await getAddressAkashFromEVM(evm)
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evm)
+
+  const registry = new Registry();
+  
+  registry.register('/akash.deployment.v1beta3.MsgCloseDeployment', MsgCloseDeployment);
+  
+  const client = await StargateClient.connect(akashPubRPC);
+
+  const closeData = await NewCloseDeploymentData(
+    dseq,
+    fromAddress,
+  );
+  console.log('after deployment data')
+
+  const newBodyBytes = registry.encode({
+    typeUrl: "/cosmos.tx.v1beta1.TxBody",
+    value: {
+      messages: [
+        {
+          typeUrl: "/akash.deployment.v1beta3.MsgCloseDeployment",
+          value: closeData,
+        },
+      ],
+    },
+  } as EncodeObject);
+
+    const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+    const feeAmount = coins(25000, "uakt");
+    const gasLimit = 1000000;
+
+    console.log('go to make auth')
+    const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+
+    const chainId = await client.getChainId();
+
+    console.log('signing doc')
+    const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+    const signBytes = makeSignBytes(signDoc);
+    const hashedMessage = (sha256(signBytes));
+
+    console.log('signing call')
+    const caller = await getDerivationPathFromAddressEVM(evm)
+    const signatureResult = await ic.call(
+      managementCanister.sign_with_ecdsa,
+      {
+          args: [
+              {
+                  message_hash: hashedMessage,
+                  derivation_path: [caller],
+                  key_id: {
+                      curve: { secp256k1: null },
+                      name: 'dfx_test_key'
+                  }
+              }
+          ],
+          cycles: 10_000_000_000n
+      }
+    );
+
+    console.log('new serializing')
+    const txRaw = TxRaw.fromPartial({
+      bodyBytes: newBodyBytes,
+      authInfoBytes: authInfoBytes,
+      signatures: [signatureResult.signature],
+    });
+  
+    const txRawBytes = TxRaw.encode(txRaw).finish();
+
+    console.log('broadcasting new broad')
+    const txResult = await client.broadcastTxSync(txRawBytes);
+    return txResult
+
+    // try {
+    //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
+    //   console.log('Transaction confirmed:', result);
+    //   return broadcast;
+    // } catch (error) {
+    //     console.error(error);
+    //     return 'err';
+    // }
+  })
 
 // Função para criar um Uint8Array de um objeto TxRaw
 function createTxRawBytes(txRaw: TxRaw): Uint8Array {

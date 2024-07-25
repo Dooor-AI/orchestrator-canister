@@ -1,6 +1,7 @@
 export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'closeDeploymentAkash' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'closeDeploymentAkashFromAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'createAndStoreCertificateKeys' : IDL.Func([], [IDL.Text], []),
     'createDeploymentAkash' : IDL.Func([], [IDL.Text], []),
     'createLeaseAkash' : IDL.Func(
@@ -16,6 +17,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
+    'getEthereumAddress' : IDL.Func([], [IDL.Text], []),
     'getNewAkashCertificate' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'getUsers' : IDL.Func([], [IDL.Text], ['query']),
     'newCreateCertificateAkash' : IDL.Func(
@@ -54,6 +56,7 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
+    'updateContractEVMEnd' : IDL.Func([], [IDL.Text], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

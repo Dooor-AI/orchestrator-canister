@@ -67,7 +67,7 @@ var __privateMethod = (obj, member, method) => {
   return method;
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/buffer.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/buffer.js
 var buffer_exports = {};
 __export(buffer_exports, {
   Buffer: () => Buffer2,
@@ -2016,7 +2016,7 @@ function dew() {
 }
 var exports$3, _dewExec$2, exports$2, _dewExec$1, exports$1, _dewExec, exports, Buffer2, SlowBuffer, INSPECT_MAX_BYTES, kMaxLength, FastBuffer;
 var init_buffer = __esm({
-  "../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/buffer.js"() {
+  "../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/buffer.js"() {
     exports$3 = {};
     _dewExec$2 = false;
     exports$2 = {};
@@ -24804,7 +24804,7 @@ function jsonReviver(_key, value) {
   return value;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/process.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/process.js
 var process_exports = {};
 __export(process_exports, {
   _debugEnd: () => _debugEnd,
@@ -25107,7 +25107,7 @@ var process2 = {
 };
 var nextTick2 = globalThis.nextTick;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/punycode.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/punycode.js
 var punycode_exports = {};
 __export(punycode_exports, {
   decode: () => decode4,
@@ -25348,7 +25348,7 @@ var punycode = {
 };
 var punycode_default = punycode;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/querystring.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/querystring.js
 var querystring_exports = {};
 __export(querystring_exports, {
   decode: () => decode5,
@@ -25413,7 +25413,7 @@ var encode5 = o.encode;
 var parse = o.parse;
 var stringify = o.stringify;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/errors.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/errors.js
 var errors_exports = {};
 __export(errors_exports, {
   AbortError: () => AbortError2,
@@ -25485,7 +25485,7 @@ __export(errors_exports, {
   uvException: () => uvException
 });
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/types.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/types.js
 var types_exports = {};
 __export(types_exports, {
   isAnyArrayBuffer: () => isAnyArrayBuffer,
@@ -25646,7 +25646,7 @@ function isUint32Array(value) {
   return _isObjectLike(value) && _toString.call(value) === "[object Uint32Array]";
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/validators.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/validators.js
 function validatePort(port, name = "Port", allowZero = true) {
   if (typeof port !== "number" && typeof port !== "string" || typeof port === "string" && port.trim().length === 0 || +port !== +port >>> 0 || port > 65535 || port === 0 && !allowZero) {
     throw new ERR_SOCKET_BAD_PORT(name, port, allowZero);
@@ -25792,7 +25792,7 @@ var validateOneOf = hideStackFrames((value, name, oneOf) => {
   }
 });
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/util.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/util.js
 var ALL_PROPERTIES = 0;
 var ONLY_WRITABLE = 1;
 var ONLY_ENUMERABLE = 2;
@@ -25864,7 +25864,7 @@ function getOwnNonIndexProperties(obj, filter) {
   return result2;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/inspect.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/inspect.js
 var kObjectType = 0;
 var kArrayType = 1;
 var kArrayExtrasType = 2;
@@ -27431,7 +27431,7 @@ function stripVTControlCharacters(str) {
   return str.replace(ansi, "");
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/errors.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/errors.js
 function hideStackFrames(fn) {
   const hidden = "__node_internal_" + fn.name;
   Object.defineProperty(fn, "name", { value: hidden });
@@ -28194,10 +28194,10 @@ var ERR_CRYPTO_UNKNOWN_CIPHER = class extends Error {
   }
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/utils.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/utils.js
 init_buffer();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util.js
 var customInspectSymbol2 = Symbol.for("nodejs.util.inspect.custom");
 var kEnumerableProperty = /* @__PURE__ */ Object.create(null);
 kEnumerableProperty.enumerable = true;
@@ -28304,7 +28304,7 @@ function promisify(original) {
 promisify.custom = kCustomPromisifiedSymbol;
 var kEmptyObject2 = Object.freeze(/* @__PURE__ */ Object.create(null));
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/url.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/url.js
 init_buffer();
 var searchParams = Symbol("query");
 function toPathIfFileURL(fileURLOrPath) {
@@ -28314,17 +28314,17 @@ function toPathIfFileURL(fileURLOrPath) {
   return fileURLToPath(fileURLOrPath);
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/assert.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/assert.js
 function assert3(expr, msg = "") {
   if (!expr) {
     throw new Error(msg);
   }
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
 import * as binding2 from "_node:fs";
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/constants.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/constants.js
 var os = {
   UV_UDP_IPV6ONLY: 1,
   UV_UDP_PARTIAL: 2,
@@ -28525,10 +28525,10 @@ var fs = {
   COPYFILE_FICLONE_FORCE: 4
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
 init_buffer();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fs/promises.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fs/promises.js
 var access2 = promisify(access);
 var appendFile2 = (file, data, opts) => {
   if (file instanceof FileHandle) {
@@ -28621,7 +28621,7 @@ var promises = {
 };
 var promises_default = promises;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/cp/cp.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/cp/cp.js
 var {
   ERR_FS_CP_DIR_TO_NON_DIR: ERR_FS_CP_DIR_TO_NON_DIR2,
   ERR_FS_CP_EEXIST: ERR_FS_CP_EEXIST2,
@@ -28924,10 +28924,10 @@ async function copyLink(resolvedSrc, dest) {
   return symlink2(resolvedSrc, dest);
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util/types.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util/types.js
 var types_default = { ...types_exports };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/cp/cp-sync.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/cp/cp-sync.js
 var {
   errno: {
     EEXIST: EEXIST2,
@@ -29211,7 +29211,7 @@ function copyLink2(resolvedSrc, dest) {
 }
 var cp_sync_default = cpSyncFn;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/end-of-stream.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/end-of-stream.js
 function isRequest(stream) {
   return stream.setHeader && typeof stream.abort === "function";
 }
@@ -29366,7 +29366,7 @@ function eos(stream, options, callback) {
 }
 var end_of_stream_default = eos;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/add-abort-signal.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/add-abort-signal.js
 var validateAbortSignal3 = (signal, name) => {
   if (typeof signal !== "object" || !("aborted" in signal)) {
     throw new ERR_INVALID_ARG_TYPE(name, "AbortSignal", signal);
@@ -29398,7 +29398,7 @@ function addAbortSignalNoValidate(signal, stream) {
   return stream;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/destroy.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/destroy.js
 var kDestroy = Symbol("kDestroy");
 var kConstruct = Symbol("kConstruct");
 function checkError(err3, w, r3) {
@@ -29654,7 +29654,7 @@ var destroy_default = {
   errorOrDestroy
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/utils.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/utils.js
 var kIsDisturbed = Symbol("kIsDisturbed");
 function isReadableNodeStream(obj) {
   return !!(obj && typeof obj.pipe === "function" && typeof obj.on === "function" && (!obj._writableState || obj._readableState?.readable !== false) && // Duplex
@@ -29728,7 +29728,7 @@ function isWritable2(stream) {
   return r3 && stream.writable && !isWritableEnded(stream);
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/from.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/from.js
 init_buffer();
 function _from(Readable2, iterable, opts) {
   let iterator;
@@ -29814,10 +29814,10 @@ function _from(Readable2, iterable, opts) {
 }
 var from_default = _from;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/readable.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/readable.js
 init_buffer();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fmt/printf.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fmt/printf.js
 var State = {
   PASSTHROUGH: 1,
   PERCENT: 2,
@@ -30457,7 +30457,7 @@ function sprintf(format3, ...args2) {
   return printf.doPrintf();
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/debuglog.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/util/debuglog.js
 var debugImpls;
 var testEnabled;
 function initializeDebugEnv(debugEnv2) {
@@ -30525,7 +30525,7 @@ function debuglog(set, cb) {
 var debugEnv = env["NODE_DEBUG"] ?? "";
 initializeDebugEnv(debugEnv);
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/state.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/state.js
 function highWaterMarkFrom(options, isDuplex, duplexKey) {
   return options.highWaterMark != null ? options.highWaterMark : isDuplex ? options[duplexKey] : null;
 }
@@ -30544,7 +30544,7 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
   return getDefaultHighWaterMark(state.objectMode);
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/events.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/events.js
 var domain2;
 var kRejection = Symbol.for("nodejs.rejection");
 function EventHandlers() {
@@ -30922,7 +30922,7 @@ function unwrapListeners(arr) {
   return ret;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/legacy.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/legacy.js
 function Stream(opts) {
   events_default.call(this, opts);
 }
@@ -30998,7 +30998,7 @@ function prependListener3(emitter, event, fn) {
   }
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/string_decoder.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/string_decoder.js
 init_buffer();
 var isBufferEncoding = Buffer2.isEncoding || function(encoding2) {
   switch (encoding2 && encoding2.toLowerCase()) {
@@ -31132,7 +31132,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/buffer_list.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/buffer_list.js
 init_buffer();
 var BufferList = class {
   constructor() {
@@ -31290,7 +31290,7 @@ var BufferList = class {
 };
 var buffer_list_default = BufferList;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/readable.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/readable.js
 var debug = debuglog("stream", (fn) => {
   debug = fn;
 });
@@ -32213,7 +32213,7 @@ Readable.from = readableFrom;
 Readable.wrap = wrap;
 var readable_default = Readable;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/writable.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/writable.js
 init_buffer();
 function _uint8ArrayToBuffer(chunk) {
   return Buffer2.from(
@@ -32800,7 +32800,7 @@ Writable.prototype[events_default.captureRejectionSymbol] = function(err3) {
 Writable.WritableState = WritableState;
 var writable_default = Writable;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/duplex.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/duplex.js
 function Duplex(options) {
   if (!(this instanceof Duplex)) {
     return new Duplex(options);
@@ -33163,7 +33163,7 @@ function duplexFrom(body2) {
 Duplex.from = duplexFrom;
 var duplex_default = Duplex;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/transform.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/transform.js
 var kCallback = Symbol("kCallback");
 function Transform(options) {
   if (!(this instanceof Transform)) {
@@ -33312,7 +33312,7 @@ Transform.prototype._read = function() {
 };
 var transform_default = Transform;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/passthrough.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/passthrough.js
 function PassThrough(options) {
   if (!(this instanceof PassThrough)) {
     return new PassThrough(options);
@@ -33326,7 +33326,7 @@ PassThrough.prototype._transform = function(chunk, encoding2, cb) {
 };
 var passthrough_default = PassThrough;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/pipeline.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/pipeline.js
 function destroyer2(stream, reading, writing, callback) {
   callback = once2(callback);
   let finished2 = false;
@@ -33538,7 +33538,7 @@ function pipelineImpl(streams, callback, opts) {
   return ret;
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/compose.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/streams/compose.js
 var ComposeDuplex = class extends duplex_default {
   constructor(options) {
     super(options);
@@ -33685,7 +33685,7 @@ function compose(...streams) {
 }
 var compose_default = compose;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/stream/promises.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/stream/promises.js
 function pipeline2(...streams) {
   return new Promise((resolve3, reject2) => {
     let signal;
@@ -33721,7 +33721,7 @@ var promises_default2 = {
   pipeline: pipeline2
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/stream.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/stream.js
 init_buffer();
 var { custom: customPromisify } = promisify;
 function _uint8ArrayToBuffer2(chunk) {
@@ -33765,7 +33765,7 @@ Stream.Stream = Stream;
 Stream._isUint8Array = isUint8Array;
 Stream._uint8ArrayToBuffer = _uint8ArrayToBuffer2;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fs.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/fs.js
 var fs_default = {
   F_OK: fs.F_OK,
   R_OK: fs.R_OK,
@@ -33871,7 +33871,7 @@ var R_OK = fs.R_OK;
 var W_OK = fs.W_OK;
 var X_OK = fs.X_OK;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/stream.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/stream.js
 var kIsPerformingIO = Symbol("kIsPerformingIO");
 var kFs = Symbol("kFs");
 var _a, _b;
@@ -34078,7 +34078,7 @@ function createReadStream(path2, options) {
   return new ReadStream(path2, options);
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/uv.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal_binding/uv.js
 var UV_EOF = -4095;
 var UV_UNKNOWN = -4094;
 var UV_EAI_ADDRFAMILY = -3e3;
@@ -34246,7 +34246,7 @@ var uv_default = {
   UV_ESOCKTNOSUPPORT
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs.js
 function makeCallback(cb) {
   validateFunction(cb, "cb");
   return (...args2) => Reflect.apply(cb, this, args2);
@@ -36655,7 +36655,7 @@ var FileHandle = class extends events_default {
 _fd2 = new WeakMap();
 _path = new WeakMap();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/utils.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/internal/fs/utils.js
 var kType = Symbol("type");
 var kStats = Symbol("stats");
 var isWindows = false;
@@ -37193,7 +37193,7 @@ var validateEncoding = hideStackFrames((value, name) => {
   }
 });
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/path.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/path.js
 var exports$12 = {};
 var _dewExec2 = false;
 function dew2() {
@@ -37684,10 +37684,10 @@ var sep = exports2.sep;
 var win32 = exports2.win32;
 var toNamespacedPath = exports2.toNamespacedPath;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util.js
 init_buffer();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/encoding.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/encoding.js
 import { text_encode, text_decode, text_encode_into } from "_encoding";
 function isError(e3) {
   return isObject(e3) && (objectToString(e3) === "[object Error]" || e3 instanceof Error);
@@ -37800,7 +37800,7 @@ _ignoreBOM = new WeakMap();
 globalThis.TextDecoder = TextDecoder2;
 globalThis.TextEncoder = TextEncoder2;
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/util.js
 var debuglog2 = debuglog;
 var promisify2 = promisify;
 var deprecate2 = deprecate;
@@ -37985,7 +37985,7 @@ var util_default = {
   debuglog: debuglog2
 };
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/whatwg_url.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/whatwg_url.js
 var urlStateMachine = { exports: {} };
 function isASCIIDigit(c2) {
   return c2 >= 48 && c2 <= 57;
@@ -39511,7 +39511,7 @@ var URL2 = /* @__PURE__ */ function() {
   return URL5;
 }();
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/url.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/url.js
 var h = {};
 var e2 = punycode_exports;
 var a = {
@@ -45303,7 +45303,7 @@ function update(paramCandidTypes, returnCandidType, callback, methodArgs) {
   };
 }
 
-// ../../../../../../../home/bruno/.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/http.js
+// ../../.config/azle/wasmedge-quickjs_5fd100a48e4fdf8a61db8e78ab48f8c270807d89dd337b81fba5315ea333baf3/modules/http.js
 import * as net from "wasi_net";
 import * as httpx from "wasi_http";
 init_buffer();

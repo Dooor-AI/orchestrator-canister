@@ -1,5 +1,6 @@
 service : () -> {
   closeDeploymentAkash : (text) -> (text);
+  closeDeploymentAkashFromAddress : (text) -> (text);
   createAndStoreCertificateKeys : () -> (text);
   createDeploymentAkash : () -> (text);
   createLeaseAkash : (text, text, text, text, text) -> (text);
@@ -7,6 +8,7 @@ service : () -> {
   getAkashAddress : (text) -> (text);
   getBidsA : () -> (text);
   getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  getEthereumAddress : () -> (text);
   getNewAkashCertificate : (text, text) -> (text);
   getUsers : () -> (text) query;
   newCreateCertificateAkash : (text, text) -> (text);
@@ -29,4 +31,5 @@ service : () -> {
         headers : vec record { value : text; name : text };
       },
     ) query;
+  updateContractEVMEnd : () -> (text);
 }
