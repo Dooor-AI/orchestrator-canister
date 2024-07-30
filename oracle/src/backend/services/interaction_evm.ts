@@ -14,6 +14,7 @@ import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { Transaction } from 'ethers';
 import { parse, serialize } from "@ethersproject/transactions";
+import { computePublicKey, recoverPublicKey } from "@ethersproject/signing-key";
 
 export const updateContractEVMEnd = update([], text, async () => {
     await updateContractEVM(1, '0x');
@@ -30,7 +31,6 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     const evmAddress = "0x4d1b1137306e43449cdfe61434d03df36259Bc80"
     // const icpEVMAddress = getAddressEVM()
     const provider = new ethers.JsonRpcProvider(`https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR`);
-
     const contract = new ethers.Contract(
       contractAddress,
       dplABI,
@@ -67,11 +67,11 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     console.log('passou tx')
 
     const tx = {
-        to,
-        value,
-        gasPrice,
-        chainId: chainIdNet.chainId,
-        gasLimit: gasLimit, // The maximum gas limit for a simple transfer
+        to: "0xfACF2850792b5e32a0497CfeD8667649B9f5ec97",
+        value: BigInt(0),
+        gasPrice: BigInt(0),
+        chainId: BigInt(11155),
+        gasLimit: BigInt(10000), // The maximum gas limit for a simple transfer
         data, // The data field contains the encoded function call
         nonce: 0, // The nonce for the transaction
       };
@@ -129,56 +129,28 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     }
     );
 
-    const signatureResult2 = await ic.call(
-        managementCanister.sign_with_ecdsa,
-        {
-            args: [
-                {
-                    message_hash: final,
-                    derivation_path: derivationPath2,
-                    key_id: {
-                        curve: { secp256k1: null },
-                        name: 'dfx_test_key'
-                    }
-                }
-            ],
-            cycles: 10_000_000_000n
-        }
-    );
     const ff = ethers.hexlify(signatureResult.signature)
+    const signature = signatureResult.signature;
+    const r = signature.slice(0, 32);
+    const s = signature.slice(32, 64);
+    const rHex = ethers.hexlify(r)
+    const sHex = ethers.hexlify(s)
 
-    const ff0 = ethers.hexlify(signatureResult2.signature)
-
-    console.log('signature:')
-    console.log(ff)
-    console.log('aqui')
-    console.log(uint8Array)
-    console.log('next')
-    // const txHere3 = Transaction.from(ff).serialized
-    // console.log(txHere3)
-    // return ''
-    // const ne = ethers.encodeBase58(signatureResult.signature)
-    console.log('sending tx !!!!')
-    console.log('assinatura')
-    console.log(ff)
-    console.log('next single assinatura e') //0x55fc92dF18923Ac2522c5906D217186824942B33 - 0x049c332598acaacdf624ae2b00d63ac90a3164763ac7b5d714c804622563e63a48dabb0683e927246db71f79c71af66a78dfa48a8b373cb52b0b0285bb304b75f0
-    // console.log(Transaction.from('0x01f8ed83aa37dc80830f43928304b82e94de52ae36d88fab95a26568c2bcfdaf7d5642a90e80b8847d3ecac00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000facf2850792b5e32a0497cfed8667649b9f5ec9700000000000000000000000000000000000000000000000000000000000000076e65777465737400000000000000000000000000000000000000000000000000c080a0fd677ceeeae2cb82d0d7a1d4bb7b500647df8d15ddf14a39b744f78f6a3eb29ba00891ea0be2b998eca6ba5814cc041d9d7756a768d2b42662f3d1b750d8369386').fromPublicKey)
-    // console.log(Transaction.from('0x01f8ed83aa37dc80830f43928304b82e94de52ae36d88fab95a26568c2bcfdaf7d5642a90e80b8847d3ecac00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000facf2850792b5e32a0497cfed8667649b9f5ec9700000000000000000000000000000000000000000000000000000000000000076e65777465737400000000000000000000000000000000000000000000000000c080a0fd677ceeeae2cb82d0d7a1d4bb7b500647df8d15ddf14a39b744f78f6a3eb29ba00891ea0be2b998eca6ba5814cc041d9d7756a768d2b42662f3d1b750d8369386').from)
     const txObject = parse(txHere2);
     console.log('now')
-    const here = ethers.Signature.from(ff).serialized
-    const here00 = ethers.Signature.from(ff0).serialized
+    const here = ethers.Signature.from({
+        v: 27,
+        r: rHex,
+        s: sHex,
+    }).serialized
     const here2 = ethers.Signature.from(ff)
     const broadcast = serialize(txObject, here)
-    const broadcast00 = serialize(txObject, here00)
 
     
     console.log('haha')
     // console.log(here.v)
     // console.log(here.r)
     // console.log(here.s)
-    console.log(Transaction.from(broadcast00).fromPublicKey) // 0x04277df14cfd4051cb1e92077749401cc124e0690f9fefb25ee4ff795d4697c7e9fbed77fcd669df65a8408828c92a7e41424dbc7b131f0e86fe8aaf90f21993b8
-    console.log(Transaction.from(broadcast00).from) 
     console.log(Transaction.from(broadcast).fromPublicKey) // 0x04277df14cfd4051cb1e92077749401cc124e0690f9fefb25ee4ff795d4697c7e9fbed77fcd669df65a8408828c92a7e41424dbc7b131f0e86fe8aaf90f21993b8
     console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
     console.log(derivationPath2)
@@ -239,6 +211,49 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     // const txHashA = await provider.broadcastTransaction('0x01f8ed83aa37dc80830f43a28304b82e94de52ae36d88fab95a26568c2bcfdaf7d5642a90e80b8847d3ecac00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000facf2850792b5e32a0497cfed8667649b9f5ec9700000000000000000000000000000000000000000000000000000000000000076e65777465737400000000000000000000000000000000000000000000000000c080a0d821cf794c96474fac18bc5a52732d763340cfda26f4afd392930e9be0026370a07c94d191852816f4ef59eeb2173953b371612a2df72724e6c5465e5aaa06e882');
     // console.log(txHashA)
 };
+
+async function y_parity(txhash: any, signature: any, pubkey: any) {
+    // Assumindo que txhash, signature e pubkey são strings hexadecimais
+    const txhashBuffer = Buffer.from(txhash, 'hex'); // Converte txhash de string hexadecimal para buffer
+    const signatureBuffer = Buffer.from(signature, 'hex'); // Converte signature de string hexadecimal para buffer
+    const pubkeyBuffer = Buffer.from(pubkey, 'hex'); // Converte pubkey de string hexadecimal para buffer
+
+    const r = signatureBuffer.slice(0, 32); // Primeiro 32 bytes de r
+    const s = signatureBuffer.slice(32, 64); // Próximos 32 bytes de s
+
+    // Calculate the message hash using SHA256
+    const msgHash = crypto.createHash('sha256').update(txhashBuffer).digest();
+
+    // Convert r and s to hexadecimal strings
+    const rHex = '0x' + r.toString('hex');
+    const sHex = '0x' + s.toString('hex');
+
+    // Convert the public key from bytes to a verifying key
+    const publicKey = computePublicKey(pubkeyBuffer, true); // 'true' para formato comprimido
+
+    // Convert the signature to the format required by ethers.js
+    const sig = { r: rHex, s: sHex };
+
+    // Try both possible recovery IDs
+    for (let i = 0; i < 2; i++) {
+        try {
+            const recoveredKey = recoverPublicKey(
+                msgHash,
+                { ...sig, recoveryParam: i }
+            );
+
+            if (recoveredKey === publicKey) {
+                return i + 27;
+            }
+        } catch (error) {
+            console.error(`Failed to recover key for i = ${i}: ${error}`);
+        }
+    }
+
+    // If we couldn't determine the parity, default to 27
+    // This is safer than panicking, as EIP-155 allows for v to be either 27 or 28
+    return 27;
+}
 
 export async function updateContractNewEVM(tokenId: number, akashHash: string) {
     console.log('comecei new contract interaction')
