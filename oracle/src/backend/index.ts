@@ -11,14 +11,14 @@ import {
   import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAkashDeployment } from './services/deployment_akash';  // Atualize o caminho conforme necessário
 import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
-import { getAkashAddress, getEthereumAddress } from './services/get_address_akash';
+import { getAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
 import { newDeployment } from './services/deployment_workflow';
 import { createUser, getBidsA, getNewAkashCertificate, getUsers } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
-import { updateContractEVMEnd } from './services/interaction_evm';
+import { getCanisterAddressEVMEnd, updateContractEVMEnd } from './services/interaction_evm';
 const Signature = Record({
     signature: blob
 });
@@ -39,7 +39,9 @@ export default Canister({
     getDeploymentManifestInfo,
     getNewAkashCertificate,
     newCreateCertificateAkash,
+    getEcdsaPublicKeyBase64End,
     newDeployment,
+    getCanisterAddressEVMEnd,
     sendManifestAkash,
     transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
         return {

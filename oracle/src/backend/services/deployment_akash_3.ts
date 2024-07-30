@@ -1,6 +1,6 @@
 // random_address.ts
 
-import { update, text, ic } from 'azle';
+import { update, text, ic, None } from 'azle';
 import { Bip39, Random, stringToPath, sha256 } from '@cosmjs/crypto';
 import { ethers } from 'ethers';
 import {
@@ -145,6 +145,87 @@ export async function createDeployment(fromAddress: string, pubKeyEncoded: any, 
           throw 'error'
       }
   }
+
+  export async function closeDeployment(fromAddress: string, pubKeyEncoded: any, evmAddress: string, dseq: string) {
+    const registry = new Registry();
+    
+    registry.register('/akash.deployment.v1beta3.MsgCreateDeployment', MsgCreateDeployment);
+    
+    const client = await StargateClient.connect(akashPubRPC);
+  
+    const closeData = await NewCloseDeploymentData(
+      dseq,
+      fromAddress,
+    );
+    console.log('after deployment data')
+  
+    const newBodyBytes = registry.encode({
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: {
+        messages: [
+          {
+            typeUrl: "/akash.deployment.v1beta3.MsgCloseDeployment",
+            value: closeData,
+          },
+        ],
+      },
+    } as EncodeObject);
+  
+      console.log('go to encode')
+      const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+      const feeAmount = coins(25000, "uakt");
+      const gasLimit = 1000000;
+      console.log('go to make auth')
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+  
+      const chainId = await client.getChainId();
+      console.log('the chain id')
+      console.log(chainId)
+      console.log('signing doc')
+      const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+      const signBytes = makeSignBytes(signDoc);
+      const hashedMessage = (sha256(signBytes));
+  
+      console.log('starting hash')
+      const caller = await getDerivationPathFromAddressEVM(evmAddress)
+      const signatureResult = await ic.call(
+        managementCanister.sign_with_ecdsa,
+        {
+            args: [
+                {
+                    message_hash: hashedMessage,
+                    derivation_path: [caller],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: 'dfx_test_key'
+                    }
+                }
+            ],
+            cycles: 10_000_000_000n
+        }
+      );
+  
+      console.log('new serializing')
+      const txRaw = TxRaw.fromPartial({
+        bodyBytes: newBodyBytes,
+        authInfoBytes: authInfoBytes,
+        signatures: [signatureResult.signature],
+      });
+    
+      const txRawBytes = TxRaw.encode(txRaw).finish();
+  
+      console.log('broadcasting new broad')
+      const txResult = await client.broadcastTxSync(txRawBytes);
+  
+      try {
+          const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
+          console.log('Transaction confirmed:', result);
+          return {hash: result.hash, dseq};
+        } catch (error) {
+            console.error(error);
+            throw 'error'
+        }
+    }
 
 export async function createLease(
     fromAddress: string, 

@@ -10,10 +10,12 @@ import {
   } from '@cosmjs/proto-signing';
   import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAndStoreCertificateKeys } from './services/new-test';
+import { updateContractEVMEnd } from './services/interaction_evm';
 const Signature = Record({
     signature: blob
 });
 
 export default Canister({
     createAndStoreCertificateKeys,
+    updateContractEVMEnd,
 });

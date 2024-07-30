@@ -1,0 +1,37 @@
+service : () -> {
+  closeDeploymentAkash : (text) -> (text);
+  closeDeploymentAkashFromAddress : (text) -> (text);
+  createAndStoreCertificateKeys : () -> (text);
+  createDeploymentAkash : () -> (text);
+  createLeaseAkash : (text, text, text, text, text) -> (text);
+  createUser : (text) -> (text);
+  getAkashAddress : (text) -> (text);
+  getBidsA : () -> (text);
+  getCanisterAddressEVMEnd : (text) -> (text);
+  getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  getEcdsaPublicKeyBase64End : () -> (text);
+  getEthereumAddress : () -> (text);
+  getNewAkashCertificate : (text, text) -> (text);
+  getUsers : () -> (text) query;
+  newCreateCertificateAkash : (text, text) -> (text);
+  newDeployment : (text) -> (text);
+  sendManifestAkash : (text, text) -> (text);
+  transferAkashTokens : (text, text, text) -> (text);
+  transformResponse : (
+      record {
+        context : vec nat8;
+        response : record {
+          status : nat;
+          body : vec nat8;
+          headers : vec record { value : text; name : text };
+        };
+      },
+    ) -> (
+      record {
+        status : nat;
+        body : vec nat8;
+        headers : vec record { value : text; name : text };
+      },
+    ) query;
+  updateContractEVMEnd : () -> (text);
+}

@@ -19,6 +19,7 @@ import { SDL } from '@akashnetwork/akashjs/build/sdl';
 import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 import { wait } from './timer';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
+import { updateContractNewEVM } from './interaction_evm';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -117,6 +118,9 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction[6]]?.akashCertPriv);
     console.log(sentGetManifest)
     db.deployments[tokenId].uri = JSON.stringify(sentGetManifest)
+
+    //interacting with the smart-contract
+    await updateContractNewEVM(Number(tokenId), txDeployment.hash)
     return String('Number(transaction[transaction.length - 1])');
 });
 

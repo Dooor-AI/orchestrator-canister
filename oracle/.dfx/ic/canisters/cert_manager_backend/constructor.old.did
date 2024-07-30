@@ -1,0 +1,4 @@
+service: () -> {
+    createAndStoreCertificateKeys: () -> (text);
+    updateContractEVMEnd: () -> (text);
+}

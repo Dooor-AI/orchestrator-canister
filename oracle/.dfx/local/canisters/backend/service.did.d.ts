@@ -14,10 +14,12 @@ export interface _SERVICE {
   'createUser' : ActorMethod<[string], string>,
   'getAkashAddress' : ActorMethod<[string], string>,
   'getBidsA' : ActorMethod<[], string>,
+  'getCanisterAddressEVMEnd' : ActorMethod<[string], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string
   >,
+  'getEcdsaPublicKeyBase64End' : ActorMethod<[], string>,
   'getEthereumAddress' : ActorMethod<[], string>,
   'getNewAkashCertificate' : ActorMethod<[string, string], string>,
   'getUsers' : ActorMethod<[], string>,

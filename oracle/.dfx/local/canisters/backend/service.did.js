@@ -12,11 +12,13 @@ export const idlFactory = ({ IDL }) => {
     'createUser' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getBidsA' : IDL.Func([], [IDL.Text], []),
+    'getCanisterAddressEVMEnd' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getDeploymentManifestInfo' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),
+    'getEcdsaPublicKeyBase64End' : IDL.Func([], [IDL.Text], []),
     'getEthereumAddress' : IDL.Func([], [IDL.Text], []),
     'getNewAkashCertificate' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'getUsers' : IDL.Func([], [IDL.Text], ['query']),

@@ -7,7 +7,9 @@ service : () -> {
   createUser : (text) -> (text);
   getAkashAddress : (text) -> (text);
   getBidsA : () -> (text);
+  getCanisterAddressEVMEnd : (text) -> (text);
   getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  getEcdsaPublicKeyBase64End : () -> (text);
   getEthereumAddress : () -> (text);
   getNewAkashCertificate : (text, text) -> (text);
   getUsers : () -> (text) query;

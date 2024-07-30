@@ -50,6 +50,7 @@ import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
+import { Secp256k1PublicKey } from '@mysten/sui/keypairs/secp256k1';
 
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
