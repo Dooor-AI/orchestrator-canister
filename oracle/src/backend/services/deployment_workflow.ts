@@ -20,23 +20,36 @@ import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 import { wait } from './timer';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { updateContractNewEVM } from './interaction_evm';
+import { callRpc } from './evm_rpc_interaction';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
-    console.log('comecei new deployment')
-    const provider = new ethers.JsonRpcProvider(`https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR`);
+    const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
+    const provider = new ethers.JsonRpcProvider(providerUrl);
 
     const contract = new ethers.Contract(
       contractAddress,
       dplABI,
       provider,
     );
-    console.log('get transaction')
+    // const transaction = await contract.Items(tokenId);
 
-    const transaction = await contract.Items(tokenId);
+    const functionSignature = 'Items(uint256)';
+    const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+    const jsonValue = {
+        jsonrpc: "2.0",
+        method: "eth_call",
+        params: [{
+          to: contractAddress,
+          data: data
+        }, "latest"],
+        id: 1
+      };
+    
+    const resTransaction = await callRpc(providerUrl, jsonValue)
+    const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
 
-    console.log('tx feita');
-    console.log(transaction);
+    return '2'
     console.log('retornei');
     console.log(Number(transaction[0]))
 

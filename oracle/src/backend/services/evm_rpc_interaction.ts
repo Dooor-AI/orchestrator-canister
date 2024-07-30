@@ -51,5 +51,6 @@ export async function callRpc(providerUrl: string, jsonValue: any) {
     });
 
     const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-    return responseText
+    console.log(JSON.parse(responseText))
+    return JSON.parse(responseText)
 }
