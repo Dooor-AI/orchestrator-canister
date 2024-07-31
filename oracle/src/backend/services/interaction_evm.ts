@@ -16,6 +16,7 @@ import { Transaction } from 'ethers';
 import { parse, serialize } from "@ethersproject/transactions";
 import { computePublicKey, recoverPublicKey } from "@ethersproject/signing-key";
 import { callRpc } from './evm_rpc_interaction';
+import { wait } from './timer';
 
 export const updateContractEVMEnd = update([], text, async () => {
     await updateContractNewEVM(1, '0x');
@@ -413,8 +414,9 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         params: [],
         id: 1
       };
-    
+    console.log('gettin rpc')
     const resTransaction = await callRpc(providerUrl, jsonValue)
+    await wait(5000);
 
     console.log(Number(resTransaction.result))
     // console.log(Number(gasPrice))
@@ -425,10 +427,12 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         params: [evmAddress, "latest"],
         id: 1
       };
+      console.log('gettin res transaction 2')
     const resTransaction2 = await callRpc(providerUrl, jsonValueGetTransactionCount)
+    await wait(5000);
 
     // const nonce = await provider.getTransactionCount(wallet.address);
-    const nonce = await provider.getTransactionCount(evmAddress);
+    // const nonce = await provider.getTransactionCount(evmAddress);
  
     const to = contractAddress; 
     const value = ethers.parseEther('0.0'); 
@@ -440,7 +444,10 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         params: [],
         id: 1
       };
+      console.log('gettin net version')
+
     const resTransaction3 = await callRpc(providerUrl, jsonValueNet)
+    await wait(5000);
 
     // let chainIdNet = await provider.getNetwork()
 

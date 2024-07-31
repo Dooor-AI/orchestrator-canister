@@ -120,34 +120,43 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     // db.deployments[tokenId].oseq = bid?.oseq
 
     //LEASE 
-    const providerUri = await getProviderUri(bid?.provider)
-    console.log('got provider uri')
+    console.log('now sent get manifest')
 
-    const yamlStr = YAML.parse(yamlObj);
+    //MANIFEST
+    const sentGetManifest = await deploymentGetSendManifestProvider(bid?.gseq, bid?.oseq, bid?.provider, txDeployment.dseq, transaction[6])
+    // const providerUri = await getProviderUri(bid?.provider)
+    // console.log('got provider uri')
 
-    const urlSent = `${providerUri}/deployment/${txDeployment.dseq}/manifest`
-    const urlGet = `${providerUri}/lease/${txDeployment.dseq}/${bid?.gseq}/${bid?.oseq}/status`
-    console.log('sdl')
-    const sdl = getSdl(yamlStr, 'beta3', 'mainnet');
-    const mani = sdl.manifest();
-    console.log('sending manifgest')
+    // const yamlStr = YAML.parse(yamlObj);
 
-    const finalCert = certificateManager.accelarGetPEM(akashCertGlobal[transaction[6]])
-    console.log(finalCert)
-    console.log('priv')
-    console.log(db.users[transaction[6]]?.akashCertPriv)
-    const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.users[transaction[6]]?.akashCertPriv);
-    console.log('getting sent get maniges')
-    await wait(60000); // Waiting for bids to come
-    console.log(urlGet)
-    const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction[6]]?.akashCertPriv);
-    console.log(sentGetManifest)
+    // const urlSent = `${providerUri}/deployment/${txDeployment.dseq}/manifest`
+    // const urlGet = `${providerUri}/lease/${txDeployment.dseq}/${bid?.gseq}/${bid?.oseq}/status`
+    // console.log('sdl')
+    // const sdl = getSdl(yamlStr, 'beta3', 'mainnet');
+    // const mani = sdl.manifest();
+    // console.log('sending manifgest')
+
+    // const finalCert = certificateManager.accelarGetPEM(akashCertGlobal[transaction[6]])
+    // console.log(finalCert)
+    // console.log('priv')
+    // console.log(db.users[transaction[6]]?.akashCertPriv)
+    // const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.users[transaction[6]]?.akashCertPriv);
+    // console.log('getting sent get maniges')
+    // await wait(60000); // Waiting for bids to come
+    // console.log(urlGet)
+    // const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction[6]]?.akashCertPriv);
+    // console.log(sentGetManifest)
+    //MANIFEST
+    console.log('now sent get manifest')
+
     db.deployments[tokenId].uri = JSON.stringify(sentGetManifest)
     db.deployments[tokenId].status = 'deploying-updateContractEVM'
 
     console.log(sentGetManifest)
     //interacting with the smart-contract
     await updateContractNewEVM(Number(tokenId), txDeployment.hash)
+
+    db.deployments[tokenId].status = 'deployed'
     return String('Number(transaction[transaction.length - 1])');
 });
 
@@ -157,7 +166,7 @@ export async function deploymentCreateLease(tokenId: string, fromAddress: string
   console.log('got bid')
 
   //create lease
-  const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], dseq, bid?.gseq, bid?.provider, bid?.oseq)
+  const txLease = await createLease(fromAddress, pubKeyEncoded, transaction, dseq, bid?.gseq, bid?.provider, bid?.oseq)
   console.log('got lease transaction')
   db.deployments[tokenId].status = 'deploying-sendManifest'
   db.deployments[tokenId].provider = bid?.provider
@@ -167,6 +176,31 @@ export async function deploymentCreateLease(tokenId: string, fromAddress: string
   return bid
 }
 
+export async function deploymentGetSendManifestProvider(gseq: string, oseq: string, provider: string, dseq: string, transaction: any) {
+  const providerUri = await getProviderUri(provider)
+  console.log('got provider uri')
+
+  const yamlStr = YAML.parse(yamlObj);
+
+  const urlSent = `${providerUri}/deployment/${dseq}/manifest`
+  const urlGet = `${providerUri}/lease/${dseq}/${gseq}/${oseq}/status`
+  console.log('sdl')
+  const sdl = getSdl(yamlStr, 'beta3', 'mainnet');
+  const mani = sdl.manifest();
+  console.log('sending manifgest')
+
+  const finalCert = certificateManager.accelarGetPEM(akashCertGlobal[transaction])
+  console.log(finalCert)
+  console.log('priv')
+  console.log(db.users[transaction]?.akashCertPriv)
+  const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.users[transaction]?.akashCertPriv);
+  console.log('getting sent get maniges')
+  await wait(60000); // Waiting for bids to come
+  console.log(urlGet)
+  const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction]?.akashCertPriv);
+  console.log(sentGetManifest)
+  return sentGetManifest
+}
 
 function isValidString(value: unknown): value is string {
     return typeof value === 'string' && !!value;
