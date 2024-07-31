@@ -30,6 +30,9 @@ const Deployment = Record({
     uri: text,
     akashHashDeployment: text,
     dseq: text,
+    gseq: text,
+    oseq: text,
+    provider: text,
     userId: text, // akash certificate - base64 (optional)
 });
 

@@ -49,7 +49,6 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const resTransaction = await callRpc(providerUrl, jsonValue)
     const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
 
-    return '2'
     console.log('retornei');
     console.log(Number(transaction[0]))
 
@@ -74,7 +73,10 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
             akashHashDeployment: '0x',
             status: 'nondeployed',
             userId: transaction[6],
-            dseq: '0x'
+            dseq: '0x',
+            gseq: '0x',
+            oseq: '0x',
+            provider: '0x',
         };
     
         db.deployments[tokenId] = deployment;
@@ -85,7 +87,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     }
 
     //start deplyoment
-    db.deployments[tokenId].status = 'deploying'
+    db.deployments[tokenId].status = 'deploying-deployment'
 
     const fromAddress = db.users[transaction[6]].akashAddress
     const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
@@ -93,6 +95,9 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     //create deployment
     console.log('creating deployment')
     const txDeployment = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
+
+    db.deployments[tokenId].status = 'deploying-lease'
+    db.deployments[tokenId].dseq = txDeployment.dseq
     console.log('passei creating')
 
     //get bids
@@ -100,14 +105,21 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log(txDeployment.dseq)
     await wait(60000); // Waiting for bids to come
 
-    const bids = await getBids(fromAddress, txDeployment.dseq);
-    const bid = bids.bids[1]?.bid?.bid_id;
-    console.log('got bid')
+    // LEASE
+    const bid = await deploymentCreateLease(tokenId, fromAddress, txDeployment.dseq, pubKeyEncoded, transaction[6])
+    // const bids = await getBids(fromAddress, txDeployment.dseq);
+    // const bid = bids.bids[1]?.bid?.bid_id;
+    // console.log('got bid')
 
-    //create lease
-    const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], txDeployment.dseq, bid?.gseq, bid?.provider, bid?.oseq)
-    console.log('got lease transaction')
+    // //create lease
+    // const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], txDeployment.dseq, bid?.gseq, bid?.provider, bid?.oseq)
+    // console.log('got lease transaction')
+    // db.deployments[tokenId].status = 'deploying-sendManifest'
+    // db.deployments[tokenId].provider = bid?.provider
+    // db.deployments[tokenId].gseq = bid?.gseq
+    // db.deployments[tokenId].oseq = bid?.oseq
 
+    //LEASE 
     const providerUri = await getProviderUri(bid?.provider)
     console.log('got provider uri')
 
@@ -131,11 +143,30 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction[6]]?.akashCertPriv);
     console.log(sentGetManifest)
     db.deployments[tokenId].uri = JSON.stringify(sentGetManifest)
+    db.deployments[tokenId].status = 'deploying-updateContractEVM'
 
+    console.log(sentGetManifest)
     //interacting with the smart-contract
     await updateContractNewEVM(Number(tokenId), txDeployment.hash)
     return String('Number(transaction[transaction.length - 1])');
 });
+
+export async function deploymentCreateLease(tokenId: string, fromAddress: string, dseq: string, pubKeyEncoded: any, transaction: any) {
+  const bids = await getBids(fromAddress, dseq);
+  const bid = bids.bids[1]?.bid?.bid_id;
+  console.log('got bid')
+
+  //create lease
+  const txLease = await createLease(fromAddress, pubKeyEncoded, transaction[6], dseq, bid?.gseq, bid?.provider, bid?.oseq)
+  console.log('got lease transaction')
+  db.deployments[tokenId].status = 'deploying-sendManifest'
+  db.deployments[tokenId].provider = bid?.provider
+  db.deployments[tokenId].gseq = bid?.gseq
+  db.deployments[tokenId].oseq = bid?.oseq
+
+  return bid
+}
+
 
 function isValidString(value: unknown): value is string {
     return typeof value === 'string' && !!value;
