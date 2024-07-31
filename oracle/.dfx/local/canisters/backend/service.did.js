@@ -28,6 +28,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'newDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'returnCanisterEVMAddress' : IDL.Func([], [IDL.Text], []),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'transferAkashTokens' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],

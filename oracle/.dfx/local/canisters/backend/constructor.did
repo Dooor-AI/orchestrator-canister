@@ -15,6 +15,7 @@ service : () -> {
   getUsers : () -> (text) query;
   newCreateCertificateAkash : (text, text) -> (text);
   newDeployment : (text) -> (text);
+  returnCanisterEVMAddress : () -> (text);
   sendManifestAkash : (text, text) -> (text);
   transferAkashTokens : (text, text, text) -> (text);
   transformResponse : (

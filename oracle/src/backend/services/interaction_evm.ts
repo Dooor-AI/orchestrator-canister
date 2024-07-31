@@ -17,7 +17,7 @@ import { parse, serialize } from "@ethersproject/transactions";
 import { computePublicKey, recoverPublicKey } from "@ethersproject/signing-key";
 
 export const updateContractEVMEnd = update([], text, async () => {
-    await updateContractEVM(1, '0x');
+    await updateContractNewEVM(1, '0x');
     return ''
 });
 export const returnCanisterEVMAddress = update([], text, async () => {
@@ -407,7 +407,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
     const gasPrice = feeData.gasPrice;
     
     // const nonce = await provider.getTransactionCount(wallet.address);
-    const nonce = await provider.getTransactionCount('0x99A16c47fA733c5bc62d6213DeA3D76b65b47364');
+    const nonce = await provider.getTransactionCount(await getCanisterEVMAddress());
     console.log('here new test nonce')
     console.log(nonce)
     // Define the transaction parameters
@@ -447,7 +447,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         args: [
             {
                 message_hash: final,
-                derivation_path: derivationPath2,
+                derivation_path: [],
                 key_id: {
                     curve: { secp256k1: null },
                     name: 'dfx_test_key'
@@ -457,19 +457,43 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         cycles: 10_000_000_000n
     }
     );
-    const ff = ethers.hexlify(signatureResult.signature)
-    console.log('signature:')
-    console.log(ff)
-    console.log('next')
+
+    const signature = signatureResult.signature;
+    const r = signature.slice(0, 32);
+    const s = signature.slice(32, 64);
+    const rHex = ethers.hexlify(r)
+    const sHex = ethers.hexlify(s)
 
     const txObject = parse(txHere);
-    const here = ethers.Signature.from(ff).serialized
+    console.log('---------------now---------------')
+    const here = ethers.Signature.from({
+        v: 28,
+        r: rHex,
+        s: sHex,
+    }).serialized
+    const here2 = ethers.Signature.from({
+        v: 27,
+        r: rHex,
+        s: sHex,
+    }).serialized
+
+
     const broadcast = serialize(txObject, here)
+    const broadcast2 = serialize(txObject, here2)
 
-    console.log(Transaction.from(broadcast).fromPublicKey) // 0x04277df14cfd4051cb1e92077749401cc124e0690f9fefb25ee4ff795d4697c7e9fbed77fcd669df65a8408828c92a7e41424dbc7b131f0e86fe8aaf90f21993b8
-    console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9    
-
-    const txHashA = await provider.broadcastTransaction(broadcast);
+    console.log(Transaction.from(broadcast2).from) // 0x04277df14cfd4051cb1e92077749401cc124e0690f9fefb25ee4ff795d4697c7e9fbed77fcd669df65a8408828c92a7e41424dbc7b131f0e86fe8aaf90f21993b8
+    console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9 
+    
+    if (Transaction.from(broadcast).from === await getCanisterEVMAddress()) {
+        const txHashA = await provider.broadcastTransaction(broadcast);
+        console.log(txHashA)
+        console.log('broadcast 1')
+    } else if (Transaction.from(broadcast2).from === await getCanisterEVMAddress()) {
+        const txHashA = await provider.broadcastTransaction(broadcast2);
+        console.log(txHashA)
+        console.log('broadcast 2')
+    }
+    return ''
 };
 
 

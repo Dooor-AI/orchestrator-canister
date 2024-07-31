@@ -18,7 +18,7 @@ import { newDeployment } from './services/deployment_workflow';
 import { createUser, getBidsA, getNewAkashCertificate, getUsers } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
-import { getCanisterAddressEVMEnd, updateContractEVMEnd } from './services/interaction_evm';
+import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
 const Signature = Record({
     signature: blob
 });
@@ -43,6 +43,7 @@ export default Canister({
     newDeployment,
     getCanisterAddressEVMEnd,
     sendManifestAkash,
+    returnCanisterEVMAddress,
     transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
         return {
             ...args.response,

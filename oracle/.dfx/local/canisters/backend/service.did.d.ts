@@ -25,6 +25,7 @@ export interface _SERVICE {
   'getUsers' : ActorMethod<[], string>,
   'newCreateCertificateAkash' : ActorMethod<[string, string], string>,
   'newDeployment' : ActorMethod<[string], string>,
+  'returnCanisterEVMAddress' : ActorMethod<[], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
   'transformResponse' : ActorMethod<
