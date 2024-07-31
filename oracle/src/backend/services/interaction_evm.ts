@@ -20,10 +20,128 @@ export const updateContractEVMEnd = update([], text, async () => {
     await updateContractEVM(1, '0x');
     return ''
 });
+export const returnCanisterEVMAddress = update([], text, async () => {
+    const res = await getCanisterEVMAddress();
+    return res
+});
 export const getCanisterAddressEVMEnd = update([text], text, async (mss: string) => {
     await getCanisterAddressEVM(mss);
     return ''
 });
+
+export let canisterEVMAddress = ''
+
+async function getCanisterEVMAddress() {
+    if (canisterEVMAddress?.length > 0) {
+        return canisterEVMAddress
+    } else {
+        console.log('comecei new deployment')
+        const evmAddress = "0x4d1b1137306e43449cdfe61434d03df36259Bc80"
+        const provider = new ethers.JsonRpcProvider(`https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR`);
+        const contract = new ethers.Contract(
+          contractAddress,
+          dplABI,
+          provider,
+        );
+        console.log('get transaction')
+        const functionSignature = 'createDeployment(string, address)';
+        // const input1 = BigInt(tokenId);
+        // const input2 = akashHash;
+        const input1 = 'newtest';
+        const input2 = '0xfACF2850792b5e32a0497CfeD8667649B9f5ec97';
+        const data = contract.interface.encodeFunctionData(functionSignature, [input1, input2]);
+        console.log(data)
+    
+        const tx = {
+            to: evmAddress,
+            value: BigInt(0),
+            gasPrice: BigInt(0),
+            chainId: BigInt(1),
+            gasLimit: BigInt(0),
+            data,
+            nonce: 0,
+          };
+    
+    
+        const txHere = Transaction.from(tx).unsignedSerialized
+        const txHash = ethers.keccak256(txHere);
+        const final = ethers.getBytes(txHash)
+    
+        let addresses = []
+        for (let i = 0; i < 3; i++) {
+            const signatureResult = await ic.call(
+                managementCanister.sign_with_ecdsa,
+                {
+                    args: [
+                        {
+                            message_hash: final,
+                            derivation_path: [],
+                            key_id: {
+                                curve: { secp256k1: null },
+                                name: 'dfx_test_key'
+                            }
+                        }
+                    ],
+                    cycles: 10_000_000_000n
+                }
+            );
+        
+            const signature = signatureResult.signature;
+            const r = signature.slice(0, 32);
+            const s = signature.slice(32, 64);
+            const rHex = ethers.hexlify(r)
+            const sHex = ethers.hexlify(s)
+        
+            const txObject = parse(txHere);
+        
+            const here = ethers.Signature.from({
+                v: 28,
+                r: rHex,
+                s: sHex,
+            }).serialized
+            const here2 = ethers.Signature.from({
+                v: 27,
+                r: rHex,
+                s: sHex,
+            }).serialized
+        
+            const broadcast = serialize(txObject, here)
+            const broadcast2 = serialize(txObject, here2)
+        
+            console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
+            console.log(Transaction.from(broadcast2).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
+            addresses.push(Transaction.from(broadcast).from)
+            addresses.push(Transaction.from(broadcast2).from)
+        }
+        console.log('final addresses')
+        console.log(addresses)
+        const finals = encontrarMaisRepetido(addresses)
+        console.log(finals)
+        canisterEVMAddress = finals
+        return finals
+    }
+}
+
+function encontrarMaisRepetido(arr: any[]) {
+    const contagem: any = {}; // Objeto para armazenar a contagem de cada elemento
+    let maisRepetido = arr[0], maxContagem = 0;
+  
+    for (const item of arr) {
+      if (contagem[item]) {
+        contagem[item]++; // Incrementa a contagem se o item já existe no objeto
+      } else {
+        contagem[item] = 1; // Inicializa a contagem para itens novos
+      }
+  
+      // Verifica se este item tem mais repetições do que o atual mais repetido
+      if (contagem[item] > maxContagem) {
+        maisRepetido = item;
+        maxContagem = contagem[item];
+      }
+    }
+  
+    return maisRepetido; // Retorna o item mais repetido
+  }
 
 //token id from the smart-contract deployment
 export async function updateContractEVM(tokenId: number, akashHash: string) {
@@ -67,11 +185,11 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     console.log('passou tx')
 
     const tx = {
-        to: "0xfACF2850792b5e32a0497CfeD8667649B9f5ec97",
-        value: BigInt(0),
-        gasPrice: BigInt(0),
-        chainId: BigInt(11155),
-        gasLimit: BigInt(10000), // The maximum gas limit for a simple transfer
+        to,
+        value,
+        gasPrice,
+        chainId: chainIdNet.chainId,
+        gasLimit, // The maximum gas limit for a simple transfer
         data, // The data field contains the encoded function call
         nonce: 0, // The nonce for the transaction
       };
@@ -112,13 +230,46 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
 
     // Usa o hash do endereço Ethereum como parte do caminho de derivação
     const derivationPath2 = [hashedEthAddressArray2];
+
+    const publicKeyResult = await ic.call(
+        managementCanister.ecdsa_public_key,
+        {
+            args: [
+                {
+                    canister_id: None,
+                    derivation_path: [],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: 'dfx_test_key'
+                    }
+                }
+            ]
+        }
+    );
+
+    const publicKeyResult2 = await ic.call(
+        managementCanister.ecdsa_public_key,
+        {
+            args: [
+                {
+                    canister_id: None,
+                    derivation_path: [],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: 'dfx_test_key'
+                    }
+                }
+            ]
+        }
+    );
+
     const signatureResult = await ic.call(
     managementCanister.sign_with_ecdsa,
     {
         args: [
             {
                 message_hash: final,
-                derivation_path: derivationPath2,
+                derivation_path: [],
                 key_id: {
                     curve: { secp256k1: null },
                     name: 'dfx_test_key'
@@ -129,7 +280,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     }
     );
 
-    const ff = ethers.hexlify(signatureResult.signature)
+    // const ff = ethers.hexlify(signatureResult.signature)
     const signature = signatureResult.signature;
     const r = signature.slice(0, 32);
     const s = signature.slice(32, 64);
@@ -137,78 +288,56 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
     const sHex = ethers.hexlify(s)
 
     const txObject = parse(txHere2);
-    console.log('now')
+    console.log('---------------now---------------')
     const here = ethers.Signature.from({
+        v: 28,
+        r: rHex,
+        s: sHex,
+    }).serialized
+    const here2 = ethers.Signature.from({
         v: 27,
         r: rHex,
         s: sHex,
     }).serialized
-    const here2 = ethers.Signature.from(ff)
-    const broadcast = serialize(txObject, here)
+    const responseFirst = recoverPublicKey(final, here)
+    const responseFirst2 = recoverPublicKey(final, here2)
 
-    
-    console.log('haha')
-    // console.log(here.v)
-    // console.log(here.r)
-    // console.log(here.s)
-    console.log(Transaction.from(broadcast).fromPublicKey) // 0x04277df14cfd4051cb1e92077749401cc124e0690f9fefb25ee4ff795d4697c7e9fbed77fcd669df65a8408828c92a7e41424dbc7b131f0e86fe8aaf90f21993b8
-    console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
-    console.log(derivationPath2)
-    console.log(broadcast)
-    return `${Transaction.from(broadcast).from}-${Transaction.from(broadcast).fromPublicKey}`
+    // Convert the public key from bytes to a verifying key
 
-    // console.log(ne)
-    const hashedEthAddress = crypto.createHash('sha256').update('0x99A16c47fA733c5bc62d6213DeA3D76b65b47364').digest();
-    const hashedEthAddressArray = new Uint8Array(hashedEthAddress);
-
-    // Usa o hash do endereço Ethereum como parte do caminho de derivação
-    const derivationPath = [hashedEthAddressArray];
-
-    const publicKeyResult = await ic.call(
-        managementCanister.ecdsa_public_key,
-        {
-            args: [
-                {
-                    canister_id: None,
-                    derivation_path: derivationPath,
-                    key_id: {
-                        curve: { secp256k1: null },
-                        name: 'dfx_test_key'
-                    }
-                }
-            ]
-        }
+    // Convert the signature to the format required by ethers.js
+    const sig = { r: rHex, s: sHex };
+    console.log(rHex)
+    console.log(sHex)
+    const recoveredKey = recoverPublicKey(
+        final,
+        { ...sig, recoveryParam: 0 }
     );
-    console.log('A PUK BEY')
-    const publicKey = publicKeyResult.public_key; // This will be a Uint8Array
-    console.log('Public Key:', Buffer.from(publicKey).toString('hex'));
+    const recoveredKey2 = recoverPublicKey(
+        final,
+        { ...sig, recoveryParam: 1 }
+    );
+    console.log('recovered key params 0 e 1')
+    console.log(recoveredKey)
+    console.log(recoveredKey2)
+    console.log(publicKeyResult2.public_key)
+    console.log('next')
+    const pbHash = ethers.keccak256(publicKeyResult.public_key);
+    // const final2 = ethers.toUtf8Bytes(txHash);
+    const pbFinal = ethers.getBytes(pbHash)
+    const publicKey = computePublicKey(pbFinal, true); // 'true' para formato comprimido
+    // console.log(publicKey)
 
-    const publicKeyResponse = await fetch(`icp://aaaaa-aa/sign_with_ecdsa`, {
-        body: serializeAzle({
-            args: [
-                {
-                    message_hash: final,
-                    derivation_path: derivationPath,
-                    key_id: {
-                        curve: { secp256k1: null },
-                        name: 'dfx_test_key'
-                    }
-                }
-            ],
-            cycles: 10_000_000_000n
-        })
-    });
-    console.log(publicKeyResponse)
-    const res = (await publicKeyResponse.json()).signature;
-    console.log('THE RES HERE')
-    const ff2 = ethers.hexlify(res)
+    const broadcast = serialize(txObject, here)
+    const broadcast2 = serialize(txObject, here2)
 
-    const here0 = ethers.Signature.from(ff2).serialized
-    const broadcast0 = serialize(txObject, here0)
-    console.log(Transaction.from(broadcast0).fromPublicKey)
-    console.log(Transaction.from(broadcast0).from)
+    console.log(Transaction.from(broadcast).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
+    console.log(Transaction.from(broadcast).fromPublicKey) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
 
-    // const txHashA = await provider.broadcastTransaction('0x01f8ed83aa37dc80830f43a28304b82e94de52ae36d88fab95a26568c2bcfdaf7d5642a90e80b8847d3ecac00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000facf2850792b5e32a0497cfed8667649b9f5ec9700000000000000000000000000000000000000000000000000000000000000076e65777465737400000000000000000000000000000000000000000000000000c080a0d821cf794c96474fac18bc5a52732d763340cfda26f4afd392930e9be0026370a07c94d191852816f4ef59eeb2173953b371612a2df72724e6c5465e5aaa06e882');
+    console.log(Transaction.from(broadcast2).from) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
+    console.log(Transaction.from(broadcast2).fromPublicKey) // 0x30b7be09AebcD6c84D81988215741c65f52aABb9
+
+    const txHashA = await provider.broadcastTransaction(broadcast);
+    console.log(txHashA)
     // console.log(txHashA)
 };
 

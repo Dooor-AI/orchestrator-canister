@@ -3,6 +3,7 @@ service: () -> {
     closeDeploymentAkashFromAddress: (text) -> (text);
     createAndStoreCertificateKeys: () -> (text);
     createDeploymentAkash: () -> (text);
+    returnCanisterEVMAddress: () -> (text);
     createLeaseAkash: (text, text, text, text, text) -> (text);
     createUser: (text) -> (text);
     getAkashAddress: (text) -> (text);
