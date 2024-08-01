@@ -232,7 +232,7 @@ export async function sendManifest(url: string, body: string | null, method: str
                             post: null
                         },
                         headers: [{name:'Content-Type', value:'application/json'}],
-                        body: body && body?.length > 0 ? Some(
+                        body: Some(
                           Buffer.from(
                               JSON.stringify({
                                   method: method,
@@ -243,7 +243,7 @@ export async function sendManifest(url: string, body: string | null, method: str
                               }),
                               'utf-8'
                           )
-                      ) : None,
+                      ),
                         transform: Some({
                             function: [ic.id(), 'transformResponse'] as [Principal, string],
                             context: Uint8Array.from([])
