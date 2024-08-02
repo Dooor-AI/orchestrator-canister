@@ -24,6 +24,14 @@ const User = Record({
 
 type User = typeof User.tsType;
 
+const Funding = Record({
+    id: text, // funding id
+    deploymentId: text, // deployment id
+    status: text, // nondeployed, deploying, deployed
+    value: text,
+});
+export type Funding = typeof Funding.tsType;
+
 const Deployment = Record({
     id: text, // evm address
     status: text, // nondeployed, deploying, deployed
@@ -44,12 +52,16 @@ type Db = {
     },
     deployments: {
         [id: string]: Deployment
+    },
+    fundings: {
+        [id: string]: Funding
     }
 };
 
 export let db: Db = {
     users: {},
-    deployments: {}
+    deployments: {},
+    fundings: {}
 };
 
 // certPem and certPubpem as base64

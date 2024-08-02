@@ -11,10 +11,10 @@ import {
   import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAkashDeployment } from './services/deployment_akash';  // Atualize o caminho conforme necessário
 import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
-import { getAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
+import { getAkashAddress, getCanisterAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
-import { closeDeployment, newDeployment } from './services/deployment_workflow';
+import { closeDeployment, fundDeploymentTest, newDeployment } from './services/deployment_workflow';
 import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
@@ -45,6 +45,8 @@ export default Canister({
     newDeployment,
     getCanisterAddressEVMEnd,
     sendManifestAkash,
+    getCanisterAkashAddress,
+    fundDeploymentTest,
     returnCanisterEVMAddress,
     transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
         return {

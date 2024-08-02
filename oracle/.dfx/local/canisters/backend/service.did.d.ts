@@ -3,6 +3,7 @@ import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
 export interface _SERVICE {
+  'closeDeployment' : ActorMethod<[string], string>,
   'closeDeploymentAkash' : ActorMethod<[string], string>,
   'closeDeploymentAkashFromAddress' : ActorMethod<[string], string>,
   'createAndStoreCertificateKeys' : ActorMethod<[], string>,
@@ -15,6 +16,7 @@ export interface _SERVICE {
   'getAkashAddress' : ActorMethod<[string], string>,
   'getBidsA' : ActorMethod<[], string>,
   'getCanisterAddressEVMEnd' : ActorMethod<[string], string>,
+  'getDeployment' : ActorMethod<[string], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string

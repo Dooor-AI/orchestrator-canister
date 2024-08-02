@@ -67,6 +67,11 @@ export const getAkashAddress = update([text], text, async (ethereumAddress: stri
     return await getAddressAkashFromEVM(ethereumAddress)
   })
 
+// Função para preparar uma mensagem de transação
+export const getCanisterAkashAddress = update([], text, async () => {
+    return await getAddressAkash()
+  })
+
 export async function getAddressAkash() {
 const publicKeyResult = await ic.call(
     managementCanister.ecdsa_public_key,

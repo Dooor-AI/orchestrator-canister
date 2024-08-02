@@ -5,12 +5,12 @@ const { bech32 } = require('bech32');
 import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { ethers } from 'ethers';
-import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
+import { getAddressAkash, getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
-import { Deployment, akashCertGlobal, db, getAkashAddress } from './user';
+import { Deployment, Funding, akashCertGlobal, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
-import { createDeployment, createLease, newCloseDeployment } from './deployment_akash_3';
+import { createDeployment, createLease, fundDeploymentTesting, newCloseDeployment } from './deployment_akash_3';
 import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
@@ -21,6 +21,7 @@ import { wait } from './timer';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { updateContractNewEVM } from './interaction_evm';
 import { callRpc } from './evm_rpc_interaction';
+import { deploy } from 'azle/test';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -221,6 +222,94 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
   const txDeployment = await newCloseDeployment(fromAddress, pubKeyEncoded, transaction[6], db.deployments[tokenId].dseq)
 
   db.deployments[tokenId].status = 'closedDeployment'
+  return String('Closed');
+});
+
+export const fundDeployment = update([text], text, async (tokenId: string) => {
+  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
+  const provider = new ethers.JsonRpcProvider(providerUrl);
+
+  const contract = new ethers.Contract(
+    contractAddress,
+    dplABI,
+    provider,
+  );
+  // const transaction = await contract.Items(tokenId);
+
+  const functionSignature = 'Fundings(uint256)';
+  const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+  const jsonValue = {
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{
+        to: contractAddress,
+        data: data
+      }, "latest"],
+      id: 1
+    };
+  
+  const resTransaction = await callRpc(providerUrl, jsonValue)
+  const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
+
+  console.log('retornei');
+  console.log(Number(transaction[0]))
+
+
+  if (Number(transaction[0]) === 0) {
+      console.log('funding does not exits')
+      throw ('funding does not exist')
+  }
+  const deploymentId = String(Number(transaction[1]))
+
+  if (db.deployments[deploymentId].status === 'closedDeployment') {
+      console.log('deployment is already closed')
+      throw ('deployment is already closed')
+  } 
+  if (!db.deployments[deploymentId]) {
+      console.log('deployment do not exist')
+      throw ('deployment do not exist')
+  }
+  if (db.fundings[tokenId].status === 'executed' || db.fundings[tokenId].status === 'executing') {
+    console.log('deployment already executed')
+    throw ('deployment already executed')
+  }
+  if (!db.fundings[tokenId]) {
+    console.log('funding nao achado')
+    const funding: Funding = {
+        id: tokenId,
+        deploymentId: deploymentId,
+        status: 'nonExecuted',
+        value: String(Number(transaction[2]))
+    };
+
+    db.fundings[tokenId] = funding;
+  }
+  if (db.fundings[tokenId] && db.fundings[tokenId]?.status !== 'nonExecuted') {
+      console.log('token is executing or already been executed')
+      throw ('token is executing or already been executed')
+  }
+
+  //start deplyoment
+  db.fundings[tokenId].status = 'executing'
+
+  const userId = db.deployments[deploymentId].userId
+
+  const fromAddress = db.users[userId].akashAddress
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(userId);
+
+  console.log('closing deployment')
+  const txDeployment = await newCloseDeployment(fromAddress, pubKeyEncoded, userId, db.deployments[tokenId].dseq)
+
+  db.deployments[tokenId].status = 'closedDeployment'
+  return String('Closed');
+});
+
+export const fundDeploymentTest = update([text, text, text, text], text, async (fromAddressOwner: string, dseq: string, deposit: string) => {
+  const fromAddress = await getAddressAkash();
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64();
+
+  const txDeployment = await fundDeploymentTesting(fromAddress, fromAddressOwner, pubKeyEncoded, dseq, deposit)
+
   return String('Closed');
 });
 

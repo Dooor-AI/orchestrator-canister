@@ -1,4 +1,5 @@
 service: () -> {
+    closeDeployment: (text) -> (text);
     closeDeploymentAkash: (text) -> (text);
     closeDeploymentAkashFromAddress: (text) -> (text);
     createAndStoreCertificateKeys: () -> (text);
@@ -8,6 +9,7 @@ service: () -> {
     getAkashAddress: (text) -> (text);
     getBidsA: () -> (text);
     getCanisterAddressEVMEnd: (text) -> (text);
+    getDeployment: (text) -> (text);
     getDeploymentManifestInfo: (text, text, text, text) -> (text);
     getEcdsaPublicKeyBase64End: () -> (text);
     getEthereumAddress: () -> (text);
