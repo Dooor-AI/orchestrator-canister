@@ -14,8 +14,8 @@ import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendMani
 import { getAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
-import { newDeployment } from './services/deployment_workflow';
-import { createUser, getBidsA, getNewAkashCertificate, getUsers } from './services/user';
+import { closeDeployment, newDeployment } from './services/deployment_workflow';
+import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
@@ -26,9 +26,11 @@ const Signature = Record({
 export default Canister({
     getAkashAddress,
     createDeploymentAkash,
+    getDeployment,
     createLeaseAkash,
     createUser,
     createAndStoreCertificateKeys,
+    closeDeployment,
     closeDeploymentAkash,
     closeDeploymentAkashFromAddress,
     getBidsA,

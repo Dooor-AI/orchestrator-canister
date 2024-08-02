@@ -10,7 +10,7 @@ import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, akashCertGlobal, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
-import { createDeployment, createLease } from './deployment_akash_3';
+import { createDeployment, createLease, newCloseDeployment } from './deployment_akash_3';
 import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
@@ -96,7 +96,6 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const yamlParsed = await getSdlByUrl(sdlUri)
     console.log('value from api')
     console.log(yamlParsed)
-    return ''
     //create deployment
     console.log('creating deployment')
     const txDeployment = await createDeployment(fromAddress, yamlParsed, pubKeyEncoded, transaction[6])
@@ -165,9 +164,69 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     return String('Number(transaction[transaction.length - 1])');
 });
 
+export const closeDeployment = update([text], text, async (tokenId: string) => {
+  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
+  const provider = new ethers.JsonRpcProvider(providerUrl);
+
+  const contract = new ethers.Contract(
+    contractAddress,
+    dplABI,
+    provider,
+  );
+  // const transaction = await contract.Items(tokenId);
+
+  const functionSignature = 'Items(uint256)';
+  const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+  const jsonValue = {
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{
+        to: contractAddress,
+        data: data
+      }, "latest"],
+      id: 1
+    };
+  
+  const resTransaction = await callRpc(providerUrl, jsonValue)
+  const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
+
+  console.log('retornei');
+  console.log(Number(transaction[0]))
+
+  if (Number(transaction[0]) === 0) {
+      console.log('token does not exits')
+      throw ('token does not exist')
+  }
+  if (!db.users[transaction[6]]) {
+      console.log('user does not exist yet')
+      throw ('user does not exist yet')
+  }
+  if (transaction[4] === false) {
+      console.log('deployment is already closed')
+      throw ('deployment is already closed')
+  } 
+
+  if (db.deployments[tokenId] && db.deployments[tokenId]?.status !== 'deployed') {
+      console.log('token is deploying or not been deployed')
+      throw ('token is deploying or not been deployed')
+  }
+
+  //start deplyoment
+  db.deployments[tokenId].status = 'closing'
+
+  const fromAddress = db.users[transaction[6]].akashAddress
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
+
+  console.log('closing deployment')
+  const txDeployment = await newCloseDeployment(fromAddress, pubKeyEncoded, transaction[6], db.deployments[tokenId].dseq)
+
+  db.deployments[tokenId].status = 'closedDeployment'
+  return String('Closed');
+});
+
 export async function deploymentCreateLease(tokenId: string, fromAddress: string, dseq: string, pubKeyEncoded: any, transaction: any) {
   const bids = await getBids(fromAddress, dseq);
-  const bid = bids.bids[1]?.bid?.bid_id;
+  const bid = bids.bids[5]?.bid?.bid_id;
   console.log('got bid')
 
   //create lease

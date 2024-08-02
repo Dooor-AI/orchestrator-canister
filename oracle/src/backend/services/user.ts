@@ -135,6 +135,11 @@ export const getBidsA = update([], text, async () => {
     return 'String(db.users)';
 });
 
+//pass the deploymentId
+export const getDeployment = update([text], text, async (tokenId) => {
+    return JSON.stringify(db.deployments[tokenId]);
+});
+
 // returns akash address from evm address
 export async function getAkashAddress(evmAddress: string) {
     const akashAddress = await getAddressAkashFromEVM(evmAddress);
