@@ -289,6 +289,63 @@ export async function sendManifest(url: string, body: string | null, method: str
       }}
 }
 
+export async function getSdlByUrl(url: string) {
+  let response;
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: 2_000_000n,
+              cycles: 50_000_000_000n,
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  {
+                      url: `${url}`,
+                      max_response_bytes: Some(2_000_000n),
+                      method: {
+                          get: null
+                      },
+                      headers: [{name:'Content-Type', value:'application/json'}],
+                      body: None,
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles: 50_000_000_000n
+          });
+          console.log('deu bom sending url');
+
+          try {
+            const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+            if (responseText?.length > 0) {
+              console.log(JSON.parse(responseText));
+              i = 3;
+              return JSON.parse(responseText);
+            }
+          } catch (err) {
+            console.log('there is no data to retunr')
+          }
+
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
+}
+
 export async function getProviderUri(providerAddress: string) {
   let response;
   console.log('dados')

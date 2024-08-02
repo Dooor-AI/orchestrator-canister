@@ -11,7 +11,7 @@ import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, akashCertGlobal, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
 import { createDeployment, createLease } from './deployment_akash_3';
-import { getBids, getProviderUri, sendManifest, sendManifestTest } from './external_https';
+import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
 import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
@@ -92,9 +92,14 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const fromAddress = db.users[transaction[6]].akashAddress
     const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
 
+    const sdlUri = transaction[3]
+    const yamlParsed = await getSdlByUrl(sdlUri)
+    console.log('value from api')
+    console.log(yamlParsed)
+    return ''
     //create deployment
     console.log('creating deployment')
-    const txDeployment = await createDeployment(fromAddress, pubKeyEncoded, transaction[6])
+    const txDeployment = await createDeployment(fromAddress, yamlParsed, pubKeyEncoded, transaction[6])
 
     db.deployments[tokenId].status = 'deploying-lease'
     db.deployments[tokenId].dseq = txDeployment.dseq
@@ -123,7 +128,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log('now sent get manifest')
 
     //MANIFEST
-    const sentGetManifest = await deploymentGetSendManifestProvider(bid?.gseq, bid?.oseq, bid?.provider, txDeployment.dseq, transaction[6])
+    const sentGetManifest = await deploymentGetSendManifestProvider(yamlParsed,bid?.gseq, bid?.oseq, bid?.provider, txDeployment.dseq, transaction[6])
     // const providerUri = await getProviderUri(bid?.provider)
     // console.log('got provider uri')
 
@@ -176,16 +181,14 @@ export async function deploymentCreateLease(tokenId: string, fromAddress: string
   return bid
 }
 
-export async function deploymentGetSendManifestProvider(gseq: string, oseq: string, provider: string, dseq: string, transaction: any) {
+export async function deploymentGetSendManifestProvider(yamlParsed: any, gseq: string, oseq: string, provider: string, dseq: string, transaction: any) {
   const providerUri = await getProviderUri(provider)
   console.log('got provider uri')
-
-  const yamlStr = YAML.parse(yamlObj);
 
   const urlSent = `${providerUri}/deployment/${dseq}/manifest`
   const urlGet = `${providerUri}/lease/${dseq}/${gseq}/${oseq}/status`
   console.log('sdl')
-  const sdl = getSdl(yamlStr, 'beta3', 'mainnet');
+  const sdl = getSdl(yamlParsed, 'beta3', 'mainnet');
   const mani = sdl.manifest();
   console.log('sending manifgest')
 
