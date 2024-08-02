@@ -244,7 +244,7 @@ export async function getAddressAkashFromEVM(ethereumAddress: string) {
         });
         console.log('encodedPubKey')
         console.log(encodedPubKey)
-        return String(encodedPubKey);
+        return encodedPubKey;
     } else {
         throw new Error("Public key not retrieved successfully.");
     }

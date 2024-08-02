@@ -1,4 +1,4 @@
-import { update, text, ic, None, Record, query, int } from 'azle';
+import { update, text, ic, None, Record, bool, query, int } from 'azle';
 import { encodePubkey, makeSignBytes } from "@cosmjs/proto-signing";
 const crypto = require('crypto');
 const { bech32 } = require('bech32');
@@ -32,6 +32,19 @@ const Funding = Record({
 });
 export type Funding = typeof Funding.tsType;
 
+
+const ToaaAkash = Record({
+    id: text, // evm address
+    akashAddress: text, // the akash address
+    akashPubEncod: text,
+    nonce: text,
+    akashCertPub: text, // akash certificate pubkey - base64 (optional)
+    akashCertPriv: text, // akash certificate private key - base64 (optional)
+    akashCertDeployed: bool, // akash certificate pubkey - base64 (optional)
+});
+export type ToaaAkash = typeof ToaaAkash.tsType;
+
+
 const Deployment = Record({
     id: text, // evm address
     status: text, // nondeployed, deploying, deployed
@@ -55,13 +68,17 @@ type Db = {
     },
     fundings: {
         [id: string]: Funding
+    },
+    toaaAkash: {
+        [id: string]: ToaaAkash
     }
 };
 
 export let db: Db = {
     users: {},
     deployments: {},
-    fundings: {}
+    fundings: {},
+    toaaAkash: {}
 };
 
 // certPem and certPubpem as base64

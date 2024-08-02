@@ -14,16 +14,19 @@ import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendMani
 import { getAkashAddress, getCanisterAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
-import { closeDeployment, fundDeploymentTest, newDeployment } from './services/deployment_workflow';
+import { closeDeployment, fundDeploymentTest, manageFundDeployment, newDeployment } from './services/deployment_workflow';
 import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
+import { toaaCreateCertificate, toaaInitiate } from './services/toaa';
 const Signature = Record({
     signature: blob
 });
 
 export default Canister({
+    toaaInitiate,
+    toaaCreateCertificate,
     getAkashAddress,
     createDeploymentAkash,
     getDeployment,
@@ -42,6 +45,7 @@ export default Canister({
     getNewAkashCertificate,
     newCreateCertificateAkash,
     getEcdsaPublicKeyBase64End,
+    manageFundDeployment,
     newDeployment,
     getCanisterAddressEVMEnd,
     sendManifestAkash,

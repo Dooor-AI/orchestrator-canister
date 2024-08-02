@@ -420,13 +420,111 @@ export async function newCloseDeployment(
   // }
 }
 
+export async function fundDeployment(
+  fromAddress: string, 
+  pubKeyEncoded: any, 
+  evmAddress: string,
+  dseq: string,
+  deposit: string)  {
+  console.log('value I received noww')
+  console.log(fromAddress)
+  console.log(pubKeyEncoded)
+  console.log(dseq)
+  console.log('next')
+
+  const registry = new Registry();
+
+  registry.register('/akash.deployment.v1beta3.MsgDepositDeployment', MsgDepositDeployment);
+
+  const client = await StargateClient.connect(akashPubRPC);
+
+  console.log('after deployment data')
+
+  const newBodyBytes = registry.encode({
+    typeUrl: "/cosmos.tx.v1beta1.TxBody",
+    value: {
+      messages: [
+        {
+          typeUrl: "/akash.deployment.v1beta3.MsgDepositDeployment",
+          value: {
+            id: {
+              owner: 'akash1c3er49222vygzm6g4djr52muf3mspqam6cpqpy',
+              dseq: dseq,
+            },
+            amount: {
+              denom: 'uakt',
+              amount: deposit,
+            },
+            depositor: fromAddress,
+          },
+        },
+      ],
+    },
+  } as EncodeObject);
+
+  const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+  const feeAmount = coins(87500, "uakt");
+  const gasLimit = 3500000;
+
+  console.log('go to make auth')
+  const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+
+  const chainId = await client.getChainId();
+
+  console.log('signing doc')
+  const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+  const signBytes = makeSignBytes(signDoc);
+  const hashedMessage = (sha256(signBytes));
+
+  console.log('signing call')
+  const caller = await getDerivationPathFromAddressEVM(evmAddress)
+  const signatureResult = await ic.call(
+  managementCanister.sign_with_ecdsa,
+  {
+      args: [
+          {
+              message_hash: hashedMessage,
+              derivation_path: [caller],
+              key_id: {
+                  curve: { secp256k1: null },
+                  name: 'dfx_test_key'
+              }
+          }
+      ],
+      cycles: 10_000_000_000n
+  }
+  );
+
+  console.log('new serializing')
+  const txRaw = TxRaw.fromPartial({
+    bodyBytes: newBodyBytes,
+    authInfoBytes: authInfoBytes,
+    signatures: [signatureResult.signature],
+  });
+
+  const txRawBytes = TxRaw.encode(txRaw).finish();
+
+  console.log('broadcasting new broad')
+  const txResult = await client.broadcastTxSync(txRawBytes);
+  return txResult
+
+  // try {
+  //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
+  //   console.log('Transaction confirmed:', result);
+  //   return broadcast;
+  // } catch (error) {
+  //     console.error(error);
+  //     return 'err';
+  // }
+}
+
 export async function fundDeploymentTesting(
   fromAddress: string, 
   fromAddressOwner: string,
   pubKeyEncoded: any, 
   dseq: string,
   deposit: string)  {
-  console.log('value I received')
+  console.log('value I received noww')
   console.log(fromAddress)
   console.log(pubKeyEncoded)
   console.log(dseq)
@@ -455,7 +553,6 @@ export async function fundDeploymentTesting(
               denom: 'uakt',
               amount: Number(deposit),
             },
-            depositor: fromAddress,
           },
         },
       ],
@@ -719,6 +816,7 @@ async function NewDeploymentData(
       denom,
       amount: deposit.toString(),
     };
+    console.log(_deposit)
     console.log('got sdl version and return')
 
     return {

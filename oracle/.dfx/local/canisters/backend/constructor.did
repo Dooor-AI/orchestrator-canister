@@ -6,19 +6,24 @@ service : () -> {
   createDeploymentAkash : () -> (text);
   createLeaseAkash : (text, text, text, text, text) -> (text);
   createUser : (text) -> (text);
+  fundDeploymentTest : (text, text, text) -> (text);
   getAkashAddress : (text) -> (text);
   getBidsA : () -> (text);
   getCanisterAddressEVMEnd : (text) -> (text);
+  getCanisterAkashAddress : () -> (text);
   getDeployment : (text) -> (text);
   getDeploymentManifestInfo : (text, text, text, text) -> (text);
   getEcdsaPublicKeyBase64End : () -> (text);
   getEthereumAddress : () -> (text);
   getNewAkashCertificate : (text, text) -> (text);
   getUsers : () -> (text) query;
+  manageFundDeployment : (text, text) -> (text);
   newCreateCertificateAkash : (text, text) -> (text);
   newDeployment : (text) -> (text);
   returnCanisterEVMAddress : () -> (text);
   sendManifestAkash : (text, text) -> (text);
+  toaaCreateCertificate : () -> (text);
+  toaaInitiate : () -> (text);
   transferAkashTokens : (text, text, text) -> (text);
   transformResponse : (
       record {

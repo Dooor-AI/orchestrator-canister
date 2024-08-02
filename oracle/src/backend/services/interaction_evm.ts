@@ -33,7 +33,7 @@ export const getCanisterAddressEVMEnd = update([text], text, async (mss: string)
 
 export let canisterEVMAddress = ''
 
-async function getCanisterEVMAddress() {
+export async function getCanisterEVMAddress() {
     if (canisterEVMAddress?.length > 0) {
         return canisterEVMAddress
     } else {
