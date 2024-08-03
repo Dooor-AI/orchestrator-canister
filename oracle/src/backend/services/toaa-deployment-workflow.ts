@@ -98,7 +98,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     
     akashToken = akashToken - 20000 - 87500 - 1000 //subtract the ddployment fee and the lease fee and fee for service (1000 aukt)
 
-    if (!(akashToken >= 500000)) {
+    if (akashToken < 500000) {
         console.log('have no akash tokens enough')
         throw ('have no akash tokens enough')
     }
@@ -230,8 +230,26 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
   //start deplyoment
   db.deployments[tokenId].status = 'closing'
 
-  const fromAddress = db.users[transaction[6]].akashAddress
-  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
+  const deploymentValue = Number(transaction[7])
+
+  const akashByEth = await getEthAkashPrice()
+
+  let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
+
+  akashToken = akashToken * 10 ** 6 //transforming in aukt
+
+  
+  akashToken = akashToken - 87500 //subtract the closing fee
+
+  if (akashToken < 0) {
+      console.log('have no akash tokens enough')
+      throw ('have no akash tokens enough')
+  }
+
+  const fromAddress = db.toaaAkash['0x'].akashAddress
+  const evmAddress = await getCanisterEVMAddress()
+
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
 
   console.log('closing deployment')
   const txDeployment = await newCloseDeployment(fromAddress, pubKeyEncoded, transaction[6], db.deployments[tokenId].dseq)
@@ -240,89 +258,103 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
   return String('Closed');
 });
 
-export const manageFundDeployment = update([text, text], text, async (dseq: string, fromEvmAddress: string) => {
-  // const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
-  // const provider = new ethers.JsonRpcProvider(providerUrl);
+export const manageFundDeployment = update([text, text], text, async (tokenId: string) => {
+  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
+  const provider = new ethers.JsonRpcProvider(providerUrl);
 
-  // const contract = new ethers.Contract(
-  //   contractAddress,
-  //   dplABI,
-  //   provider,
-  // );
-  // // const transaction = await contract.Items(tokenId);
+  const contract = new ethers.Contract(
+    contractAddress,
+    dplABI,
+    provider,
+  );
+  // const transaction = await contract.Items(tokenId);
 
-  // const functionSignature = 'Fundings(uint256)';
-  // const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
-  // const jsonValue = {
-  //     jsonrpc: "2.0",
-  //     method: "eth_call",
-  //     params: [{
-  //       to: contractAddress,
-  //       data: data
-  //     }, "latest"],
-  //     id: 1
-  //   };
+  const functionSignature = 'Fundings(uint256)';
+  const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+  const jsonValue = {
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{
+        to: contractAddress,
+        data: data
+      }, "latest"],
+      id: 1
+    };
   
-  // const resTransaction = await callRpc(providerUrl, jsonValue)
-  // const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
+  const resTransaction = await callRpc(providerUrl, jsonValue)
+  const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
 
-  // console.log('retornei');
-  // console.log(Number(transaction[0]))
+  console.log('retornei');
+  console.log(Number(transaction[0]))
 
 
-  // if (Number(transaction[0]) === 0) {
-  //     console.log('funding does not exits')
-  //     throw ('funding does not exist')
-  // }
-  // const deploymentId = String(Number(transaction[1]))
+  if (Number(transaction[0]) === 0) {
+      console.log('funding does not exits')
+      throw ('funding does not exist')
+  }
+  const deploymentId = String(Number(transaction[1]))
 
-  // if (db.deployments[deploymentId].status === 'closedDeployment') {
-  //     console.log('deployment is already closed')
-  //     throw ('deployment is already closed')
-  // } 
-  // if (!db.deployments[deploymentId]) {
-  //     console.log('deployment do not exist')
-  //     throw ('deployment do not exist')
-  // }
-  // if (db.fundings[tokenId].status === 'executed' || db.fundings[tokenId].status === 'executing') {
-  //   console.log('deployment already executed')
-  //   throw ('deployment already executed')
-  // }
-  // if (!db.fundings[tokenId]) {
-  //   console.log('funding nao achado')
-  //   const funding: Funding = {
-  //       id: tokenId,
-  //       deploymentId: deploymentId,
-  //       status: 'nonExecuted',
-  //       value: String(Number(transaction[2]))
-  //   };
+  if (db.deployments[deploymentId].status === 'closedDeployment') {
+      console.log('deployment is already closed')
+      throw ('deployment is already closed')
+  } 
+  if (!db.deployments[deploymentId]) {
+      console.log('deployment do not exist')
+      throw ('deployment do not exist')
+  }
+  if (db.fundings[tokenId].status === 'executed' || db.fundings[tokenId].status === 'executing') {
+    console.log('deployment already executed')
+    throw ('deployment already executed')
+  }
+  if (!db.fundings[tokenId]) {
+    console.log('funding nao achado')
+    const funding: Funding = {
+        id: tokenId,
+        deploymentId: deploymentId,
+        status: 'nonExecuted',
+        value: String(Number(transaction[2]))
+    };
 
-  //   db.fundings[tokenId] = funding;
-  // }
-  // if (db.fundings[tokenId] && db.fundings[tokenId]?.status !== 'nonExecuted') {
-  //     console.log('token is executing or already been executed')
-  //     throw ('token is executing or already been executed')
-  // }
+    db.fundings[tokenId] = funding;
+  }
+  if (db.fundings[tokenId] && db.fundings[tokenId]?.status !== 'nonExecuted') {
+      console.log('token is executing or already been executed')
+      throw ('token is executing or already been executed')
+  }
 
-  // //start deplyoment
-  // db.fundings[tokenId].status = 'executing'
+  //start deplyoment
+  db.fundings[tokenId].status = 'executing'
 
-  // const userId = db.deployments[deploymentId].userId
+  const deploymentValue = Number(transaction[2])
 
-  // const fromAddress = db.users[userId].akashAddress
-  // const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(userId);
+  const akashByEth = await getEthAkashPrice()
 
-  // console.log('executing the fund deployment')
-  // console.log(db.deployments[tokenId].dseq)
-  // console.log(db.deployments[tokenId].dseq) 
-  // console.log(String(Number(transaction[2])))
+  let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
-  const fromAddress = db.users[fromEvmAddress].akashAddress
-  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(fromEvmAddress);
+  akashToken = akashToken * 10 ** 6 //transforming in aukt
+
+  akashToken = akashToken - 87500 //subtract the closing fee
+
+  if (akashToken < 0) {
+      console.log('have no akash tokens enough')
+      throw ('have no akash tokens enough')
+  }
+
+  const userId = db.deployments[deploymentId].userId
+
+  const fromAddress = db.toaaAkash['0x'].akashAddress
+  const evmAddress = await getCanisterEVMAddress()
+
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
+
+  console.log('executing the fund deployment')
+  console.log(db.deployments[deploymentId]?.dseq)
+  console.log(db.deployments[tokenId]?.dseq) 
+  console.log(String(Number(transaction[2])))
 
   console.log('closing deployment')
   console.log(fromAddress)
-  const txDeployment = await fundDeployment(fromAddress, pubKeyEncoded, fromEvmAddress, dseq, '100')
+  const txDeployment = await fundDeployment(fromAddress, pubKeyEncoded, evmAddress, db.deployments[deploymentId]?.dseq, String(akashToken))
 
   return String('Closed');
 });
