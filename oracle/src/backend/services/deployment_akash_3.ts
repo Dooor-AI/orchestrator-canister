@@ -59,7 +59,7 @@ export const akashPubRPC = 'https://akash-rpc.publicnode.com:443';
 const defaultInitialDeposit = 500000;
 
 // Função para preparar uma mensagem de transação
-export async function createDeployment(fromAddress: string, yamlParsed: any, pubKeyEncoded: any, evmAddress: string) {
+export async function createDeployment(fromAddress: string, yamlParsed: any, pubKeyEncoded: any, evmAddress: string, initialDeposit?: number) {
   const registry = new Registry();
   
   registry.register('/akash.deployment.v1beta3.MsgCreateDeployment', MsgCreateDeployment);
@@ -74,7 +74,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     yamlParsed,
     dseq,
     fromAddress,
-    defaultInitialDeposit
+    initialDeposit ?? defaultInitialDeposit
   );
 
   const createDeploymentMsg = getCreateDeploymentMsg(deploymentData);

@@ -200,6 +200,60 @@ export async function sendManifestTest() {
     }}
 }
 
+export async function getHttpRequest(url: string, maxResBts: bigint, cycles: bigint) {
+  let response;
+
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: maxResBts, //2_000_000n
+              cycles: cycles, //50_000_000_000n
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  {
+                      url: url,
+                      max_response_bytes: Some(maxResBts), //2_000_000n
+                      method: {
+                          post: null
+                      },
+                      headers: [{name:'Content-Type', value:'application/json'}],
+                      body: None,
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles: cycles //50_000_000_000n
+          });
+  
+          const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+          console.log('deu bom sending url');
+          console.log(JSON.parse(responseText));
+  
+
+          i = 3;
+
+          return JSON.parse(responseText);
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (i < 3) {
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
+}
+
+
 export async function sendManifest(url: string, body: string | null, method: string, certPem: any, keyPem: string) {
     console.log(url)
     console.log('body')

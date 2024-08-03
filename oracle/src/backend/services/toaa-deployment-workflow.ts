@@ -19,9 +19,10 @@ import { SDL } from '@akashnetwork/akashjs/build/sdl';
 import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 import { wait } from './timer';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
-import { updateContractNewEVM } from './interaction_evm';
+import { getCanisterEVMAddress, updateContractNewEVM } from './interaction_evm';
 import { callRpc } from './evm_rpc_interaction';
 import { deploy } from 'azle/test';
+import { getEthAkashPrice } from './prices';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -86,8 +87,26 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     //start deplyoment
     db.deployments[tokenId].status = 'deploying-deployment'
 
-    const fromAddress = db.toaaAkash[transaction[6]].akashAddress
-    const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(transaction[6]);
+    const deploymentValue = Number(transaction[7])
+
+    const akashByEth = await getEthAkashPrice()
+
+    let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
+
+    akashToken = akashToken * 10 ** 6 //transforming in aukt
+
+    
+    akashToken = akashToken - 20000 - 87500 - 1000 //subtract the ddployment fee and the lease fee and fee for service (1000 aukt)
+
+    if (!(akashToken >= 500000)) {
+        console.log('have no akash tokens enough')
+        throw ('have no akash tokens enough')
+    }
+
+    const fromAddress = db.toaaAkash['0x'].akashAddress
+    const evmAddress = await getCanisterEVMAddress()
+
+    const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
 
     const sdlUri = transaction[3]
     const yamlParsed = await getSdlByUrl(sdlUri)
@@ -95,7 +114,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log(yamlParsed)
     //create deployment
     console.log('creating deployment')
-    const txDeployment = await createDeployment(fromAddress, yamlParsed, pubKeyEncoded, transaction[6])
+    const txDeployment = await createDeployment(fromAddress, yamlParsed, pubKeyEncoded, evmAddress, akashToken)
 
     db.deployments[tokenId].status = 'deploying-lease'
     db.deployments[tokenId].dseq = txDeployment.dseq
@@ -107,7 +126,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     await wait(60000); // Waiting for bids to come
 
     // LEASE
-    const bid = await deploymentCreateLease(tokenId, fromAddress, txDeployment.dseq, pubKeyEncoded, transaction[6])
+    const bid = await deploymentCreateLease(tokenId, fromAddress, txDeployment.dseq, pubKeyEncoded, evmAddress)
     // const bids = await getBids(fromAddress, txDeployment.dseq);
     // const bid = bids.bids[1]?.bid?.bid_id;
     // console.log('got bid')
@@ -124,7 +143,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     console.log('now sent get manifest')
 
     //MANIFEST
-    const sentGetManifest = await deploymentGetSendManifestProvider(yamlParsed,bid?.gseq, bid?.oseq, bid?.provider, txDeployment.dseq, transaction[6])
+    const sentGetManifest = await deploymentGetSendManifestProvider(yamlParsed,bid?.gseq, bid?.oseq, bid?.provider, txDeployment.dseq, evmAddress)
     // const providerUri = await getProviderUri(bid?.provider)
     // console.log('got provider uri')
 
