@@ -14,8 +14,10 @@ import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendMani
 import { getAkashAddress, getCanisterAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
-import { closeDeployment, fundDeploymentTest, manageFundDeployment, newDeployment } from './services/deployment_workflow';
-import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers } from './services/user';
+// import { closeDeployment, fundDeploymentTest, manageFundDeployment, newDeployment } from './services/deployment_workflow';
+import { closeDeployment, closeDeploymentProvisorio, fundDeploymentTest, manageFundDeployment, newDeployment, testEvmInteraction } from './services/toaa-deployment-workflow';
+
+import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers, returnDeployment, userExist } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
@@ -47,11 +49,15 @@ export default Canister({
     getEcdsaPublicKeyBase64End,
     manageFundDeployment,
     newDeployment,
+    closeDeploymentProvisorio,
     getCanisterAddressEVMEnd,
     sendManifestAkash,
     getCanisterAkashAddress,
     fundDeploymentTest,
+    returnDeployment,
     returnCanisterEVMAddress,
+    userExist,
+    testEvmInteraction,
     transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
         return {
             ...args.response,

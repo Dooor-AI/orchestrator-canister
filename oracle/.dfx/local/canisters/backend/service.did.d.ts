@@ -6,6 +6,7 @@ export interface _SERVICE {
   'closeDeployment' : ActorMethod<[string], string>,
   'closeDeploymentAkash' : ActorMethod<[string], string>,
   'closeDeploymentAkashFromAddress' : ActorMethod<[string], string>,
+  'closeDeploymentProvisorio' : ActorMethod<[string, string], string>,
   'createAndStoreCertificateKeys' : ActorMethod<[], string>,
   'createDeploymentAkash' : ActorMethod<[], string>,
   'createLeaseAkash' : ActorMethod<
@@ -32,6 +33,7 @@ export interface _SERVICE {
   'newDeployment' : ActorMethod<[string], string>,
   'returnCanisterEVMAddress' : ActorMethod<[], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
+  'testEvmInteraction' : ActorMethod<[string], string>,
   'toaaCreateCertificate' : ActorMethod<[], string>,
   'toaaInitiate' : ActorMethod<[], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,

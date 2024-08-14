@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
 import { getAddressAkash, getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
-import { Deployment, Funding, akashCertGlobal, db, getAkashAddress } from './user';
+import { Deployment, Funding, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI } from './constants';
 import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, newCloseDeployment } from './deployment_akash_3';
 import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
@@ -23,6 +23,7 @@ import { getCanisterEVMAddress, updateContractNewEVM } from './interaction_evm';
 import { callRpc } from './evm_rpc_interaction';
 import { deploy } from 'azle/test';
 import { getEthAkashPrice } from './prices';
+import { akashCertGlobal } from './toaa';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
@@ -95,10 +96,15 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
 
     akashToken = akashToken * 10 ** 6 //transforming in aukt
 
-    
     akashToken = akashToken - 20000 - 87500 - 1000 //subtract the ddployment fee and the lease fee and fee for service (1000 aukt)
+    
+    console.log('akash tkn')
+    console.log(akashToken)
 
-    if (akashToken < 500000) {
+    // should not allow less of 500000 - now just for tests.
+    //  if (!akashToken || akashToken < 500000) {
+
+    if (!akashToken) {
         console.log('have no akash tokens enough')
         throw ('have no akash tokens enough')
     }
@@ -180,6 +186,10 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     return String('Number(transaction[transaction.length - 1])');
 });
 
+export const testEvmInteraction = update([text], text, async () => {
+  await updateContractNewEVM(2, 'txDeployment.hash')
+  return 'w'
+})
 export const closeDeployment = update([text], text, async (tokenId: string) => {
   const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
   const provider = new ethers.JsonRpcProvider(providerUrl);
@@ -241,10 +251,11 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
   
   akashToken = akashToken - 87500 //subtract the closing fee
 
-  if (akashToken < 0) {
-      console.log('have no akash tokens enough')
-      throw ('have no akash tokens enough')
-  }
+  // UNCOMMENT THIS FOR PROD
+  // if (akashToken < 0) {
+  //     console.log('have no akash tokens enough')
+  //     throw ('have no akash tokens enough')
+  // }
 
   const fromAddress = db.toaaAkash['0x'].akashAddress
   const evmAddress = await getCanisterEVMAddress()
@@ -257,6 +268,44 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
   db.deployments[tokenId].status = 'closedDeployment'
   return String('Closed');
 });
+
+export const closeDeploymentProvisorio = update([text, text], text, async (tokenId: string, dseq: string) => {
+  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
+  const provider = new ethers.JsonRpcProvider(providerUrl);
+
+  const contract = new ethers.Contract(
+    contractAddress,
+    dplABI,
+    provider,
+  );
+  // const transaction = await contract.Items(tokenId);
+
+  const functionSignature = 'Items(uint256)';
+  const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+  const jsonValue = {
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{
+        to: contractAddress,
+        data: data
+      }, "latest"],
+      id: 1
+    };
+  
+  const resTransaction = await callRpc(providerUrl, jsonValue)
+  const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
+
+  const fromAddress = db.toaaAkash['0x'].akashAddress
+  const evmAddress = await getCanisterEVMAddress()
+
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
+
+  console.log('closing deployment')
+  const txDeployment = await newCloseDeployment(fromAddress, pubKeyEncoded, evmAddress, dseq)
+
+  return String('Closed');
+});
+
 
 export const manageFundDeployment = update([text, text], text, async (tokenId: string) => {
   const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
@@ -335,10 +384,11 @@ export const manageFundDeployment = update([text, text], text, async (tokenId: s
 
   akashToken = akashToken - 87500 //subtract the closing fee
 
-  if (akashToken < 0) {
-      console.log('have no akash tokens enough')
-      throw ('have no akash tokens enough')
-  }
+  //UNCOMMENT THIS FOR PRODUCTION
+  // if (akashToken < 0) {
+  //     console.log('have no akash tokens enough')
+  //     throw ('have no akash tokens enough')
+  // }
 
   const userId = db.deployments[deploymentId].userId
 
@@ -395,15 +445,15 @@ export async function deploymentGetSendManifestProvider(yamlParsed: any, gseq: s
   const mani = sdl.manifest();
   console.log('sending manifgest')
 
-  const finalCert = certificateManager.accelarGetPEM(akashCertGlobal[transaction])
+  const finalCert = certificateManager.accelarGetPEM(akashCertGlobal['0x'])
   console.log(finalCert)
   console.log('priv')
-  console.log(db.users[transaction]?.akashCertPriv)
-  const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.users[transaction]?.akashCertPriv);
+  console.log(db.toaaAkash['0x']?.akashCertPriv)
+  const sentPutManifest = await sendManifest(urlSent, JSON.stringify(mani), 'PUT', finalCert, db.toaaAkash['0x']?.akashCertPriv);
   console.log('getting sent get maniges')
   await wait(60000); // Waiting for bids to come
   console.log(urlGet)
-  const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.users[transaction]?.akashCertPriv);
+  const sentGetManifest = await sendManifest(urlGet, null, 'GET', finalCert, db.toaaAkash['0x']?.akashCertPriv);
   console.log(sentGetManifest)
   return sentGetManifest
 }

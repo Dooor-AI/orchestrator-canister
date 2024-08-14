@@ -3,6 +3,11 @@ export const idlFactory = ({ IDL }) => {
     'closeDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
     'closeDeploymentAkash' : IDL.Func([IDL.Text], [IDL.Text], []),
     'closeDeploymentAkashFromAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'closeDeploymentProvisorio' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'createAndStoreCertificateKeys' : IDL.Func([], [IDL.Text], []),
     'createDeploymentAkash' : IDL.Func([], [IDL.Text], []),
     'createLeaseAkash' : IDL.Func(
@@ -39,6 +44,7 @@ export const idlFactory = ({ IDL }) => {
     'newDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
     'returnCanisterEVMAddress' : IDL.Func([], [IDL.Text], []),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'testEvmInteraction' : IDL.Func([IDL.Text], [IDL.Text], []),
     'toaaCreateCertificate' : IDL.Func([], [IDL.Text], []),
     'toaaInitiate' : IDL.Func([], [IDL.Text], []),
     'transferAkashTokens' : IDL.Func(

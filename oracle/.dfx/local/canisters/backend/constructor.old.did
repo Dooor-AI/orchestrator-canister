@@ -2,6 +2,7 @@ service: () -> {
     closeDeployment: (text) -> (text);
     closeDeploymentAkash: (text) -> (text);
     closeDeploymentAkashFromAddress: (text) -> (text);
+    closeDeploymentProvisorio: (text, text) -> (text);
     createAndStoreCertificateKeys: () -> (text);
     createDeploymentAkash: () -> (text);
     createLeaseAkash: (text, text, text, text, text) -> (text);
@@ -22,6 +23,8 @@ service: () -> {
     newDeployment: (text) -> (text);
     returnCanisterEVMAddress: () -> (text);
     sendManifestAkash: (text, text) -> (text);
+    toaaCreateCertificate: () -> (text);
+    toaaInitiate: () -> (text);
     transferAkashTokens: (text, text, text) -> (text);
     transformResponse: (record {context:vec nat8; response:record {status:nat; body:vec nat8; headers:vec record {value:text; name:text}}}) -> (record {status:nat; body:vec nat8; headers:vec record {value:text; name:text}}) query;
     updateContractEVMEnd: () -> (text);

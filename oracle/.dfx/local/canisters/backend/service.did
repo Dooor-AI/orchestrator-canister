@@ -2,6 +2,7 @@ service : {
   closeDeployment : (text) -> (text);
   closeDeploymentAkash : (text) -> (text);
   closeDeploymentAkashFromAddress : (text) -> (text);
+  closeDeploymentProvisorio : (text, text) -> (text);
   createAndStoreCertificateKeys : () -> (text);
   createDeploymentAkash : () -> (text);
   createLeaseAkash : (text, text, text, text, text) -> (text);
@@ -22,6 +23,7 @@ service : {
   newDeployment : (text) -> (text);
   returnCanisterEVMAddress : () -> (text);
   sendManifestAkash : (text, text) -> (text);
+  testEvmInteraction : (text) -> (text);
   toaaCreateCertificate : () -> (text);
   toaaInitiate : () -> (text);
   transferAkashTokens : (text, text, text) -> (text);

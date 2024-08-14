@@ -69,12 +69,18 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
   const currentHeight = await getCurrentHeight(client);
   const dseq = currentHeight.toString();
   // const yamlStr = YAML.parse(yamlObj);
+  console.log('passei')
 
+  if (!initialDeposit || initialDeposit < 0) {
+    initialDeposit = defaultInitialDeposit
+  }
+  console.log('sending ', + initialDeposit)
+  console.log('yaml ', yamlParsed)
   const deploymentData = await NewDeploymentData(
     yamlParsed,
     dseq,
     fromAddress,
-    initialDeposit ?? defaultInitialDeposit
+    initialDeposit
   );
 
   const createDeploymentMsg = getCreateDeploymentMsg(deploymentData);
@@ -798,7 +804,7 @@ async function NewDeploymentData(
   yamlStr: string,
   dseq: string | null,
   fromAddress: string,
-  deposit = defaultInitialDeposit,
+  deposit: number,
   depositorAddress: string | null = null,
 ) {
   try {

@@ -169,6 +169,18 @@ export const getDeployment = update([text], text, async (tokenId) => {
     return JSON.stringify(db.deployments[tokenId]);
 });
 
+export const returnDeployment = query([text], text, async (tokenId: string) => {
+    console.log('return deployment')
+    console.log(JSON.stringify(db.deployments[tokenId]))
+    return JSON.stringify(db.deployments[tokenId]);
+});
+
+export const userExist = query([text], text, async (evmAddress: string) => {
+    console.log('return deployment')
+    console.log(JSON.stringify(db.users[evmAddress]))
+    return JSON.stringify(db.users[evmAddress]?.id?.length > 0);
+});
+
 // returns akash address from evm address
 export async function getAkashAddress(evmAddress: string) {
     const akashAddress = await getAddressAkashFromEVM(evmAddress);

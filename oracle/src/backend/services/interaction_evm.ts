@@ -37,7 +37,6 @@ export async function getCanisterEVMAddress() {
     if (canisterEVMAddress?.length > 0) {
         return canisterEVMAddress
     } else {
-        console.log('comecei new deployment')
         const evmAddress = "0x4d1b1137306e43449cdfe61434d03df36259Bc80"
         const provider = new ethers.JsonRpcProvider(`https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR`);
         const contract = new ethers.Contract(
@@ -52,7 +51,6 @@ export async function getCanisterEVMAddress() {
         const input1 = 'newtest';
         const input2 = '0xfACF2850792b5e32a0497CfeD8667649B9f5ec97';
         const data = contract.interface.encodeFunctionData(functionSignature, [input1, input2]);
-        console.log(data)
     
         const tx = {
             to: evmAddress,
@@ -118,7 +116,6 @@ export async function getCanisterEVMAddress() {
         console.log('final addresses')
         console.log(addresses)
         const finals = encontrarMaisRepetido(addresses)
-        console.log(finals)
         canisterEVMAddress = finals
         return finals
     }
@@ -470,7 +467,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
         value,
         gasPrice: resTransaction.result,
         chainId: resTransaction3.result,
-        gasLimit: BigInt(36000),
+        gasLimit: BigInt(72000),
         data,
         nonce: resTransaction2.result,
       };

@@ -219,7 +219,7 @@ export async function getHttpRequest(url: string, maxResBts: bigint, cycles: big
                       url: url,
                       max_response_bytes: Some(maxResBts), //2_000_000n
                       method: {
-                          post: null
+                          get: null
                       },
                       headers: [{name:'Content-Type', value:'application/json'}],
                       body: None,
@@ -345,6 +345,7 @@ export async function sendManifest(url: string, body: string | null, method: str
 
 export async function getSdlByUrl(url: string) {
   let response;
+  console.log('calling ', url)
   for (let i = 1; i <= 3; i++) {
     console.log("Try #" + i);
     try {
@@ -378,6 +379,7 @@ export async function getSdlByUrl(url: string) {
           try {
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
             if (responseText?.length > 0) {
+              console.log('res:')
               console.log(JSON.parse(responseText));
               i = 3;
               return JSON.parse(responseText);
