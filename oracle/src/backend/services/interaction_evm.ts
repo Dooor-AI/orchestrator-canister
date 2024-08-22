@@ -6,7 +6,7 @@ import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { ethers } from 'ethers';
 import { getAddressAkashFromEVM, getAddressEVM, getDerivationPathFromAddressEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
-import { chainRPC, contractAddress, dplABI } from './constants';
+import { canisterKeyEcdsa, chainRPC, contractAddress, dplABI, providerUrl } from './constants';
 import * as YAML from 'yaml';
 import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
 import { SDL } from '@akashnetwork/akashjs/build/sdl';
@@ -78,11 +78,11 @@ export async function getCanisterEVMAddress() {
                             derivation_path: [],
                             key_id: {
                                 curve: { secp256k1: null },
-                                name: 'dfx_test_key'
+                                name: canisterKeyEcdsa
                             }
                         }
                     ],
-                    cycles: 10_000_000_000n
+                    cycles: 25_000_000_000n
                 }
             );
         
@@ -239,7 +239,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
                     derivation_path: [],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -255,7 +255,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
                     derivation_path: [],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -271,7 +271,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
                 derivation_path: [],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],
@@ -383,7 +383,6 @@ async function y_parity(txhash: any, signature: any, pubkey: any) {
     return 27;
 }
 
-const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
 
 export async function updateContractNewEVM(tokenId: number, akashHash: string) {
     console.log('comecei new contract interaction')
@@ -486,7 +485,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
                 derivation_path: [],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],
@@ -563,7 +562,7 @@ export async function getCanisterAddressEVM(mss: string) {
                 derivation_path: [caller],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],

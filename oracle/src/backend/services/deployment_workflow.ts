@@ -9,7 +9,7 @@ import { getAddressAkash, getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEc
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, Funding, akashCertGlobal, db, getAkashAddress } from './user';
-import { chainRPC, contractAddress, dplABI } from './constants';
+import { chainRPC, contractAddress, dplABI, providerUrl } from './constants';
 import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, newCloseDeployment } from './deployment_akash_3';
 import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
@@ -25,7 +25,6 @@ import { deploy } from 'azle/test';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
-    const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
     const provider = new ethers.JsonRpcProvider(providerUrl);
 
     const contract = new ethers.Contract(
@@ -166,7 +165,6 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
 });
 
 export const closeDeployment = update([text], text, async (tokenId: string) => {
-  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const contract = new ethers.Contract(

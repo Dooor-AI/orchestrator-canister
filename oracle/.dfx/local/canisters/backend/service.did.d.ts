@@ -16,6 +16,7 @@ export interface _SERVICE {
   'createUser' : ActorMethod<[string], string>,
   'fundDeploymentTest' : ActorMethod<[string, string, string], string>,
   'getAkashAddress' : ActorMethod<[string], string>,
+  'getAkashHeight' : ActorMethod<[], string>,
   'getBidsA' : ActorMethod<[], string>,
   'getCanisterAddressEVMEnd' : ActorMethod<[string], string>,
   'getCanisterAkashAddress' : ActorMethod<[], string>,
@@ -27,14 +28,17 @@ export interface _SERVICE {
   'getEcdsaPublicKeyBase64End' : ActorMethod<[], string>,
   'getEthereumAddress' : ActorMethod<[], string>,
   'getNewAkashCertificate' : ActorMethod<[string, string], string>,
+  'getPubKey' : ActorMethod<[], string>,
   'getUsers' : ActorMethod<[], string>,
   'manageFundDeployment' : ActorMethod<[string, string], string>,
   'newCreateCertificateAkash' : ActorMethod<[string, string], string>,
   'newDeployment' : ActorMethod<[string], string>,
   'returnCanisterEVMAddress' : ActorMethod<[], string>,
+  'returnDeployment' : ActorMethod<[string], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
   'testEvmInteraction' : ActorMethod<[string], string>,
   'toaaCreateCertificate' : ActorMethod<[], string>,
+  'toaaInfo' : ActorMethod<[], string>,
   'toaaInitiate' : ActorMethod<[], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
   'transformResponse' : ActorMethod<
@@ -55,6 +59,7 @@ export interface _SERVICE {
     }
   >,
   'updateContractEVMEnd' : ActorMethod<[], string>,
+  'userExist' : ActorMethod<[string], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

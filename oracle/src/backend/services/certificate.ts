@@ -53,6 +53,7 @@ import { getManifestProviderUriValue, sendManifestToProvider } from './manifest'
 import { akashPubRPC } from './deployment_akash_2';
 import { akashCertGlobal, db } from './user';
 import {parse} from 'flatted'
+import { canisterKeyEcdsa } from './constants';
 
 export const createCertificateAkashTest = update([text, text, text, text], text, async (fromAddress: string, pubKeyEncoded: string, certPem: string, certPubpem: string) => {
     const registry = new Registry();
@@ -101,7 +102,7 @@ export const createCertificateAkashTest = update([text, text, text, text], text,
                     derivation_path: [caller],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],
@@ -202,7 +203,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
                     derivation_path: [caller],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],
@@ -279,7 +280,7 @@ export const createCertificateAkash = async (fromAddress: string, pubKeyEncoded:
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],

@@ -51,6 +51,8 @@ import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
+import { akashApiUrl, akashChainId, akashProviderUrl, canisterKeyEcdsa } from './constants';
+import { getHttpRequest, postHttpRequest } from './external_https';
 
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
@@ -66,10 +68,13 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
   
   const client = await StargateClient.connect(akashPubRPC);
 
-  const currentHeight = await getCurrentHeight(client);
-  const dseq = currentHeight.toString();
+  const currentHeight = await getHeightAkash();
+  const dseq = currentHeight;
   // const yamlStr = YAML.parse(yamlObj);
   console.log('passei')
+  console.log(dseq)
+  console.log('from address')
+  console.log(fromAddress)
 
   if (!initialDeposit || initialDeposit < 0) {
     initialDeposit = defaultInitialDeposit
@@ -98,13 +103,13 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
   } as EncodeObject);
 
     console.log('go to encode')
-    const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+    const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
     const feeAmount = coins(20000, "uakt");
     const gasLimit = 800000;
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-    const chainId = await client.getChainId();
+    const chainId = akashChainId;
     console.log('the chain id')
     console.log(chainId)
     console.log('signing doc')
@@ -123,7 +128,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],
@@ -140,17 +145,20 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
   
     const txRawBytes = TxRaw.encode(txRaw).finish();
 
+    const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
     console.log('broadcasting new broad')
-    const txResult = await client.broadcastTxSync(txRawBytes);
+    const tx = await broadcastTransactionSync(txRawBase64)
+    return tx?.tx_response?.txhash
+    // const txResult = await client.broadcastTxSync(txRawBytes);
 
-    try {
-        const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
-        console.log('Transaction confirmed:', result);
-        return {hash: result.hash, dseq};
-      } catch (error) {
-          console.error(error);
-          throw 'error'
-      }
+    // try {
+    //     const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
+    //     console.log('Transaction confirmed:', result);
+    //     return {hash: result.hash, dseq};
+    //   } catch (error) {
+    //       console.error(error);
+    //       throw 'error'
+    //   }
   }
 
   export async function closeDeployment(fromAddress: string, pubKeyEncoded: any, evmAddress: string, dseq: string) {
@@ -179,13 +187,13 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     } as EncodeObject);
   
       console.log('go to encode')
-      const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+      const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
       const feeAmount = coins(25000, "uakt");
       const gasLimit = 1000000;
       console.log('go to make auth')
       const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
   
-      const chainId = await client.getChainId();
+      const chainId = akashChainId;
       console.log('the chain id')
       console.log(chainId)
       console.log('signing doc')
@@ -204,7 +212,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
                     derivation_path: [caller],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],
@@ -221,17 +229,10 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     
       const txRawBytes = TxRaw.encode(txRaw).finish();
   
+      const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
       console.log('broadcasting new broad')
-      const txResult = await client.broadcastTxSync(txRawBytes);
-  
-      try {
-          const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
-          console.log('Transaction confirmed:', result);
-          return {hash: result.hash, dseq};
-        } catch (error) {
-            console.error(error);
-            throw 'error'
-        }
+      const tx = await broadcastTransactionSync(txRawBase64)
+      return tx?.tx_response?.txhash
     }
 
 export async function createLease(
@@ -278,14 +279,14 @@ export async function createLease(
         },
     } as EncodeObject);
 
-    const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+    const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
     const feeAmount = coins(87500, "uakt");
     const gasLimit = 3500000;
 
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-    const chainId = await client.getChainId();
+    const chainId = akashChainId;
 
     console.log('signing doc')
     const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
@@ -303,7 +304,7 @@ export async function createLease(
                 derivation_path: [caller],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],
@@ -320,18 +321,10 @@ export async function createLease(
 
     const txRawBytes = TxRaw.encode(txRaw).finish();
 
+    const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
     console.log('broadcasting new broad')
-    const txResult = await client.broadcastTxSync(txRawBytes);
-    return txResult
-
-    // try {
-    //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
-    //   console.log('Transaction confirmed:', result);
-    //   return broadcast;
-    // } catch (error) {
-    //     console.error(error);
-    //     return 'err';
-    // }
+    const tx = await broadcastTransactionSync(txRawBase64)
+    return tx?.tx_response?.txhash
 }
 
 export async function newCloseDeployment(
@@ -370,14 +363,14 @@ export async function newCloseDeployment(
     },
   } as EncodeObject);
 
-  const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+  const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
   const feeAmount = coins(87500, "uakt");
   const gasLimit = 3500000;
 
   console.log('go to make auth')
   const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-  const chainId = await client.getChainId();
+  const chainId = akashChainId;
 
   console.log('signing doc')
   const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
@@ -395,7 +388,7 @@ export async function newCloseDeployment(
               derivation_path: [caller],
               key_id: {
                   curve: { secp256k1: null },
-                  name: 'dfx_test_key'
+                  name: canisterKeyEcdsa
               }
           }
       ],
@@ -412,18 +405,10 @@ export async function newCloseDeployment(
 
   const txRawBytes = TxRaw.encode(txRaw).finish();
 
+  const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
   console.log('broadcasting new broad')
-  const txResult = await client.broadcastTxSync(txRawBytes);
-  return txResult
-
-  // try {
-  //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
-  //   console.log('Transaction confirmed:', result);
-  //   return broadcast;
-  // } catch (error) {
-  //     console.error(error);
-  //     return 'err';
-  // }
+  const tx = await broadcastTransactionSync(txRawBase64)
+  return tx?.tx_response?.txhash
 }
 
 export async function fundDeployment(
@@ -468,14 +453,14 @@ export async function fundDeployment(
     },
   } as EncodeObject);
 
-  const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+  const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
   const feeAmount = coins(87500, "uakt");
   const gasLimit = 3500000;
 
   console.log('go to make auth')
   const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-  const chainId = await client.getChainId();
+  const chainId = akashChainId;
 
   console.log('signing doc')
   const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
@@ -493,7 +478,7 @@ export async function fundDeployment(
               derivation_path: [caller],
               key_id: {
                   curve: { secp256k1: null },
-                  name: 'dfx_test_key'
+                  name: canisterKeyEcdsa
               }
           }
       ],
@@ -510,18 +495,10 @@ export async function fundDeployment(
 
   const txRawBytes = TxRaw.encode(txRaw).finish();
 
+  const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
   console.log('broadcasting new broad')
-  const txResult = await client.broadcastTxSync(txRawBytes);
-  return txResult
-
-  // try {
-  //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
-  //   console.log('Transaction confirmed:', result);
-  //   return broadcast;
-  // } catch (error) {
-  //     console.error(error);
-  //     return 'err';
-  // }
+  const tx = await broadcastTransactionSync(txRawBase64)
+  return tx?.tx_response?.txhash
 }
 
 export async function fundDeploymentTesting(
@@ -565,14 +542,14 @@ export async function fundDeploymentTesting(
     },
   } as EncodeObject);
 
-  const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
+  const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
   const feeAmount = coins(87500, "uakt");
   const gasLimit = 3500000;
 
   console.log('go to make auth')
   const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-  const chainId = await client.getChainId();
+  const chainId = akashChainId;
 
   console.log('signing doc')
   const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
@@ -589,7 +566,7 @@ export async function fundDeploymentTesting(
               derivation_path: [],
               key_id: {
                   curve: { secp256k1: null },
-                  name: 'dfx_test_key'
+                  name: canisterKeyEcdsa
               }
           }
       ],
@@ -607,17 +584,10 @@ export async function fundDeploymentTesting(
   const txRawBytes = TxRaw.encode(txRaw).finish();
 
   console.log('broadcasting new broad')
-  const txResult = await client.broadcastTxSync(txRawBytes);
-  return txResult
-
-  // try {
-  //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
-  //   console.log('Transaction confirmed:', result);
-  //   return broadcast;
-  // } catch (error) {
-  //     console.error(error);
-  //     return 'err';
-  // }
+  const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
+  console.log('broadcasting new broad')
+  const tx = await broadcastTransactionSync(txRawBase64)
+  return tx?.tx_response?.txhash
 }
 
 export const closeDeploymentAkashFromAddress = update([text], text, async (dseq: string) => {
@@ -651,14 +621,14 @@ export const closeDeploymentAkashFromAddress = update([text], text, async (dseq:
     },
   } as EncodeObject);
 
-    const { accountNumber, sequence } = (await client.getSequence(fromAddress))!;
-    const feeAmount = coins(25000, "uakt");
+  const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
+  const feeAmount = coins(25000, "uakt");
     const gasLimit = 1000000;
 
     console.log('go to make auth')
     const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
-    const chainId = await client.getChainId();
+    const chainId = akashChainId;
 
     console.log('signing doc')
     const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
@@ -676,7 +646,7 @@ export const closeDeploymentAkashFromAddress = update([text], text, async (dseq:
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],
@@ -694,17 +664,10 @@ export const closeDeploymentAkashFromAddress = update([text], text, async (dseq:
     const txRawBytes = TxRaw.encode(txRaw).finish();
 
     console.log('broadcasting new broad')
-    const txResult = await client.broadcastTxSync(txRawBytes);
-    return txResult
-
-    // try {
-    //   const result = await waitForTransaction(client, broadcast, 120000, 3000); // Espera 2 minutos
-    //   console.log('Transaction confirmed:', result);
-    //   return broadcast;
-    // } catch (error) {
-    //     console.error(error);
-    //     return 'err';
-    // }
+    const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
+    console.log('broadcasting new broad')
+    const tx = await broadcastTransactionSync(txRawBase64)
+    return tx?.tx_response?.txhash
   })
 
 // Função para criar um Uint8Array de um objeto TxRaw
@@ -772,10 +735,35 @@ function getCreateDeploymentMsg(deploymentData: any) {
     return message;
   }
 
-  async function getCurrentHeight(client: StargateClient): Promise<number> {
-    const latestBlock = await client.getBlock();
-    return latestBlock.header.height;
+  export async function getHeightAkash() {
+    const url  = `${akashProviderUrl}/status`
+    const res = await getHttpRequest(url, 2_000_000n, 20_000_000_000n)
+    console.log('res aqui height')
+    console.log(res)
+    return String(res?.result?.sync_info?.latest_block_height)
   }
+
+  export async function getAccountNumberAndSequence(akashAddress: string) {
+    const url = `${akashApiUrl}/cosmos/auth/v1beta1/accounts/${akashAddress}`
+    const res = await getHttpRequest(url, 2_000_000n, 50_000_000_000n)
+    return {accountNumber: Number(res?.account?.account_number), sequence: Number(res?.account?.sequence)}
+  }
+
+  export async function broadcastTransactionSync(tx: string) {
+    const url = `${akashApiUrl}/cosmos/tx/v1beta1/txs`
+    const data = {
+      tx_bytes: tx,
+      mode: 'BROADCAST_MODE_SYNC'
+    }
+    const res = await postHttpRequest(url, 2_000_000n, 50_000_000_000n, data)
+    console.log(res)
+    return res
+  }
+
+  // async function getCurrentHeight(client: StargateClient): Promise<number> {
+  //   const latestBlock = await client.getBlock();
+  //   return latestBlock.header.height;
+  // }
 
   function isValidString(value: unknown): value is string {
     return typeof value === 'string' && !!value;

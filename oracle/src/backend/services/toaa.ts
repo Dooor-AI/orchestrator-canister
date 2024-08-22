@@ -56,6 +56,8 @@ import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
 import { akashPubRPC } from './deployment_akash_2';
 import { db, getAkashAddress, ToaaAkash } from './user';
+import { akashChainId, canisterKeyEcdsa } from './constants';
+import { broadcastTransactionSync, getAccountNumberAndSequence } from './deployment_akash_3';
 
 const yamlObj = ``;
 
@@ -90,6 +92,10 @@ export const toaaInitiate = update([], text, async () => {
     return db.toaaAkash['0x'].akashAddress;
 });
 
+export const toaaInfo = query([], text, async () => {
+  return JSON.stringify(db.toaaAkash['0x'])
+});
+
 export const toaaCreateCertificate = update([], text, async () => {
     if (db.toaaAkash['0x'].akashCertDeployed) {
         throw ('Toaa already created akash cert');
@@ -105,9 +111,7 @@ export const toaaCreateCertificate = update([], text, async () => {
     const registry = new Registry();
     
     registry.register('/akash.cert.v1beta3.MsgCreateCertificate', MsgCreateCertificate);
-    
-    const client = await StargateClient.connect(akashPubRPC);
-  
+      
     const newBodyBytes = registry.encode({
       typeUrl: "/cosmos.tx.v1beta1.TxBody",
       value: {
@@ -127,13 +131,13 @@ export const toaaCreateCertificate = update([], text, async () => {
       console.log('go to encode passei')
       console.log(fromAddress)
       console.log(pubKeyEncoded)
-      const { accountNumber, sequence } = await client.getSequence(fromAddress);
+      const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
       const feeAmount = coins(20000, "uakt");
       const gasLimit = 800000;
       console.log('go to make auth')
       const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit);
   
-      const chainId = await client.getChainId();
+      const chainId = akashChainId;
 
       const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
       const signBytes = makeSignBytes(signDoc);
@@ -151,11 +155,11 @@ export const toaaCreateCertificate = update([], text, async () => {
                     derivation_path: [caller],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],
-            cycles: 10_000_000_000n
+            cycles: 25_000_000_000n
         }
       );
   
@@ -168,15 +172,9 @@ export const toaaCreateCertificate = update([], text, async () => {
       // Serializando o objeto TxRaw para Uint8Array
       const txRawBytes = TxRaw.encode(txRaw).finish();
   
-      const txResult = await client.broadcastTxSync(txRawBytes);
-      console.log( `Transaction Result: ${txResult}`)
-
-      try {
-        const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
-        console.log('Transaction confirmed:', result);
-        return result.hash;
-      } catch (error) {
-          console.error(error);
-          return 'error';
-      }
+      const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
+      console.log('broadcasting new broad')
+      const tx = await broadcastTransactionSync(txRawBase64)
+      return tx?.tx_response?.txhash
     })
+

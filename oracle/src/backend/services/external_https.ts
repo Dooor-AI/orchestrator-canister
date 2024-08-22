@@ -131,6 +131,66 @@ export async function getBids(owner: string, dseq: string) {
       }}
 }
 
+export async function postHttpRequest(url: string, maxResBts: bigint, cycles: bigint, bodyData: any) {
+  let response;
+  console.log(url)
+  console.log(bodyData)
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: maxResBts,
+              cycles,
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  {
+                      url,
+                      max_response_bytes: Some(maxResBts),
+                      method: {
+                          post: null
+                      },
+                      headers: [{name:'Content-Type', value:'application/json'}],
+                      body: Some(
+                        Buffer.from(
+                            JSON.stringify(bodyData),
+                            'utf-8'
+                        )
+                    ),
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles,
+          });
+  
+          const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+          console.log('deu bom sending url');
+          console.log((responseText));
+  
+
+          i = 3;
+
+          return JSON.parse(responseText);
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
+}
+
 export async function sendManifestTest() {
   let response;
   console.log('dados')

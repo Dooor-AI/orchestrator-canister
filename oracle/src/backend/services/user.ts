@@ -5,11 +5,12 @@ const { bech32 } = require('bech32');
 import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { ethers } from 'ethers';
-import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
+import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import {parse} from 'flatted'
-import { getBids } from './external_https';
+import { getBids, getHttpRequest } from './external_https';
+import { akashProviderUrl } from './constants';
 
 const yamlObj = ``;
 
@@ -144,10 +145,25 @@ export const getNewAkashCertificate = update([text, text], text, async (signatur
     return 'done';
 });
 
+export const getAkashHeight = update([], text, async () => {
+    const url  = `${akashProviderUrl}/status`
+    const res = await getHttpRequest(url, 2_000_000n, 20_000_000_000n)
+    console.log('res aqui height')
+    console.log(res)
+    return String(res?.result?.sync_info?.latest_block_height)
+});
+
 // returns akash address from evm address
 export const getAkashAddressEnd = query([text], text, async (evmAddress: string) => {
     const res = await getAkashAddress(evmAddress);
     return res.akashAddress;
+});
+
+// returns akash address from evm address
+export const getPubKey = query([], text, async () => {
+    const res = await getEcdsaPublicKeyBase64();
+    console.log(res)
+    return String(res);
 });
 
 // returns akash address from evm address

@@ -17,16 +17,19 @@ import { createAndStoreCertificateKeys } from './services/new-test';
 // import { closeDeployment, fundDeploymentTest, manageFundDeployment, newDeployment } from './services/deployment_workflow';
 import { closeDeployment, closeDeploymentProvisorio, fundDeploymentTest, manageFundDeployment, newDeployment, testEvmInteraction } from './services/toaa-deployment-workflow';
 
-import { createUser, getBidsA, getDeployment, getNewAkashCertificate, getUsers, returnDeployment, userExist } from './services/user';
+import { createUser, getAkashHeight, getBidsA, getDeployment, getNewAkashCertificate, getPubKey, getUsers, returnDeployment, userExist } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
-import { toaaCreateCertificate, toaaInitiate } from './services/toaa';
+import { toaaCreateCertificate, toaaInfo, toaaInitiate } from './services/toaa';
 const Signature = Record({
     signature: blob
 });
 
 export default Canister({
+    getPubKey,
+    getAkashHeight,
+    toaaInfo,
     toaaInitiate,
     toaaCreateCertificate,
     getAkashAddress,

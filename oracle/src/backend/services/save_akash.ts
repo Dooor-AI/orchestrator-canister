@@ -220,7 +220,7 @@ export const createDeploymentAkash = update([], text, async () => {
                     derivation_path: [caller],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],

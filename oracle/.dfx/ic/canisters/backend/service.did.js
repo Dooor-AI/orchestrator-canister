@@ -1,7 +1,13 @@
 export const idlFactory = ({ IDL }) => {
   return IDL.Service({
+    'closeDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
     'closeDeploymentAkash' : IDL.Func([IDL.Text], [IDL.Text], []),
     'closeDeploymentAkashFromAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'closeDeploymentProvisorio' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'createAndStoreCertificateKeys' : IDL.Func([], [IDL.Text], []),
     'createDeploymentAkash' : IDL.Func([], [IDL.Text], []),
     'createLeaseAkash' : IDL.Func(
@@ -10,9 +16,16 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'createUser' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'fundDeploymentTest' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getBidsA' : IDL.Func([], [IDL.Text], []),
     'getCanisterAddressEVMEnd' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'getCanisterAkashAddress' : IDL.Func([], [IDL.Text], []),
+    'getDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getDeploymentManifestInfo' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],
@@ -22,13 +35,20 @@ export const idlFactory = ({ IDL }) => {
     'getEthereumAddress' : IDL.Func([], [IDL.Text], []),
     'getNewAkashCertificate' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'getUsers' : IDL.Func([], [IDL.Text], ['query']),
+    'manageFundDeployment' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'newCreateCertificateAkash' : IDL.Func(
         [IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),
     'newDeployment' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'returnCanisterEVMAddress' : IDL.Func([], [IDL.Text], []),
+    'returnDeployment' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'testEvmInteraction' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'toaaCreateCertificate' : IDL.Func([], [IDL.Text], []),
+    'toaaInfo' : IDL.Func([], [IDL.Text], ['query']),
+    'toaaInitiate' : IDL.Func([], [IDL.Text], []),
     'transferAkashTokens' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
         [IDL.Text],
@@ -59,6 +79,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'updateContractEVMEnd' : IDL.Func([], [IDL.Text], []),
+    'userExist' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };

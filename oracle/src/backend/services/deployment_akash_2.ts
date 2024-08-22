@@ -50,6 +50,8 @@ import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import { getManifestProviderUriValue, sendManifestToProvider } from './manifest';
+import { canisterKeyEcdsa } from './constants';
+import { getAkashAddress } from './user';
 
 //ATTENTION: THIS SCRIPT IS MADE TO CREATE AN AKASH DEPLOYMENT, TO MAKE IT WORK, IT WAS NECESSARY TO CHANGE THE FILE AT node_modules/@akashnetwork/akashjs/build/sdl/SDL/SDL.js, SINCE 
 //azle does not accept node:crypto, was installed crypto-js and used in the place of node:crypto.
@@ -59,7 +61,9 @@ const defaultInitialDeposit = 500000;
 
 // Função para preparar uma mensagem de transação
 export const createDeploymentAkash = update([], text, async () => {
-  const fromAddress = await getAddressAkash()
+  const add = await getAkashAddress('0xfACF2850792b5e32a0497CfeD8667649B9f5ec97')
+
+  const fromAddress = add.akashAddress
   const pubKeyEncoded = await getEcdsaPublicKeyBase64()
 
   const registry = new Registry();
@@ -124,7 +128,7 @@ export const createDeploymentAkash = update([], text, async () => {
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],
@@ -141,6 +145,10 @@ export const createDeploymentAkash = update([], text, async () => {
   
     // Serializando o objeto TxRaw para Uint8Array
     const txRawBytes = TxRaw.encode(txRaw).finish();
+    const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
+    console.log('the rx raw base64')
+    console.log(txRawBase64)
+    return 'w'
 
     console.log('broadcasting new broad')
     const txResult = await client.broadcastTxSync(txRawBytes);
@@ -209,7 +217,7 @@ export const transferAkashTokens = update([text, text, text], text, async (fromA
                         derivation_path: [derivationPath],
                         key_id: {
                             curve: { secp256k1: null },
-                            name: 'dfx_test_key'
+                            name: canisterKeyEcdsa
                         }
                     }
                 ],
@@ -288,7 +296,7 @@ export const closeDeploymentAkash = update([text], text, async (dseq: string) =>
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],
@@ -381,7 +389,7 @@ export const createCertificateAkash = update([], text, async () => {
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],
@@ -475,7 +483,7 @@ export const createLeaseAkash = update([text, text, text, text, text], text, asy
                   derivation_path: [caller],
                   key_id: {
                       curve: { secp256k1: null },
-                      name: 'dfx_test_key'
+                      name: canisterKeyEcdsa
                   }
               }
           ],

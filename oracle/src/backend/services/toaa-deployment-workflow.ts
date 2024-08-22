@@ -9,7 +9,7 @@ import { getAddressAkash, getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEc
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, Funding, db, getAkashAddress } from './user';
-import { chainRPC, contractAddress, dplABI } from './constants';
+import { chainRPC, contractAddress, dplABI, providerUrl } from './constants';
 import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, newCloseDeployment } from './deployment_akash_3';
 import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
@@ -22,12 +22,11 @@ import { certificateManager } from '@akashnetwork/akashjs/build/certificates/cer
 import { getCanisterEVMAddress, updateContractNewEVM } from './interaction_evm';
 import { callRpc } from './evm_rpc_interaction';
 import { deploy } from 'azle/test';
-import { getEthAkashPrice } from './prices';
+import { getCoreDaoAkashPrice, getEthAkashPrice } from './prices';
 import { akashCertGlobal } from './toaa';
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {
-    const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
     const provider = new ethers.JsonRpcProvider(providerUrl);
 
     const contract = new ethers.Contract(
@@ -90,7 +89,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
 
     const deploymentValue = Number(transaction[7])
 
-    const akashByEth = await getEthAkashPrice()
+    const akashByEth = await getCoreDaoAkashPrice()
 
     let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
@@ -191,7 +190,6 @@ export const testEvmInteraction = update([text], text, async () => {
   return 'w'
 })
 export const closeDeployment = update([text], text, async (tokenId: string) => {
-  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const contract = new ethers.Contract(
@@ -242,7 +240,7 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
 
   const deploymentValue = Number(transaction[7])
 
-  const akashByEth = await getEthAkashPrice()
+  const akashByEth = await getCoreDaoAkashPrice()
 
   let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
@@ -270,7 +268,6 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
 });
 
 export const closeDeploymentProvisorio = update([text, text], text, async (tokenId: string, dseq: string) => {
-  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const contract = new ethers.Contract(
@@ -308,7 +305,6 @@ export const closeDeploymentProvisorio = update([text, text], text, async (token
 
 
 export const manageFundDeployment = update([text, text], text, async (tokenId: string) => {
-  const providerUrl = 'https://opt-sepolia.g.alchemy.com/v2/na34V2wPZksuxFnkFxeebWVexYWG_SnR'
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const contract = new ethers.Contract(
@@ -376,7 +372,7 @@ export const manageFundDeployment = update([text, text], text, async (tokenId: s
 
   const deploymentValue = Number(transaction[2])
 
-  const akashByEth = await getEthAkashPrice()
+  const akashByEth = await getCoreDaoAkashPrice()
 
   let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 

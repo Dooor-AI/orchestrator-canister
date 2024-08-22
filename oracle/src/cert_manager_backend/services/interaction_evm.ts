@@ -14,6 +14,7 @@ import { NetworkId } from '@akashnetwork/akashjs/build/types/network';
 import { certificateManager } from '@akashnetwork/akashjs/build/certificates/certificate-manager';
 import { Transaction } from 'ethers';
 import { parse, serialize } from "@ethersproject/transactions";
+import { canisterKeyEcdsa } from '../../backend/services/constants';
 
 export const updateContractEVMEnd = update([], text, async () => {
     return await updateContractEVM(1, '0x');
@@ -178,7 +179,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
                     derivation_path: derivationPath,
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -196,7 +197,7 @@ export async function updateContractEVM(tokenId: number, akashHash: string) {
                     derivation_path: derivationPath,
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ],
@@ -283,7 +284,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
                 derivation_path: derivationPath2,
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],
@@ -324,7 +325,7 @@ export async function getCanisterAddressEVM(mss: string) {
                 derivation_path: [caller],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ],

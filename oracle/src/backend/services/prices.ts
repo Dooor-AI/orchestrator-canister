@@ -9,3 +9,12 @@ export async function getEthAkashPrice() {
 
     return ethUSDPrice?.price / akashUSDPrice?.price
 }
+
+export async function getCoreDaoAkashPrice() {
+    const coreUSDPrice = 1
+
+    const akashUrl = 'https://api.squidrouter.com/v1/token-price?chainId=akashnet-2&tokenAddress=uakt'
+    const akashUSDPrice = await getHttpRequest(akashUrl, 2_000_000n, 50_000_000_000n)
+
+    return coreUSDPrice / akashUSDPrice?.price
+}

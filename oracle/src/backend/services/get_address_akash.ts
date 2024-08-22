@@ -6,6 +6,7 @@ import { managementCanister } from 'azle/canisters/management';
 import { fromHex, toBase64, toHex } from "@cosmjs/encoding";
 import { ethers } from 'ethers';
 import { Secp256k1PublicKey } from '@mysten/sui/keypairs/secp256k1';
+import { canisterKeyEcdsa } from './constants';
 
 const yamlObj = `
 `
@@ -27,7 +28,7 @@ export async function getAddressEVM() {
                     derivation_path: [],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -82,7 +83,7 @@ const publicKeyResult = await ic.call(
                 derivation_path: [],
                 key_id: {
                     curve: { secp256k1: null },
-                    name: 'dfx_test_key'
+                    name: canisterKeyEcdsa
                 }
             }
         ]
@@ -146,7 +147,7 @@ export async function getAddressAkashFromEVM(ethereumAddress: string) {
                     derivation_path: derivationPath,
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -188,7 +189,7 @@ export async function getAddressAkashFromEVM(ethereumAddress: string) {
                     derivation_path: [],
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'
+                        name: canisterKeyEcdsa
                     }
                 }
             ]
@@ -226,7 +227,7 @@ export async function getAddressAkashFromEVM(ethereumAddress: string) {
                     derivation_path: [],  // Ajuste conforme necessário
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'  // O nome do identificador da chave
+                        name: canisterKeyEcdsa  // O nome do identificador da chave
                     }
                 }
             ]
@@ -269,10 +270,11 @@ export async function getAddressAkashFromEVM(ethereumAddress: string) {
                     derivation_path: derivationPath,  // Ajuste conforme necessário
                     key_id: {
                         curve: { secp256k1: null },
-                        name: 'dfx_test_key'  // O nome do identificador da chave
+                        name: canisterKeyEcdsa // O nome do identificador da chave
                     }
                 }
-            ]
+            ],
+            cycles: 25_000_000_000n
         }
     );
 

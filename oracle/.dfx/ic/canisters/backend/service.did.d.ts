@@ -3,8 +3,10 @@ import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
 export interface _SERVICE {
+  'closeDeployment' : ActorMethod<[string], string>,
   'closeDeploymentAkash' : ActorMethod<[string], string>,
   'closeDeploymentAkashFromAddress' : ActorMethod<[string], string>,
+  'closeDeploymentProvisorio' : ActorMethod<[string, string], string>,
   'createAndStoreCertificateKeys' : ActorMethod<[], string>,
   'createDeploymentAkash' : ActorMethod<[], string>,
   'createLeaseAkash' : ActorMethod<
@@ -12,9 +14,12 @@ export interface _SERVICE {
     string
   >,
   'createUser' : ActorMethod<[string], string>,
+  'fundDeploymentTest' : ActorMethod<[string, string, string], string>,
   'getAkashAddress' : ActorMethod<[string], string>,
   'getBidsA' : ActorMethod<[], string>,
   'getCanisterAddressEVMEnd' : ActorMethod<[string], string>,
+  'getCanisterAkashAddress' : ActorMethod<[], string>,
+  'getDeployment' : ActorMethod<[string], string>,
   'getDeploymentManifestInfo' : ActorMethod<
     [string, string, string, string],
     string
@@ -23,9 +28,16 @@ export interface _SERVICE {
   'getEthereumAddress' : ActorMethod<[], string>,
   'getNewAkashCertificate' : ActorMethod<[string, string], string>,
   'getUsers' : ActorMethod<[], string>,
+  'manageFundDeployment' : ActorMethod<[string, string], string>,
   'newCreateCertificateAkash' : ActorMethod<[string, string], string>,
   'newDeployment' : ActorMethod<[string], string>,
+  'returnCanisterEVMAddress' : ActorMethod<[], string>,
+  'returnDeployment' : ActorMethod<[string], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
+  'testEvmInteraction' : ActorMethod<[string], string>,
+  'toaaCreateCertificate' : ActorMethod<[], string>,
+  'toaaInfo' : ActorMethod<[], string>,
+  'toaaInitiate' : ActorMethod<[], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
   'transformResponse' : ActorMethod<
     [
@@ -45,6 +57,7 @@ export interface _SERVICE {
     }
   >,
   'updateContractEVMEnd' : ActorMethod<[], string>,
+  'userExist' : ActorMethod<[string], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
