@@ -83,7 +83,7 @@ export async function getBids(owner: string, dseq: string) {
         if (!response) {
             ic.setOutgoingHttpOptions({
                 maxResponseBytes: 2_000_000n,
-                cycles: 50_000_000_000n,
+                cycles: 25_000_000_000n,
                 transformMethodName: 'transformResponse'
             });
     
@@ -103,12 +103,11 @@ export async function getBids(owner: string, dseq: string) {
                         })
                     }
                 ],
-                cycles: 50_000_000_000n
+                cycles: 25_000_000_000n
             });
     
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
             console.log('deu bom sending url');
-            console.log(JSON.parse(responseText));
             if (JSON.parse(responseText)?.bids?.length === 0) {
               console.log('bids zeradas, tentando novamente')
               continue
@@ -131,65 +130,65 @@ export async function getBids(owner: string, dseq: string) {
       }}
 }
 
-export async function postHttpRequest(url: string, maxResBts: bigint, cycles: bigint, bodyData: any) {
-  let response;
-  console.log(url)
-  console.log(bodyData)
-  for (let i = 1; i <= 3; i++) {
-    console.log("Try #" + i);
-    try {
-      if (!response) {
-          ic.setOutgoingHttpOptions({
-              maxResponseBytes: maxResBts,
-              cycles,
-              transformMethodName: 'transformResponse'
-          });
-  
-          const response = await ic.call(managementCanister.http_request, {
-              args: [
-                  {
-                      url,
-                      max_response_bytes: Some(maxResBts),
-                      method: {
-                          post: null
-                      },
-                      headers: [{name:'Content-Type', value:'application/json'}],
-                      body: Some(
-                        Buffer.from(
-                            JSON.stringify(bodyData),
-                            'utf-8'
-                        )
-                    ),
-                      transform: Some({
-                          function: [ic.id(), 'transformResponse'] as [Principal, string],
-                          context: Uint8Array.from([])
-                      })
-                  }
-              ],
-              cycles,
-          });
-  
-          const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-          console.log('deu bom sending url');
-          console.log((responseText));
-  
+  export async function postHttpRequest(url: string, maxResBts: bigint, cycles: bigint, bodyData: any) {
+    let response;
+    console.log(url)
+    console.log(bodyData)
+    for (let i = 1; i <= 3; i++) {
+      console.log("Try #" + i);
+      try {
+        if (!response) {
+            ic.setOutgoingHttpOptions({
+                maxResponseBytes: maxResBts,
+                cycles,
+                transformMethodName: 'transformResponse'
+            });
+    
+            const response = await ic.call(managementCanister.http_request, {
+                args: [
+                    {
+                        url,
+                        max_response_bytes: Some(maxResBts),
+                        method: {
+                            post: null
+                        },
+                        headers: [{name:'Content-Type', value:'application/json'}],
+                        body: Some(
+                          Buffer.from(
+                              JSON.stringify(bodyData),
+                              'utf-8'
+                          )
+                      ),
+                        transform: Some({
+                            function: [ic.id(), 'transformResponse'] as [Principal, string],
+                            context: Uint8Array.from([])
+                        })
+                    }
+                ],
+                cycles,
+            });
+    
+            const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+            console.log('deu bom sending url');
+            console.log((responseText));
+    
 
-          i = 3;
+            i = 3;
 
-          return JSON.parse(responseText);
-      }
-    } catch (err: any) {
-      console.log(err)
-      if (err.includes && err.includes("no lease for deployment") && i < 3) {
-        console.log("Lease not found, retrying...");
-        await wait(6000); // Waiting for 6 sec
-      } else {
-        console.log('deu erro')
+            return JSON.parse(responseText);
+        }
+      } catch (err: any) {
         console.log(err)
-        throw new Error(err?.response?.data || err);
-      }
-    }}
-}
+        if (err.includes && err.includes("no lease for deployment") && i < 3) {
+          console.log("Lease not found, retrying...");
+          await wait(6000); // Waiting for 6 sec
+        } else {
+          console.log('deu erro')
+          console.log(err)
+          throw new Error(err?.response?.data || err);
+        }
+      }}
+  }
 
 export async function sendManifestTest() {
   let response;
@@ -313,6 +312,95 @@ export async function getHttpRequest(url: string, maxResBts: bigint, cycles: big
     }}
 }
 
+export async function sendManifestProvisorio(url: string, body: string | null, method: string, certPem: any, keyPem: string) {
+  console.log(url)
+  console.log('body')
+  console.log(body)
+  console.log('method')
+  console.log(method)
+  console.log('certPem')
+  // console.log(certPem)
+  console.log('keyPem')
+  console.log(keyPem)
+  const finalBody = body
+  let response;
+  console.log('dados')
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      if (!response) {
+          ic.setOutgoingHttpOptions({
+              maxResponseBytes: 2_000_000n,
+              cycles: 50_000_000_000n,
+              transformMethodName: 'transformResponse'
+          });
+  
+          const response = await ic.call(managementCanister.http_request, {
+              args: [
+                  { 
+                      url: `https://d2n5s49d9uv0b0.cloudfront.net/utils/functions/sendMessageManifestProvider`,
+                      max_response_bytes: Some(2_000_000n),
+                      method: {
+                          post: null
+                      },
+                      headers: [{name:'Content-Type', value:'application/json'}],
+                      body: body && body?.length > 0 ? Some(
+                        Buffer.from(
+                            JSON.stringify({
+                                method: method,
+                                url: url,
+                                certPem: certPem,
+                                keyPem: keyPem,
+                                body: finalBody,
+                            }),
+                            'utf-8'
+                        )
+                    ) : Some(
+                      Buffer.from(
+                          JSON.stringify({
+                              method: method,
+                              url: url,
+                              certPem: certPem,
+                              keyPem: keyPem,
+                          }),
+                          'utf-8'
+                      )
+                  ),
+                      transform: Some({
+                          function: [ic.id(), 'transformResponse'] as [Principal, string],
+                          context: Uint8Array.from([])
+                      })
+                  }
+              ],
+              cycles: 50_000_000_000n
+          });
+          console.log('deu bom sending url');
+
+          try {
+            const responseText = Buffer.from(response.body.buffer).toString('utf-8');
+            if (responseText?.length > 0) {
+              console.log(JSON.parse(responseText));
+              i = 3;
+              return JSON.parse(responseText);
+            }
+          } catch (err) {
+            console.log('there is no data to retunr')
+          }
+
+      }
+    } catch (err: any) {
+      console.log(err)
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+        await wait(6000); // Waiting for 6 sec
+      } else {
+        console.log('deu erro')
+        console.log(err)
+        throw new Error(err?.response?.data || err);
+      }
+    }}
+}
+
 
 export async function sendManifest(url: string, body: string | null, method: string, certPem: any, keyPem: string) {
     console.log(url)
@@ -339,7 +427,7 @@ export async function sendManifest(url: string, body: string | null, method: str
     
             const response = await ic.call(managementCanister.http_request, {
                 args: [
-                    {
+                    { 
                         url: `https://api.accelar.io/utils/functions/sendMessageManifestProvider`,
                         max_response_bytes: Some(2_000_000n),
                         method: {
@@ -412,7 +500,7 @@ export async function getSdlByUrl(url: string) {
       if (!response) {
           ic.setOutgoingHttpOptions({
               maxResponseBytes: 2_000_000n,
-              cycles: 50_000_000_000n,
+              cycles: 26_000_000_000n,
               transformMethodName: 'transformResponse'
           });
   
@@ -460,6 +548,22 @@ export async function getSdlByUrl(url: string) {
         throw new Error(err?.response?.data || err);
       }
     }}
+}
+
+export function transformResponse(raw: any): any {
+  let res = {
+      status: raw.response.status,
+      body: raw.response.body,
+      headers: []
+  };
+
+  if (parseInt(raw.response.status.code) === 200) {
+      res.body = raw.response.body;
+  } else {
+      ic.print(`Received an error from proxy: status = ${raw.response.status.code}, error = ${raw.response.body.toString()}`);
+  }
+
+  return res;
 }
 
 export async function getProviderUri(providerAddress: string) {

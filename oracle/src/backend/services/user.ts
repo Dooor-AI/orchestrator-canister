@@ -9,7 +9,7 @@ import { getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase6
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import {parse} from 'flatted'
-import { getBids, getHttpRequest } from './external_https';
+import { getBids, getHttpRequest, sendManifest, sendManifestProvisorio } from './external_https';
 import { akashProviderUrl } from './constants';
 
 const yamlObj = ``;
@@ -178,6 +178,16 @@ export const getUsers = query([], text, async () => {
 export const getBidsA = update([], text, async () => {
     await getBids('akash14hh96u4tgzp64c5hvdkxzfdzx8vphsas9d2f8p', '17244071')
     return 'String(db.users)';
+});
+
+export const getBidsEnd = update([text, text], text, async (owner, dseq) => {
+    const res = await getBids(owner, dseq)
+    return JSON.stringify(res);
+});
+
+export const sendManifestEnd = update([text, text], text, async (owner, dseq) => {
+    const res = await sendManifestProvisorio(`owner`, `dseq`, 'PUT', 'certpem', 'keypem')
+    return JSON.stringify(res);
 });
 
 //pass the deploymentId

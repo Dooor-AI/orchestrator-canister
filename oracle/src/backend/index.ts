@@ -15,9 +15,9 @@ import { getAkashAddress, getCanisterAkashAddress, getEcdsaPublicKeyBase64End, g
 import { getDeploymentManifestInfo } from './services/manifest';
 import { createAndStoreCertificateKeys } from './services/new-test';
 // import { closeDeployment, fundDeploymentTest, manageFundDeployment, newDeployment } from './services/deployment_workflow';
-import { closeDeployment, closeDeploymentProvisorio, fundDeploymentTest, manageFundDeployment, newDeployment, testEvmInteraction } from './services/toaa-deployment-workflow';
+import { closeDeployment, closeDeploymentProvisorio, fundDeploymentTest, getAccountInfo, getCoreDaoAkashPriceEnd, getEthAkashPriceEnd, getHttpTest, manageFundDeployment, newDeployment, testEvmInteraction } from './services/toaa-deployment-workflow';
 
-import { createUser, getAkashHeight, getBidsA, getDeployment, getNewAkashCertificate, getPubKey, getUsers, returnDeployment, userExist } from './services/user';
+import { createUser, getAkashHeight, getBidsA, getBidsEnd, getDeployment, getNewAkashCertificate, getPubKey, getUsers, returnDeployment, sendManifestEnd, userExist } from './services/user';
 import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
@@ -27,6 +27,12 @@ const Signature = Record({
 });
 
 export default Canister({
+    sendManifestEnd,
+    getBidsEnd,
+    getAccountInfo,
+    getHttpTest,
+    getCoreDaoAkashPriceEnd,
+    getEthAkashPriceEnd,
     getPubKey,
     getAkashHeight,
     toaaInfo,

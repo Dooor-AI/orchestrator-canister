@@ -66,10 +66,11 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
   
   registry.register('/akash.deployment.v1beta3.MsgCreateDeployment', MsgCreateDeployment);
   
-  const client = await StargateClient.connect(akashPubRPC);
+  // const client = await StargateClient.connect(akashPubRPC);
 
   const currentHeight = await getHeightAkash();
   const dseq = currentHeight;
+
   // const yamlStr = YAML.parse(yamlObj);
   console.log('passei')
   console.log(dseq)
@@ -132,7 +133,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
                   }
               }
           ],
-          cycles: 10_000_000_000n
+          cycles: 25_000_000_000n
       }
     );
 
@@ -148,7 +149,8 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
     console.log('broadcasting new broad')
     const tx = await broadcastTransactionSync(txRawBase64)
-    return tx?.tx_response?.txhash
+    const res = {hash: tx?.tx_response?.txhash, dseq: dseq}
+    return res
     // const txResult = await client.broadcastTxSync(txRawBytes);
 
     // try {
@@ -166,7 +168,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     
     registry.register('/akash.deployment.v1beta3.MsgCreateDeployment', MsgCreateDeployment);
     
-    const client = await StargateClient.connect(akashPubRPC);
+    // const client = await StargateClient.connect(akashPubRPC);
   
     const closeData = await NewCloseDeploymentData(
       dseq,
@@ -216,7 +218,7 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
                     }
                 }
             ],
-            cycles: 10_000_000_000n
+            cycles: 25_000_000_000n
         }
       );
   
@@ -257,7 +259,7 @@ export async function createLease(
 
     registry.register('/akash.market.v1beta4.MsgCreateLease', MsgCreateLease);
 
-    const client = await StargateClient.connect(akashPubRPC);
+    // const client = await StargateClient.connect(akashPubRPC);
 
     const newBodyBytes = registry.encode({
         typeUrl: "/cosmos.tx.v1beta1.TxBody",
@@ -308,7 +310,7 @@ export async function createLease(
                 }
             }
         ],
-        cycles: 10_000_000_000n
+        cycles: 25_000_000_000n
     }
     );
 
@@ -343,7 +345,7 @@ export async function newCloseDeployment(
 
   registry.register('/akash.deployment.v1beta3.MsgCloseDeployment', MsgCloseDeployment);
 
-  const client = await StargateClient.connect(akashPubRPC);
+  // const client = await StargateClient.connect(akashPubRPC);
 
   const closeData = await NewCloseDeploymentData(
     dseq,
@@ -392,7 +394,7 @@ export async function newCloseDeployment(
               }
           }
       ],
-      cycles: 10_000_000_000n
+      cycles: 25_000_000_000n
   }
   );
 
@@ -427,7 +429,7 @@ export async function fundDeployment(
 
   registry.register('/akash.deployment.v1beta3.MsgDepositDeployment', MsgDepositDeployment);
 
-  const client = await StargateClient.connect(akashPubRPC);
+  // const client = await StargateClient.connect(akashPubRPC);
 
   console.log('after deployment data')
 
@@ -482,7 +484,7 @@ export async function fundDeployment(
               }
           }
       ],
-      cycles: 10_000_000_000n
+      cycles: 25_000_000_000n
   }
   );
 
@@ -517,7 +519,7 @@ export async function fundDeploymentTesting(
 
   registry.register('/akash.deployment.v1beta3.MsgDepositDeployment', MsgDepositDeployment);
 
-  const client = await StargateClient.connect(akashPubRPC);
+  // const client = await StargateClient.connect(akashPubRPC);
 
   console.log('after deployment data')
 
@@ -570,7 +572,7 @@ export async function fundDeploymentTesting(
               }
           }
       ],
-      cycles: 10_000_000_000n
+      cycles: 25_000_000_000n
   }
   );
 
@@ -601,7 +603,7 @@ export const closeDeploymentAkashFromAddress = update([text], text, async (dseq:
   
   registry.register('/akash.deployment.v1beta3.MsgCloseDeployment', MsgCloseDeployment);
   
-  const client = await StargateClient.connect(akashPubRPC);
+  // const client = await StargateClient.connect(akashPubRPC);
 
   const closeData = await NewCloseDeploymentData(
     dseq,
@@ -650,7 +652,7 @@ export const closeDeploymentAkashFromAddress = update([text], text, async (dseq:
                   }
               }
           ],
-          cycles: 10_000_000_000n
+          cycles: 25_000_000_000n
       }
     );
 
@@ -737,7 +739,7 @@ function getCreateDeploymentMsg(deploymentData: any) {
 
   export async function getHeightAkash() {
     const url  = `${akashProviderUrl}/status`
-    const res = await getHttpRequest(url, 2_000_000n, 20_000_000_000n)
+    const res = await getHttpRequest(url, 2_000_000n, 24_000_000_000n)
     console.log('res aqui height')
     console.log(res)
     return String(res?.result?.sync_info?.latest_block_height)
@@ -745,7 +747,7 @@ function getCreateDeploymentMsg(deploymentData: any) {
 
   export async function getAccountNumberAndSequence(akashAddress: string) {
     const url = `${akashApiUrl}/cosmos/auth/v1beta1/accounts/${akashAddress}`
-    const res = await getHttpRequest(url, 2_000_000n, 50_000_000_000n)
+    const res = await getHttpRequest(url, 2_000_000n, 25_000_000_000n)
     return {accountNumber: Number(res?.account?.account_number), sequence: Number(res?.account?.sequence)}
   }
 

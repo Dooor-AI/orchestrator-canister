@@ -10,8 +10,8 @@ import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, Funding, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI, providerUrl } from './constants';
-import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, newCloseDeployment } from './deployment_akash_3';
-import { getBids, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
+import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, getAccountNumberAndSequence, newCloseDeployment } from './deployment_akash_3';
+import { getBids, getHttpRequest, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
 import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
@@ -79,17 +79,17 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     
         db.deployments[tokenId] = deployment;
     }
-    if (db.deployments[tokenId] && db.deployments[tokenId]?.status !== 'nondeployed') {
-        console.log('token is deploying or already been deployed')
-        throw ('token is deploying or already been deployed')
-    }
+    // if (db.deployments[tokenId] && db.deployments[tokenId]?.status !== 'nondeployed') {
+    //     console.log('token is deploying or already been deployed')
+    //     throw ('token is deploying or already been deployed')
+    // }
 
     //start deplyoment
     db.deployments[tokenId].status = 'deploying-deployment'
 
     const deploymentValue = Number(transaction[7])
 
-    const akashByEth = await getCoreDaoAkashPrice()
+    const akashByEth = await getEthAkashPrice()
 
     let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
@@ -117,6 +117,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     const yamlParsed = await getSdlByUrl(sdlUri)
     console.log('value from api')
     console.log(yamlParsed)
+
     //create deployment
     console.log('creating deployment')
     const txDeployment = await createDeployment(fromAddress, yamlParsed, pubKeyEncoded, evmAddress, akashToken)
@@ -189,6 +190,27 @@ export const testEvmInteraction = update([text], text, async () => {
   await updateContractNewEVM(2, 'txDeployment.hash')
   return 'w'
 })
+
+export const getEthAkashPriceEnd = update([], text, async () => {
+  const value = await getEthAkashPrice()
+  return String(value)
+})
+
+export const getAccountInfo = update([text], text, async (fromAddress: string) => {
+  const value = await getAccountNumberAndSequence(fromAddress);
+  return JSON.stringify(value)
+})
+
+export const getHttpTest = update([text], text, async (url: string) => {
+  const value = await getHttpRequest(url, 2_000_000n, 21_000_000_000n)    
+  return JSON.stringify(value)
+})
+
+export const getCoreDaoAkashPriceEnd = update([], text, async () => {
+  const value = await getCoreDaoAkashPrice()
+  return String(value)
+})
+
 export const closeDeployment = update([text], text, async (tokenId: string) => {
   const provider = new ethers.JsonRpcProvider(providerUrl);
 
@@ -240,7 +262,7 @@ export const closeDeployment = update([text], text, async (tokenId: string) => {
 
   const deploymentValue = Number(transaction[7])
 
-  const akashByEth = await getCoreDaoAkashPrice()
+  const akashByEth = await getEthAkashPrice()
 
   let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
@@ -372,7 +394,7 @@ export const manageFundDeployment = update([text, text], text, async (tokenId: s
 
   const deploymentValue = Number(transaction[2])
 
-  const akashByEth = await getCoreDaoAkashPrice()
+  const akashByEth = await getEthAkashPrice()
 
   let akashToken = ((deploymentValue * akashByEth) / 10 ** 18)
 
