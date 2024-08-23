@@ -37,6 +37,7 @@ service: () -> {
     toaaInfo: () -> (text) query;
     toaaInitiate: () -> (text);
     transferAkashTokens: (text, text, text) -> (text);
+    transferAkashTokensProvisorioEnd: (text, text) -> (text);
     transformResponse: (record {context:vec nat8; response:record {status:nat; body:vec nat8; headers:vec record {value:text; name:text}}}) -> (record {status:nat; body:vec nat8; headers:vec record {value:text; name:text}}) query;
     updateContractEVMEnd: () -> (text);
     userExist: (text) -> (text) query;

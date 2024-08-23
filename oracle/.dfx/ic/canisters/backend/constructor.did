@@ -37,6 +37,7 @@ service : () -> {
   toaaInfo : () -> (text) query;
   toaaInitiate : () -> (text);
   transferAkashTokens : (text, text, text) -> (text);
+  transferAkashTokensProvisorioEnd : (text, text) -> (text);
   transformResponse : (
       record {
         context : vec nat8;

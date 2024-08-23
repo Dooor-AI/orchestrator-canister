@@ -52,12 +52,18 @@ export const idlFactory = ({ IDL }) => {
     'returnCanisterEVMAddress' : IDL.Func([], [IDL.Text], []),
     'returnDeployment' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'sendManifestAkash' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+    'sendManifestEnd' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'testEvmInteraction' : IDL.Func([IDL.Text], [IDL.Text], []),
     'toaaCreateCertificate' : IDL.Func([], [IDL.Text], []),
     'toaaInfo' : IDL.Func([], [IDL.Text], ['query']),
     'toaaInitiate' : IDL.Func([], [IDL.Text], []),
     'transferAkashTokens' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
+    'transferAkashTokensProvisorioEnd' : IDL.Func(
+        [IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),

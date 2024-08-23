@@ -163,6 +163,91 @@ export async function createDeployment(fromAddress: string, yamlParsed: any, pub
     //   }
   }
 
+  export async function transferAkashTokensProvisorio(fromAddress: string, pubKeyEncoded: any, evmAddress: string, amount: string, toAddress: string) {
+    const registry = new Registry();
+        
+    const msgSend = {
+      fromAddress,
+      toAddress,
+      amount: [
+          {
+              denom: "uakt",
+              amount
+          }
+      ]
+  };
+
+  const newBodyBytes = registry.encode({
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: {
+          messages: [
+              {
+                  typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                  value: msgSend,
+              },
+          ],
+      },
+  } as EncodeObject);
+  
+      console.log('go to encode')
+      const { accountNumber, sequence } = await getAccountNumberAndSequence(fromAddress);
+      const feeAmount = coins(20000, "uakt");
+      const gasLimit = 800000;
+      console.log('go to make auth')
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
+  
+      const chainId = akashChainId;
+      console.log('the chain id')
+      console.log(chainId)
+      console.log('signing doc')
+      const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);
+      const signBytes = makeSignBytes(signDoc);
+      const hashedMessage = (sha256(signBytes));
+  
+      console.log('starting hash')
+      const caller = await getDerivationPathFromAddressEVM(evmAddress)
+      const signatureResult = await ic.call(
+        managementCanister.sign_with_ecdsa,
+        {
+            args: [
+                {
+                    message_hash: hashedMessage,
+                    derivation_path: [caller],
+                    key_id: {
+                        curve: { secp256k1: null },
+                        name: canisterKeyEcdsa
+                    }
+                }
+            ],
+            cycles: 25_000_000_000n
+        }
+      );
+  
+      console.log('new serializing')
+      const txRaw = TxRaw.fromPartial({
+        bodyBytes: newBodyBytes,
+        authInfoBytes: authInfoBytes,
+        signatures: [signatureResult.signature],
+      });
+    
+      const txRawBytes = TxRaw.encode(txRaw).finish();
+  
+      const txRawBase64 = Buffer.from(txRawBytes).toString('base64');
+      console.log('broadcasting new broad')
+      const tx = await broadcastTransactionSync(txRawBase64)
+      return tx
+      // const txResult = await client.broadcastTxSync(txRawBytes);
+  
+      // try {
+      //     const result = await waitForTransaction(client, txResult, 120000, 3000); // wait 2 minutes
+      //     console.log('Transaction confirmed:', result);
+      //     return {hash: result.hash, dseq};
+      //   } catch (error) {
+      //       console.error(error);
+      //       throw 'error'
+      //   }
+    }
+
   export async function closeDeployment(fromAddress: string, pubKeyEncoded: any, evmAddress: string, dseq: string) {
     const registry = new Registry();
     
@@ -758,13 +843,13 @@ function getCreateDeploymentMsg(deploymentData: any) {
       mode: 'BROADCAST_MODE_SYNC'
     }
     const res = await postHttpRequest(url, 2_000_000n, 50_000_000_000n, data)
-
-    // if (res?.tx_response?.gas_used === "0") {
-    //   // if it is equal zero, it means that the transaction was not succesful
-    //   throw ('Broadcast error: ' + res?.tx_response?.raw_log)
-    // }
     console.log('!!!! RESPOSTA DO BROADCAST !!!!')
-    console.log(res)
+    // console.log(res)
+    if (res?.tx_response?.raw_log?.length > 0) {
+      // if it is not equal zero, it means that the transaction was not succesful
+      throw ('Broadcast error: ' + JSON.stringify(res?.tx_response?.raw_log) + JSON.stringify(res?.tx_response?.logs))
+    }
+
     return res
   }
 

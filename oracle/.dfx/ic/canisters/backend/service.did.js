@@ -62,6 +62,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
+    'transferAkashTokensProvisorioEnd' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'transformResponse' : IDL.Func(
         [
           IDL.Record({

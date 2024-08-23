@@ -47,6 +47,7 @@ export interface _SERVICE {
   'toaaInfo' : ActorMethod<[], string>,
   'toaaInitiate' : ActorMethod<[], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
+  'transferAkashTokensProvisorioEnd' : ActorMethod<[string, string], string>,
   'transformResponse' : ActorMethod<
     [
       {

@@ -41,11 +41,13 @@ export interface _SERVICE {
   'returnCanisterEVMAddress' : ActorMethod<[], string>,
   'returnDeployment' : ActorMethod<[string], string>,
   'sendManifestAkash' : ActorMethod<[string, string], string>,
+  'sendManifestEnd' : ActorMethod<[string, string], string>,
   'testEvmInteraction' : ActorMethod<[string], string>,
   'toaaCreateCertificate' : ActorMethod<[], string>,
   'toaaInfo' : ActorMethod<[], string>,
   'toaaInitiate' : ActorMethod<[], string>,
   'transferAkashTokens' : ActorMethod<[string, string, string], string>,
+  'transferAkashTokensProvisorioEnd' : ActorMethod<[string, string], string>,
   'transformResponse' : ActorMethod<
     [
       {

@@ -10,7 +10,7 @@ import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
 import { Deployment, Funding, db, getAkashAddress } from './user';
 import { chainRPC, contractAddress, dplABI, providerUrl } from './constants';
-import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, getAccountNumberAndSequence, newCloseDeployment } from './deployment_akash_3';
+import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, getAccountNumberAndSequence, newCloseDeployment, transferAkashTokensProvisorio } from './deployment_akash_3';
 import { getBids, getHttpRequest, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
@@ -185,6 +185,17 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     db.deployments[tokenId].status = 'deployed'
     return String('Number(transaction[transaction.length - 1])');
 });
+
+
+export const transferAkashTokensProvisorioEnd = update([text, text], text, async (toAddress, amount) => {
+  const fromAddress = db.toaaAkash['0x'].akashAddress
+  const evmAddress = await getCanisterEVMAddress()
+
+  const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(evmAddress);
+
+  const res = await transferAkashTokensProvisorio(fromAddress, pubKeyEncoded, evmAddress, amount, toAddress)
+  return JSON.stringify(res)
+})
 
 export const testEvmInteraction = update([text], text, async () => {
   await updateContractNewEVM(2, 'txDeployment.hash')

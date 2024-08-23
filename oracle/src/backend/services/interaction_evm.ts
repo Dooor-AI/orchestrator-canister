@@ -489,7 +489,7 @@ export async function updateContractNewEVM(tokenId: number, akashHash: string) {
                 }
             }
         ],
-        cycles: 10_000_000_000n
+        cycles: 25_000_000_000n
     }
     );
 
