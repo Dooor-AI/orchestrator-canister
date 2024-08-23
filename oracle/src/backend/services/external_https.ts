@@ -210,7 +210,7 @@ export async function sendManifestTest() {
           const response = await ic.call(managementCanister.http_request, {
               args: [
                   {
-                      url: `https://api.accelar.io/utils/functions/sendMessageManifestProvider`,
+                      url: `https://d2n5s49d9uv0b0.cloudfront.net/utils/functions/sendMessageManifestProvider`,
                       max_response_bytes: Some(2_000_000n),
                       method: {
                           post: null
@@ -428,7 +428,7 @@ export async function sendManifest(url: string, body: string | null, method: str
             const response = await ic.call(managementCanister.http_request, {
                 args: [
                     { 
-                        url: `https://api.accelar.io/utils/functions/sendMessageManifestProvider`,
+                        url: `https://d2n5s49d9uv0b0.cloudfront.net/utils/functions/sendMessageManifestProvider`,
                         max_response_bytes: Some(2_000_000n),
                         method: {
                             post: null

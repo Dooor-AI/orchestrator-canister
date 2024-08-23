@@ -758,6 +758,12 @@ function getCreateDeploymentMsg(deploymentData: any) {
       mode: 'BROADCAST_MODE_SYNC'
     }
     const res = await postHttpRequest(url, 2_000_000n, 50_000_000_000n, data)
+
+    // if (res?.tx_response?.gas_used === "0") {
+    //   // if it is equal zero, it means that the transaction was not succesful
+    //   throw ('Broadcast error: ' + res?.tx_response?.raw_log)
+    // }
+    console.log('!!!! RESPOSTA DO BROADCAST !!!!')
     console.log(res)
     return res
   }
