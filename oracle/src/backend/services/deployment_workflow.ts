@@ -94,7 +94,6 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
 
     const sdlUri = transaction[3]
     const yamlParsed = await getSdlByUrl(sdlUri)
-    console.log('value from api')
     console.log(yamlParsed)
     //create deployment
     console.log('creating deployment')

@@ -107,9 +107,8 @@ export async function getBids(owner: string, dseq: string) {
             });
     
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-            console.log('deu bom sending url');
             if (JSON.parse(responseText)?.bids?.length === 0) {
-              console.log('bids zeradas, tentando novamente')
+              console.log('bids zeradas, trying again')
               continue
             }
   
@@ -119,11 +118,10 @@ export async function getBids(owner: string, dseq: string) {
         }
       } catch (err: any) {
         console.log(err)
-        if (err.includes && err.includes("no lease for deployment") && i < 10) {
+        if (i < 10) {
           console.log("Lease not found, retrying...");
           await wait(6000); // Waiting for 6 sec
         } else {
-          console.log('deu erro')
           console.log(err)
           throw new Error(err?.response?.data || err);
         }
@@ -169,7 +167,7 @@ export async function getBids(owner: string, dseq: string) {
             });
     
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-            console.log('deu bom sending url');
+            console.log('success');
             console.log((responseText));
     
 
@@ -179,11 +177,11 @@ export async function getBids(owner: string, dseq: string) {
         }
       } catch (err: any) {
         console.log(err)
-        if (err.includes && err.includes("no lease for deployment") && i < 3) {
-          console.log("Lease not found, retrying...");
+        if (i < 3) {
+          console.log("Error, retrying...");
           await wait(6000); // Waiting for 6 sec
         } else {
-          console.log('deu erro')
+          console.log('error')
           console.log(err)
           throw new Error(err?.response?.data || err);
         }
@@ -238,7 +236,7 @@ export async function sendManifestTest() {
           });
   
           const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-          console.log('deu bom sending url');
+          console.log('success');
           console.log(JSON.parse(responseText));
   
 
@@ -248,11 +246,11 @@ export async function sendManifestTest() {
       }
     } catch (err: any) {
       console.log(err)
-      if (err.includes && err.includes("no lease for deployment") && i < 3) {
-        console.log("Lease not found, retrying...");
+      if (i < 3) {
+        console.log("Error, retrying...");
         await wait(6000); // Waiting for 6 sec
       } else {
-        console.log('deu erro')
+        console.log('error')
         console.log(err)
         throw new Error(err?.response?.data || err);
       }
@@ -292,7 +290,7 @@ export async function getHttpRequest(url: string, maxResBts: bigint, cycles: big
           });
   
           const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-          console.log('deu bom sending url');
+          console.log('success');
           console.log(JSON.parse(responseText));
   
 
@@ -305,7 +303,7 @@ export async function getHttpRequest(url: string, maxResBts: bigint, cycles: big
       if (i < 3) {
         await wait(6000); // Waiting for 6 sec
       } else {
-        console.log('deu erro')
+        console.log('error')
         console.log(err)
         throw new Error(err?.response?.data || err);
       }
@@ -374,7 +372,7 @@ export async function sendManifestProvisorio(url: string, body: string | null, m
               ],
               cycles: 50_000_000_000n
           });
-          console.log('deu bom sending url');
+          console.log('success');
 
           try {
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
@@ -390,11 +388,11 @@ export async function sendManifestProvisorio(url: string, body: string | null, m
       }
     } catch (err: any) {
       console.log(err)
-      if (err.includes && err.includes("no lease for deployment") && i < 3) {
-        console.log("Lease not found, retrying...");
+      if (i < 3) {
+        console.log("Error, retrying...");
         await wait(6000); // Waiting for 6 sec
       } else {
-        console.log('deu erro')
+        console.log('error')
         console.log(err)
         throw new Error(err?.response?.data || err);
       }
@@ -464,7 +462,7 @@ export async function sendManifest(url: string, body: string | null, method: str
                 ],
                 cycles: 50_000_000_000n
             });
-            console.log('deu bom sending url');
+            console.log('success');
 
             try {
               const responseText = Buffer.from(response.body.buffer).toString('utf-8');
@@ -480,8 +478,8 @@ export async function sendManifest(url: string, body: string | null, method: str
         }
       } catch (err: any) {
         console.log(err)
-        if (err.includes && err.includes("no lease for deployment") && i < 3) {
-          console.log("Lease not found, retrying...");
+        if (i < 3) {
+          console.log("Error, retrying...");
           await wait(6000); // Waiting for 6 sec
         } else {
           console.log('deu erro')
@@ -522,7 +520,7 @@ export async function getSdlByUrl(url: string) {
               ],
               cycles: 50_000_000_000n
           });
-          console.log('deu bom sending url');
+          console.log('success');
 
           try {
             const responseText = Buffer.from(response.body.buffer).toString('utf-8');
@@ -539,11 +537,11 @@ export async function getSdlByUrl(url: string) {
       }
     } catch (err: any) {
       console.log(err)
-      if (err.includes && err.includes("no lease for deployment") && i < 3) {
-        console.log("Lease not found, retrying...");
+      if (i < 3) {
+        console.log("Error, retrying...");
         await wait(6000); // Waiting for 6 sec
       } else {
-        console.log('deu erro')
+        console.log('error')
         console.log(err)
         throw new Error(err?.response?.data || err);
       }
@@ -599,7 +597,7 @@ export async function getProviderUri(providerAddress: string) {
           });
   
           const responseText = Buffer.from(response.body.buffer).toString('utf-8');
-          console.log('deu bom sending url');
+          console.log('success');
           console.log(JSON.parse(responseText));
   
           i = 3;
@@ -611,11 +609,11 @@ export async function getProviderUri(providerAddress: string) {
       }
     } catch (err: any) {
       console.log(err)
-      if (err.includes && err.includes("no lease for deployment") && i < 3) {
-        console.log("Lease not found, retrying...");
+      if (i < 3) {
+        console.log("Error, retrying...");
         await wait(6000); // Waiting for 6 sec
       } else {
-        console.log('deu erro')
+        console.log('error')
         console.log(err)
         throw new Error(err?.response?.data || err);
       }

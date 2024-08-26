@@ -183,7 +183,7 @@ export const newDeployment = update([text], text, async (tokenId: string) => {
     await updateContractNewEVM(Number(tokenId), txDeployment.hash)
 
     db.deployments[tokenId].status = 'deployed'
-    return String('Number(transaction[transaction.length - 1])');
+    return JSON.stringify(db.deployments[tokenId]);
 });
 
 

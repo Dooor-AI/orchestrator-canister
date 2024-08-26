@@ -166,19 +166,6 @@ export const getPubKey = query([], text, async () => {
     return String(res);
 });
 
-// returns akash address from evm address
-export const getUsers = query([], text, async () => {
-    console.log('a000111!!!!!!!!!!!!!!!!!111000a')
-    console.log(JSON.stringify(db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.nonce))
-    console.log((db.users['0xfACF2850792b5e32a0497CfeD8667649B9f5ec97']?.akashCertPub))
-    return 'String(db.users)';
-});
-
-// returns akash address from evm address
-export const getBidsA = update([], text, async () => {
-    await getBids('akash14hh96u4tgzp64c5hvdkxzfdzx8vphsas9d2f8p', '17244071')
-    return 'String(db.users)';
-});
 
 export const getBidsEnd = update([text, text], text, async (owner, dseq) => {
     const res = await getBids(owner, dseq)
