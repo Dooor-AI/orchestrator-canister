@@ -24,7 +24,6 @@ export const idlFactory = ({ IDL }) => {
     'getAccountInfo' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAkashAddress' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAkashHeight' : IDL.Func([], [IDL.Text], []),
-    'getBidsA' : IDL.Func([], [IDL.Text], []),
     'getBidsEnd' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'getCanisterAddressEVMEnd' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getCanisterAkashAddress' : IDL.Func([], [IDL.Text], []),
@@ -41,7 +40,6 @@ export const idlFactory = ({ IDL }) => {
     'getHttpTest' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getNewAkashCertificate' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'getPubKey' : IDL.Func([], [IDL.Text], ['query']),
-    'getUsers' : IDL.Func([], [IDL.Text], ['query']),
     'manageFundDeployment' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'newCreateCertificateAkash' : IDL.Func(
         [IDL.Text, IDL.Text],

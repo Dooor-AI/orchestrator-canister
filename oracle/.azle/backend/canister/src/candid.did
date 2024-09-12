@@ -11,7 +11,6 @@ service: () -> {
     getAccountInfo: (text) -> (text);
     getAkashAddress: (text) -> (text);
     getAkashHeight: () -> (text);
-    getBidsA: () -> (text);
     getBidsEnd: (text, text) -> (text);
     getCanisterAddressEVMEnd: (text) -> (text);
     getCanisterAkashAddress: () -> (text);
@@ -24,7 +23,6 @@ service: () -> {
     getHttpTest: (text) -> (text);
     getNewAkashCertificate: (text, text) -> (text);
     getPubKey: () -> (text) query;
-    getUsers: () -> (text) query;
     manageFundDeployment: (text, text) -> (text);
     newCreateCertificateAkash: (text, text) -> (text);
     newDeployment: (text) -> (text);

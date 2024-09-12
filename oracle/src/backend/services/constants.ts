@@ -15,9 +15,9 @@ export const closedDrawerWidth = 57;
 export const accountBarHeight = 57;
 
 export const crossfiRPCTestnet = "https://rpc.testnet.ms"
-export const chainRPC = "https://opt-sepolia.g.alchemy.com/v2/XTDuBPyLK0vKcOAkuvKtINx8WWHzvx63"
-export const contractAddress = "0xB8787cD673857529201c10B950d0b731255eCBBF"
-export const providerUrl = "https://rpc.test.btcs.network"
+export const chainRPC = "https://rpc.testnet.ms"
+export const contractAddress = "0xe2A4F6Cae191e6e599488E1e2C95861312Df9826"
+export const providerUrl = "https://rpc.testnet.ms"
 
 export const akashProviderUrl = "https://rpc.akashnet.net"
 export const akashApiUrl = "https://api.akashnet.net:443"
