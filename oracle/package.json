@@ -14,7 +14,7 @@
         "@ethersproject/transactions": "^5.7.0",
         "@mysten/sui": "^1.0.3",
         "akashjs": "^0.0.2",
-        "axios": "^1.7.2",
+        "axios": "^1.7.4",
         "azle": "^0.21.0",
         "bech32": "^2.0.0",
         "constants": "^0.0.2",
