@@ -5,7 +5,7 @@
         "test": "ts-node --transpile-only --ignore=false --skip-project test/test.ts"
     },
     "dependencies": {
-        "@akashnetwork/akashjs": "^0.10.0",
+        "@akashnetwork/akashjs": "^0.10.1",
         "@cosmjs/cosmwasm-stargate": "^0.32.4",
         "@cosmjs/stargate": "^0.32.4",
         "@dfinity/principal": "^1.4.0",
@@ -14,7 +14,7 @@
         "@ethersproject/transactions": "^5.7.0",
         "@mysten/sui": "^1.0.3",
         "akashjs": "^0.0.2",
-        "axios": "^1.7.2",
+        "axios": "^1.7.8",
         "azle": "^0.21.0",
         "bech32": "^2.0.0",
         "constants": "^0.0.2",
