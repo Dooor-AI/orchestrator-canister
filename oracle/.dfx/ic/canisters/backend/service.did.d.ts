@@ -65,6 +65,7 @@ export interface _SERVICE {
   >,
   'updateContractEVMEnd' : ActorMethod<[], string>,
   'userExist' : ActorMethod<[string], string>,
+  'validateDeposit' : ActorMethod<[string], string>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

@@ -54,4 +54,5 @@ service : {
     ) query;
   updateContractEVMEnd : () -> (text);
   userExist : (text) -> (text) query;
+  validateDeposit : (text) -> (text);
 }

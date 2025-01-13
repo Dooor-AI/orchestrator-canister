@@ -8,10 +8,10 @@ import { ethers } from 'ethers';
 import { getAddressAkash, getAddressAkashFromEVM, getEcdsaPublicKeyBase64, getEcdsaPublicKeyBase64FromEVM } from './get_address_akash';
 import { createCertificateAkash } from './certificate';
 import { createCertificateKeys } from './akash_certificate_manager';
-import { Deployment, Funding, db, getAkashAddress } from './user';
-import { chainRPC, contractAddress, dplABI, providerUrl } from './constants';
+import { Deployment, DepositRequest, Funding, db, getAkashAddress } from './user';
+import { chainRPC, contractAddress, dplABI, moonbeamContractAddress, mooonbeamABI, providerUrl } from './constants';
 import { createDeployment, createLease, fundDeployment, fundDeploymentTesting, getAccountNumberAndSequence, newCloseDeployment, transferAkashTokensProvisorio } from './deployment_akash_3';
-import { getBids, getHttpRequest, getProviderUri, getSdlByUrl, sendManifest, sendManifestTest } from './external_https';
+import { getBids, getHttpRequest, getProviderUri, getSdlByUrl, postHttpRequest, sendManifest, sendManifestTest } from './external_https';
 import { yamlObj } from './deployment_akash';
 import * as YAML from 'yaml';
 import { v2Sdl } from '@akashnetwork/akashjs/build/sdl/types';
@@ -24,6 +24,61 @@ import { callRpc } from './evm_rpc_interaction';
 import { deploy } from 'azle/test';
 import { getCoreDaoAkashPrice, getEthAkashPrice } from './prices';
 import { akashCertGlobal } from './toaa';
+
+// -- MOONBEAM
+export const validateDeposit = update([text], text, async (tokenId: string) => {
+  const provider = new ethers.JsonRpcProvider(chainRPC);
+
+  const contract = new ethers.Contract(
+    moonbeamContractAddress,
+    mooonbeamABI,
+    provider,
+  );
+
+  const functionSignature = 'depositById(uint256)';
+  const data = contract.interface.encodeFunctionData(functionSignature, [tokenId]);
+  const jsonValue = {
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{
+        to: moonbeamContractAddress,
+        data: data
+      }, "latest"],
+      id: 1
+    };
+  
+  const resTransaction = await callRpc(chainRPC, jsonValue)
+  const transaction = (contract.interface.decodeFunctionResult(functionSignature, resTransaction.result))
+
+  console.log('retornei');
+  // console.log(Number(transaction[0]))
+  if (db.depositsRequest[tokenId]) {
+    throw ('deposit already validated')
+  }
+
+  if (!transaction[0]) {
+    throw ('deposit does not exist')
+  }
+
+  const url = `https://api.accelar.io/dooor/proxy/manage/users`
+  const dataBody = {
+    action: 'add',
+    address: transaction[0],
+    credits: Number(transaction[1]) / 10 > 1 ? Number(transaction[1]) / 10 : Number(transaction[1])
+  }
+  const res = await postHttpRequest(url, 2_000_000n, 50_000_000_000n, dataBody)
+
+  const deposit: DepositRequest = {
+    id: tokenId,
+    agentAkashId: '0x',
+    amount: String(Number(transaction[1])),
+  };
+  db.depositsRequest[tokenId] = deposit;
+
+  return String(Number(transaction[1]))
+})
+
+// -- MOONBEAM
 
 //token id from the smart-contract deployment
 export const newDeployment = update([text], text, async (tokenId: string) => {

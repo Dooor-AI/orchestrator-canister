@@ -45,6 +45,19 @@ const ToaaAkash = Record({
 });
 export type ToaaAkash = typeof ToaaAkash.tsType;
 
+const AgentAkash = Record({
+    id: text, // evm id
+    url: text, // the akash address
+});
+export type AgentAkash = typeof AgentAkash.tsType;
+
+const DepositRequest = Record({
+    id: text, // evm deposit id
+    agentAkashId: text,
+    amount: text, // the native tokens amount
+});
+export type DepositRequest = typeof DepositRequest.tsType;
+
 
 const Deployment = Record({
     id: text, // evm address
@@ -72,6 +85,12 @@ type Db = {
     },
     toaaAkash: {
         [id: string]: ToaaAkash
+    },
+    agentsAkash: {
+        [id: string]: AgentAkash
+    },
+    depositsRequest: {
+        [id: string]: DepositRequest
     }
 };
 
@@ -79,7 +98,9 @@ export let db: Db = {
     users: {},
     deployments: {},
     fundings: {},
-    toaaAkash: {}
+    toaaAkash: {},
+    agentsAkash: {},
+    depositsRequest: {}
 };
 
 // certPem and certPubpem as base64

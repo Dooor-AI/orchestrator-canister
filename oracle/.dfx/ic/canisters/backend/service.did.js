@@ -91,6 +91,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateContractEVMEnd' : IDL.Func([], [IDL.Text], []),
     'userExist' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
+    'validateDeposit' : IDL.Func([IDL.Text], [IDL.Text], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

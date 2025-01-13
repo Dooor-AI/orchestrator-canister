@@ -128,7 +128,7 @@ export async function getBids(owner: string, dseq: string) {
       }}
 }
 
-  export async function postHttpRequest(url: string, maxResBts: bigint, cycles: bigint, bodyData: any) {
+  export async function postHttpRequest(url: string, maxResBts: bigint, cycles: bigint, bodyData: any, addHeaders?: any) {
     let response;
     console.log(url)
     console.log(bodyData)
