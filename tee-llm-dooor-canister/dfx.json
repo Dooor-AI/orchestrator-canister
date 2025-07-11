@@ -1,0 +1,15 @@
+{
+    "canisters": {
+        "dooor-canister": {
+            "type": "azle",
+            "main": "src/index.ts",
+            "custom": {
+                "experimental": true
+            },
+            "declarations": {
+                "output": "test/dfx_generated/dooor-canister",
+                "node_compatibility": true
+            }
+        }
+    }
+}
