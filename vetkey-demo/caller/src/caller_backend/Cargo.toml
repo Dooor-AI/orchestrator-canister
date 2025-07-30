@@ -1,9 +1,0 @@
-[package]                     # (mantém o que já existe)
-edition = "2021"
-
-[dependencies]
-candid      = "0.10"
-ic-cdk      = "0.18"          # mesma série de ic-vetkeys 0.3 :contentReference[oaicite:2]{index=2}
-ic-cdk-macros = "0.18"
-ic-vetkeys = "0.3"
-serde       = { version = "1", features = ["derive"] }

@@ -1,0 +1,19 @@
+{
+  "name": "vetkeys_demo",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "scripts/vetkd_check.js",
+  "description": "VetKD Demo - Complete demonstration of Verified Key Derivation on Internet Computer",
+  "keywords": ["vetkd", "internet-computer", "bls12-381", "cryptography", "dfinity"],
+  "author": "VetKD Demo Team",
+  "license": "MIT",
+  "scripts": {
+    "check": "node scripts/vetkd_check.js",
+    "generate-key": "node scripts/gen_transport_key.js"
+  },
+  "dependencies": {
+    "@dfinity/principal": "^3.1.0",
+    "@noble/curves": "^1.9.6",
+    "@noble/hashes": "^1.8.0"
+  }
+}

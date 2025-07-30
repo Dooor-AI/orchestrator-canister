@@ -133,3 +133,4 @@ dist
 target/
 *.lock
 .dfx/
+package-lock.json

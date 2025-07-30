@@ -1,0 +1,6 @@
+type Blob = blob;
+service : {
+  bls_public_key : ()                    -> (record { pk         : Blob });
+  sign_caller    : (Blob, Blob)          -> (record { signature  : Blob });
+                              //  ^payload  ^transport_pubkey
+}
