@@ -1,0 +1,5 @@
+{ "canisters": { "vetkeys_demo": {
+  "type":"rust","package":"vetkeys_demo",
+  "main":"src/lib.rs","candid":"src/vetkeys_demo.did" } },
+"networks": { "local":{}, "ic":{ "providers":["https://ic0.app/"] } },
+"version":1 }
