@@ -1,0 +1,27 @@
+[package]
+name         = "ic-vetkeys-manager-canister"
+version      = "0.1.0"
+edition      = "2021"
+license      = "Apache-2.0"
+description  = "Standalone demo for ic_vetkeys_manager_canister"
+
+[lib]
+path       = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+# ► todas as versões compatíveis com ic‑cdk 0.18 ◄
+candid                      = "0.10"
+ic-cdk                      = "0.18"     # ← mudou de ^0.13 para ^0.18 :contentReference[oaicite:4]{index=4}
+ic-cdk-macros               = "0.18"     # idem :contentReference[oaicite:5]{index=5}
+ic-dummy-getrandom-for-wasm = "0.1"      # só existe 0.1.0 :contentReference[oaicite:6]{index=6}
+ic-stable-structures        = "0.6"      # série atual usa ic‑cdk 0.18 :contentReference[oaicite:7]{index=7}
+ic-vetkeys                  = "0.3"      # já dependia de ic‑cdk 0.18 :contentReference[oaicite:8]{index=8}
+serde                       = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+pocket-ic      = "9.0.2"   # última série publicada (depende de ic‑cdk 0.18) :contentReference[oaicite:9]{index=9}
+rand           = "0.9"
+rand_chacha    = "0.3"
+reqwest        = "0.12.12"

@@ -1,0 +1,17 @@
+{
+    "canisters": {
+      "vetkd_system_api": {
+        "type":    "custom",
+        "wasm":    "./vetkd/chainkey_testing_canister.wasm",
+        "candid":  "./vetkd/chainkey_testing_canister.did"
+      },
+      "ic_vetkeys_manager_canister": {
+        "type":    "rust",
+        "package": "ic-vetkeys-manager-canister",
+        "candid":  "ic_vetkeys_manager_canister.did"
+      }
+    },
+    "output_env_file": ".env",
+    "version": 1
+  }
+  
