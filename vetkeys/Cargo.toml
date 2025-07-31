@@ -1,5 +1,5 @@
 [package]
-name = "vetkeys"
+name    = "vetkeys"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,12 +7,16 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+# ── base IC ───────────────────────────────────────────────────────────────
 ic-cdk               = "0.18"
 ic-cdk-macros        = "0.18"
 ic-vetkeys           = "0.3"
-ic-stable-structures = "0.6"          # mantém 0.6 por enquanto
-ed25519-dalek        = { version = "2", default-features = false, features = ["rand_core"] }
-rand                 = "0.8"
+ic-stable-structures = "0.6"
 candid               = "0.10"
 serde                = { version = "1", features = ["derive"] }
-getrandom            = { version = "0.2", features = ["js"] }
+
+# ── crypto we really use ──────────────────────────────────────────────────
+ed25519-dalek        = { version = "2", default-features = false }
+
+# ── tame `getrandom` once and for all ─────────────────────────────────────
+getrandom            = { version = "0.2.16", default-features = false, features = ["custom"] }
