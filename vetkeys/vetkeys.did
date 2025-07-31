@@ -1,0 +1,17 @@
+type Blob = blob;
+
+service : {
+  ///  ─── Cert store ───────────────────────────────
+  add_cert        : (Blob)                         -> ();
+  list_certs      : (opt principal)                -> (vec Blob) query;
+
+  ///  ─── VetKD helpers ────────────────────────────
+  bls_public_key  : ()                             -> (record { pk : Blob });
+  sign_caller     : (Blob, Blob)                   -> (record { signature : Blob });
+
+  ///  ─── Shutdown flow ────────────────────────────
+  sign_shutdown   : (Blob, Blob, Blob)             -> (
+                      record { vetkd_sig : Blob; canister_sig : Blob }
+                    );
+  verify_shutdown : (Blob, Blob, Blob)             -> (bool) query;
+}
