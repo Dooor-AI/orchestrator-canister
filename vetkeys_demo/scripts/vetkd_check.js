@@ -17,11 +17,11 @@ const crypto = require('crypto');
 // TEST DATA SETUP (Replace with real canister outputs)
 // -----------------------------------------------------------------------------
 
-const pkBlob = String.raw`<your-public-key-blob>`;
-const sigBlob = String.raw`<your-signature-blob>`;
-const tskHex = '<your-transport-secret-key>';
+const pkBlob = String.raw`\91\e9\98\ac\5b\dc\38\b1\27\98\88\c1\38\97\b3\0d\2a\3e\64\71\39\28\4b\a4\c0\bb\ae\65\a0\95\8d\f6\27\52\fd\5e\01\d6\78\04\72\a9\3e\5f\63\8a\80\13\18\c3\a3\d3\2b\07\59\21\d6\89\c1\bc\0b\c9\e9\94\55\59\bf\22\83\17\d4\c6\4f\3b\bd\27\12\45\0d\fe\10\4b\85\07\28\cb\54\ba\ae\fd\b1\ec\08\49\96\ae`;
+const sigBlob = String.raw`\85\16\57\8f\44\47\d3\c2\60\b4\c3\e8\8f\f6\91\6e\30\73\bc\fb\fe\4c\2a\eb\3a\e6\5d\53\bb\45\94\23\48\24\4f\90\36\a4\50\ef\ff\ae\f0\64\24\b1\3e\5a\b7\e2\7a\18\44\e6\41\f1\e7\df\75\e0\84\c6\f3\5b\a3\0f\35\7e\9e\53\f0\56\cc\ab\e5\22\46\dc\b4\13\90\0b\5c\63\cf\93\32\fc\0e\59\72\7f\fd\d6\38\02\03\06\4c\22\48\b4\e7\82\37\b1\d7\91\67\37\84\b4\73\58\a0\f0\e5\1a\f7\b7\de\db\db\93\b5\19\a9\94\8b\5a\e7\54\92\f9\36\a9\07\af\d2\77\c9\d5\ec\80\a4\2d\a4\ea\b5\2f\e8\30\3e\bc\8a\03\84\3c\d6\33\33\cc\e7\7f\fd\3d\60\de\c9\37\f1\72\b9\65\8a\21\e4\8e\57\60\31\40\0c\fb\ab\bd\9f\f2\17\89\ab\1c`;
+const tskHex = '857073ba1a264b8f009f6afbd4a4e29c9b13eb280576ff471105ea0b7d184290';
 const payload = [1, 2, 3];
-const callerText = '<caller-principal>';
+const callerText = '3f25u-gy3yg-nn24v-tjruz-ge32e-bogb6-ee23i-cw3db-rkwue-4d4no-uae';
 
 // -----------------------------------------------------------------------------
 // UTILITIES
