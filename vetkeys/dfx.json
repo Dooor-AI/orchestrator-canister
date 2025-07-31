@@ -1,0 +1,12 @@
+{
+    "canisters": {
+      "vetkeys": {
+        "type": "rust",
+        "package": "vetkeys",
+        "candid": "vetkeys.did"
+      }
+    },
+    "defaults": { "build": { "packtool": "", "args": "" } },
+    "version": 1
+  }
+  

@@ -71,6 +71,7 @@ async fn bls_public_key() -> BlsPk {
     BlsPk { pk: res.public_key }
 }
 
+
 /// Derives a signature over the message `<caller || payload>`, 
 /// encrypted to the provided transport public key.
 ///

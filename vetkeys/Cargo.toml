@@ -1,0 +1,22 @@
+[package]
+name    = "vetkeys"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# ── base IC ───────────────────────────────────────────────────────────────
+ic-cdk               = "0.18"
+ic-cdk-macros        = "0.18"
+ic-vetkeys           = "0.3"
+ic-stable-structures = "0.6"
+candid               = "0.10"
+serde                = { version = "1", features = ["derive"] }
+
+# ── crypto we really use ──────────────────────────────────────────────────
+ed25519-dalek        = { version = "2", default-features = false }
+
+# ── tame `getrandom` once and for all ─────────────────────────────────────
+getrandom            = { version = "0.2.16", default-features = false, features = ["custom"] }
