@@ -1,0 +1,47 @@
+{
+  "name": "vetkeys-js-integration",
+  "version": "1.0.0",
+  "description": "JavaScript integration files for VetKeys Private Database Canister",
+  "type": "module",
+  "main": "backend-integration-example.js",
+  "scripts": {
+    "test": "node local-test-suite.js",
+    "demo": "node certificate-vetkd-workflow.js",
+    "install-deps": "npm install",
+    "generate-candid": "dfx generate vetkeys",
+    "start-local": "dfx start --background --clean && dfx deploy",
+    "test-local": "npm run start-local && npm run test",
+    "demo-local": "npm run start-local && npm run demo"
+  },
+  "keywords": [
+    "vetkeys",
+    "internet-computer",
+    "dfinity",
+    "cryptography",
+    "threshold-signatures",
+    "vetkd"
+  ],
+  "author": "DOOOR Team",
+  "license": "MIT",
+  "dependencies": {
+    "@dfinity/agent": "^0.20.0",
+    "@dfinity/candid": "^0.20.0",
+    "@noble/bls12-381": "^1.0.0",
+    "@noble/ed25519": "^2.0.0",
+    "chalk": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dooor-team/vetkeys-canister"
+  },
+  "bugs": {
+    "url": "https://github.com/dooor-team/vetkeys-canister/issues"
+  },
+  "homepage": "https://github.com/dooor-team/vetkeys-canister#readme"
+} 
