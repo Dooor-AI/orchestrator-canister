@@ -23,6 +23,7 @@ import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
 import { toaaCreateCertificate, toaaInfo, toaaInitiate } from './services/toaa';
 import { fetchEcdsaPk, issueJwt, getJwk, selfTest  } from './services/jwt_ecdsa';
+import { validateTeeInfrastructure, httpTransform, getAllModels, getModelById, setDefaultModel } from './services/tee-llm-services';
 
 const Signature = Record({
     signature: blob
@@ -73,7 +74,12 @@ export default Canister({
     fetchEcdsaPk,
     issueJwt,
     getJwk,
-    transformResponse: query([HttpTransformArgs], HttpResponse, (args) => {
+    validateTeeInfrastructure,
+    httpTransform,
+    getAllModels,
+    getModelById,
+    setDefaultModel,
+    transformResponse: query([HttpTransformArgs], HttpResponse, (args: HttpTransformArgs) => {
         return {
             ...args.response,
             headers: []
