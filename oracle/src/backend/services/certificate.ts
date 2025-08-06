@@ -83,7 +83,7 @@ export const createCertificateAkashTest = update([text, text, text, text], text,
       const feeAmount = coins(20000, "uakt");
       const gasLimit = 800000;
       console.log('go to make auth')
-      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded as any, sequence }], feeAmount, gasLimit, undefined, undefined);
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
   
       const chainId = await client.getChainId();
 
@@ -148,7 +148,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
     }
 
     const certPubpem = db.users[recoveredAddress].akashCertPub
-    const certPEM = certificateManager.getPEM(akashCertGlobal[recoveredAddress])
+    const certPEM = certificateManager.accelarGetPEM(akashCertGlobal[recoveredAddress])
     console.log(certPEM)
     const fromAddress = db.users[recoveredAddress].akashAddress
     const pubKeyEncoded = await getEcdsaPublicKeyBase64FromEVM(recoveredAddress);
@@ -183,7 +183,7 @@ export const newCreateCertificateAkash = update([text, text], text, async (signa
       const feeAmount = coins(20000, "uakt");
       const gasLimit = 800000;
       console.log('go to make auth')
-      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded as any, sequence }], feeAmount, gasLimit, undefined, undefined);
+      const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit);
   
       const chainId = await client.getChainId();
 
@@ -261,7 +261,7 @@ export const createCertificateAkash = async (fromAddress: string, pubKeyEncoded:
     const feeAmount = coins(20000, "uakt");
     const gasLimit = 800000;
     console.log('go to make auth')
-    const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded as any, sequence }], feeAmount, gasLimit, undefined, undefined);
+    const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit, undefined, undefined);
 
     const chainId = await client.getChainId();
 

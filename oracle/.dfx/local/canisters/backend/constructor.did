@@ -1,0 +1,59 @@
+service : () -> {
+  closeDeployment : (text) -> (text);
+  closeDeploymentAkash : (text) -> (text);
+  closeDeploymentAkashFromAddress : (text) -> (text);
+  closeDeploymentProvisorio : (text, text) -> (text);
+  createAndStoreCertificateKeys : () -> (text);
+  createDeploymentAkash : () -> (text);
+  createLeaseAkash : (text, text, text, text, text) -> (text);
+  createUser : (text) -> (text);
+  fundDeploymentTest : (text, text, text) -> (text);
+  getAccountInfo : (text) -> (text);
+  getAkashAddress : (text) -> (text);
+  getAkashHeight : () -> (text);
+  getBidsA : () -> (text);
+  getBidsEnd : (text, text) -> (text);
+  getCanisterAddressEVMEnd : (text) -> (text);
+  getCanisterAkashAddress : () -> (text);
+  getCoreDaoAkashPriceEnd : () -> (text);
+  getDeployment : (text) -> (text);
+  getDeploymentManifestInfo : (text, text, text, text) -> (text);
+  getEcdsaPublicKeyBase64End : () -> (text);
+  getEthAkashPriceEnd : () -> (text);
+  getEthereumAddress : () -> (text);
+  getHttpTest : (text) -> (text);
+  getNewAkashCertificate : (text, text) -> (text);
+  getPubKey : () -> (text) query;
+  getUsers : () -> (text) query;
+  manageFundDeployment : (text, text) -> (text);
+  newCreateCertificateAkash : (text, text) -> (text);
+  newDeployment : (text) -> (text);
+  returnCanisterEVMAddress : () -> (text);
+  returnDeployment : (text) -> (text) query;
+  sendManifestAkash : (text, text) -> (text);
+  sendManifestEnd : (text, text) -> (text);
+  testEvmInteraction : (text) -> (text);
+  toaaCreateCertificate : () -> (text);
+  toaaInfo : () -> (text) query;
+  toaaInitiate : () -> (text);
+  transferAkashTokens : (text, text, text) -> (text);
+  transferAkashTokensProvisorioEnd : (text, text) -> (text);
+  transformResponse : (
+      record {
+        context : vec nat8;
+        response : record {
+          status : nat;
+          body : vec nat8;
+          headers : vec record { value : text; name : text };
+        };
+      },
+    ) -> (
+      record {
+        status : nat;
+        body : vec nat8;
+        headers : vec record { value : text; name : text };
+      },
+    ) query;
+  updateContractEVMEnd : () -> (text);
+  userExist : (text) -> (text) query;
+}
