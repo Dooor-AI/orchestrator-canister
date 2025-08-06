@@ -1,13 +1,14 @@
 // JWTService — ES256K (secp256k1) via t-ECDSA do IC, formatando JWT em JWS compact.
 // - fetchEcdsaPk: busca e cacheia a public key (SEC1 comprimida, 33 bytes)
-// - issueJwt / issueJwtAt: emite JWT com iss/sub/iat/nbf/exp/jti e assina com t-ECDSA
+// - issueJwt / issueJwtAt / issueJwtAtWith: emite JWT com iss/sub/iat/nbf/exp/jti (+aud/htm/htu/bod)
 // - getCompressedPk: retorna a pk comprimida
 // - configureKey/configureCycles: configuráveis em runtime (agnóstico para grant)
 // - selfTest: fluxo de teste local
 //
 // Notas de protocolo:
 // • sign_with_ecdsa retorna assinatura como r||s (64 bytes, cada um 32B big-endian). NÃO é DER.
-//   (Vide docs de t-ECDSA). Por isso, usamos diretamente em JWS/JOSE. 
+// • No JWS/JOSE para ES256K, a assinatura deve ser r||s em base64url.
+// • TTL curto (5 min) + jti p/ anti-replay.
 //
 // Dependências: "azle" ^0.32.0, "js-sha256" ^0.11.0
 
@@ -17,34 +18,30 @@ import { sha256 } from 'js-sha256';
 // ----------------------------- Constantes ------------------------------
 const MGMT = 'aaaaa-aa'; // management canister
 const TTL_SECONDS = 300; // 5 minutos
+const DEFAULT_SIGN_CYCLES = 27_000_000_000n; // >= custo típico
 
 // -------------------------- Helpers utilitárias ------------------------
 const te = new TextEncoder();
-const td = new TextDecoder();
 
-/** Base64URL para bytes */
+/** Base64URL para bytes (sem Buffer/btoa) */
 function b64url(u8: Uint8Array): string {
-  // base64 manual para evitar dependências de Buffer/btoa
   const table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let out = '';
-  let i = 0;
-  while (i < u8.length) {
-    const a = u8[i++] ?? 0;
-    const b = u8[i++] ?? 0;
-    const c = u8[i++] ?? 0;
+  for (let i = 0; i < u8.length; i += 3) {
+    const a = u8[i] ?? 0;
+    const b = u8[i + 1] ?? 0;
+    const c = u8[i + 2] ?? 0;
     const t = (a << 16) | (b << 8) | c;
     out += table[(t >>> 18) & 63] + table[(t >>> 12) & 63] +
-           (i - 2 > u8.length ? '=' : table[(t >>> 6) & 63]) +
-           (i - 1 > u8.length ? '=' : table[t & 63]);
+      (i + 1 < u8.length ? table[(t >>> 6) & 63] : '=') +
+      (i + 2 < u8.length ? table[t & 63] : '=');
   }
   return out.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
 /** SHA-256 → Uint8Array(32) */
 function sha256u8(input: Uint8Array): Uint8Array {
-  // js-sha256 retorna number[], convertemos para Uint8Array
-  const arr = sha256.array(input); // number[]
-  return Uint8Array.from(arr);
+  return Uint8Array.from(sha256.array(input));
 }
 
 /** JSON canônico com ordem estável de campos (header/payload) */
@@ -54,7 +51,7 @@ function stableStringify(obj: Record<string, unknown>, order: string[]): string 
   return JSON.stringify(o);
 }
 
-/** Gera JTI com entropia do raw_rand (fallback determinístico) */
+/** Gera JTI com entropia (raw_rand) + extra; fallback determinístico */
 async function generateJti(extra: string): Promise<string> {
   try {
     const bytes = await call<[], Uint8Array>(MGMT, 'raw_rand', {
@@ -63,11 +60,9 @@ async function generateJti(extra: string): Promise<string> {
       args: [],
       cycles: 0n
     });
-    // Use 16B do raw_rand + extra, reduza para ~22 chars base64url
     const h = sha256u8(Uint8Array.from([...bytes.slice(0, 16), ...te.encode(extra)]));
     return b64url(h).slice(0, 22);
   } catch {
-    // fallback: hash de extra (determinístico suficiente para dev/local)
     const h = sha256u8(te.encode(extra));
     return b64url(h).slice(0, 22);
   }
@@ -78,24 +73,20 @@ const KeyId = IDL.Record({
   curve: IDL.Variant({ secp256k1: IDL.Null }),
   name: IDL.Text
 });
-
 const EcdsaPublicKeyArgs = IDL.Record({
   canister_id: IDL.Opt(IDL.Principal),
   derivation_path: IDL.Vec(IDL.Vec(IDL.Nat8)),
   key_id: KeyId
 });
-
 const EcdsaPublicKeyReply = IDL.Record({
   public_key: IDL.Vec(IDL.Nat8),
   chain_code: IDL.Vec(IDL.Nat8)
 });
-
 const SignWithEcdsaArgs = IDL.Record({
   message_hash: IDL.Vec(IDL.Nat8), // 32B SHA-256
   derivation_path: IDL.Vec(IDL.Vec(IDL.Nat8)),
   key_id: KeyId
 });
-
 const SignWithEcdsaReply = IDL.Record({
   signature: IDL.Vec(IDL.Nat8) // r||s (64B) para secp256k1
 });
@@ -103,13 +94,12 @@ const SignWithEcdsaReply = IDL.Record({
 // ------------------------------ Serviço -------------------------------
 export class JWTService {
   private cachedPk: Uint8Array | null = null; // SEC1 comprimida (33B)
-  private keyName: string = 'key_1';          // padrão: produção (configure em dev)
-  private cyclesForSign: bigint = 27_000_000_000n; // override via configureCycles
+  private keyName: string = 'key_1';          // configure via jwt_configureKey
+  private cyclesForSign: bigint = DEFAULT_SIGN_CYCLES;
 
   configureKey(name: string) {
     if (!name || name.length > 64) throw new Error('invalid key name');
     this.keyName = name;
-    // troca de key invalida o cache atual
     this.cachedPk = null;
   }
 
@@ -156,8 +146,28 @@ export class JWTService {
 
   /** Emite JWT com timestamp fornecido (determinístico/recomendado) */
   async issueJwtAt(sub: string, nowSec: bigint): Promise<{ jwt: string }> {
+    return this.issueJwtAtWith({
+      sub,
+      nowSec,
+      aud: undefined,
+      htm: undefined,
+      htu: undefined,
+      bod: undefined
+    });
+  }
+
+  /** Emite JWT com *claims* extras: aud + binding (htm/htu/bod) */
+  async issueJwtAtWith(params: {
+    sub: string;
+    nowSec: bigint;
+    aud?: string;
+    htm?: string;   // HTTP method uppercase
+    htu?: string;   // canonical URL
+    bod?: string;   // base64url(sha256(body)) se houver body
+  }): Promise<{ jwt: string }> {
+    const { sub, nowSec, aud, htm, htu, bod } = params;
+
     if (!sub || sub.trim().length === 0) throw new Error('invalid-argument: sub-empty');
-    if (sub.length > 256) throw new Error('invalid-argument: sub-too-long');
     if (!this.cachedPk) {
       const r = await this.fetchEcdsaPk();
       if (r !== 'ok' && r !== 'already-initialized') throw new Error('pk-not-initialized');
@@ -173,8 +183,8 @@ export class JWTService {
     // Header/payload com ordem estável
     const headerStr = stableStringify({ alg: 'ES256K', typ: 'JWT' }, ['alg', 'typ']);
     const payloadStr = stableStringify(
-      { iss, sub, iat, nbf, exp, jti },
-      ['iss', 'sub', 'iat', 'nbf', 'exp', 'jti']
+      { iss, sub, aud, iat, nbf, exp, jti, htm, htu, bod },
+      ['iss', 'sub', 'aud', 'iat', 'nbf', 'exp', 'jti', 'htm', 'htu', 'bod']
     );
 
     const headerB64 = b64url(te.encode(headerStr));
@@ -182,8 +192,7 @@ export class JWTService {
     const signingInput = `${headerB64}.${payloadB64}`;
 
     // Hash SHA-256 do signing input
-    const digest = sha256u8(te.encode(signingInput));
-    if (digest.length !== 32) throw new Error('sha256 failure');
+    const digest = sha256u8(te.encode(signingInput)); // 32B
 
     // Chamada t-ECDSA: assinatura r||s (64 bytes)
     const sArgsVal = {
@@ -201,11 +210,10 @@ export class JWTService {
 
     const sig = Uint8Array.from(sReply.signature as number[]);
     if (sig.length !== 64) {
-      // t-ECDSA no IC deve retornar r||s de 64 bytes em secp256k1
       throw new Error('unexpected signature length (expect 64B r||s)');
     }
-    const sigB64 = b64url(sig);
 
+    const sigB64 = b64url(sig);
     return { jwt: `${signingInput}.${sigB64}` };
   }
 
@@ -214,5 +222,15 @@ export class JWTService {
     await this.fetchEcdsaPk();
     const { jwt } = await this.issueJwt('test-user');
     return jwt;
+  }
+
+  getCompressedPkHex(): string {
+    const pk = this.getCompressedPk();
+    let hex = '';
+    for (let i = 0; i < pk.length; i++) {
+      const h = pk[i].toString(16).padStart(2, '0');
+      hex += h;
+    }
+    return hex;
   }
 }
