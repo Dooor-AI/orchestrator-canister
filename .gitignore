@@ -134,3 +134,45 @@ target/
 *.lock
 .dfx/
 package-lock.json
+
+# Azle specific
+.azle/
+.azle_cache/
+
+# DFX specific
+.dfx/
+canister_ids.json
+
+# Build outputs
+src/frontend/dist/
+
+# Environment files
+.env.local
+.env.development
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp

@@ -7,6 +7,7 @@
     "dependencies": {
         "@akashnetwork/akashjs": "^0.10.0",
         "@cosmjs/cosmwasm-stargate": "^0.32.4",
+        "@cosmjs/crypto": "^0.34.0",
         "@cosmjs/stargate": "^0.32.4",
         "@dfinity/principal": "^1.4.0",
         "@ethersproject/address": "^5.7.0",
@@ -20,6 +21,7 @@
         "constants": "^0.0.2",
         "crypto": "^1.0.1",
         "crypto-js": "^4.2.0",
+        "esbuild": "^0.25.8",
         "ethers": "^6.13.1",
         "express": "^4.18.2",
         "flatted": "^3.3.1",

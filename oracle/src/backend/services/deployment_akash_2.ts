@@ -199,7 +199,7 @@ export const transferAkashTokens = update([text, text, text], text, async (fromA
         const { accountNumber, sequence } = await client.getSequence(fromAddress);
         const feeAmount = coins(20000, "uakt");
         const gasLimit = 800000;
-        const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded, sequence }], feeAmount, gasLimit);
+        const authInfoBytes = makeAuthInfoBytes([{ pubkey: pubKeyEncoded as any, sequence }], feeAmount, gasLimit, undefined, undefined);
 
         const chainId = await client.getChainId();
         const signDoc = makeSignDoc(newBodyBytes, authInfoBytes, chainId, accountNumber);

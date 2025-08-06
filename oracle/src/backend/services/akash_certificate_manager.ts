@@ -5,14 +5,14 @@ import { certificateManager } from '@akashnetwork/akashjs/build/certificates/cer
 import { MsgCreateCertificate } from '@akashnetwork/akashjs/build/protobuf/akash/cert/v1beta3/cert';
 import {stringify} from 'flatted'
 export function createCertificateKeys(akashAddress: string) {
-    const { cert, publicKey, privateKey } = certificateManager.accelarGeneratePEM(akashAddress);
+    const { cert, publicKey, privateKey } = certificateManager.generatePEM(akashAddress);
     console.log('cert created')
     console.log(stringify(cert))
     return {cert, publicKey, privateKey}
 }
 
 export function createCertificateKeys123(akashAddress: string) {
-    const { cert, publicKey, privateKey } = certificateManager.accelarGeneratePEM(akashAddress);
+    const { cert, publicKey, privateKey } = certificateManager.generatePEM(akashAddress);
     console.log('cert created')
     console.log(stringify(cert))
     return {cert: stringify(cert), publicKey, privateKey}

@@ -2,13 +2,6 @@ import { blob, Canister, text, ic, None, Record, update, serialize, query} from 
 import { Secp256k1PublicKey } from '@mysten/sui/keypairs/secp256k1';
 import { managementCanister,     HttpResponse,
     HttpTransformArgs, } from 'azle/canisters/management';
-import {
-    DirectSecp256k1HdWallet,
-    DirectSecp256k1Wallet,
-    OfflineSigner,
-    Registry,
-  } from '@cosmjs/proto-signing';
-  import { Bip39, Random, stringToPath } from '@cosmjs/crypto';
 import { createAkashDeployment } from './services/deployment_akash';  // Atualize o caminho conforme necessário
 import { closeDeploymentAkash, createDeploymentAkash, createLeaseAkash, sendManifestAkash, transferAkashTokens } from './services/deployment_akash_2';
 import { getAkashAddress, getCanisterAkashAddress, getEcdsaPublicKeyBase64End, getEthereumAddress } from './services/get_address_akash';
@@ -22,7 +15,7 @@ import { newCreateCertificateAkash } from './services/certificate';
 import { closeDeploymentAkashFromAddress } from './services/deployment_akash_3';
 import { getCanisterAddressEVMEnd, returnCanisterEVMAddress, updateContractEVMEnd } from './services/interaction_evm';
 import { toaaCreateCertificate, toaaInfo, toaaInitiate } from './services/toaa';
-import { fetchEcdsaPk, issueJwt, getJwk, selfTest  } from './services/jwt_ecdsa';
+import { fetchEcdsaPk, issueJwt, selfTest, getCompressedPk  } from './services/jwt_ecdsa';
 import { validateTeeInfrastructure, httpTransform, getAllModels, getModelById, setDefaultModel } from './services/tee-llm-services';
 
 const Signature = Record({
@@ -30,59 +23,59 @@ const Signature = Record({
 });
 
 export default Canister({
-    validateDeposit,
-    sendManifestEnd,
-    getBidsEnd,
-    getAccountInfo,
-    getHttpTest,
-    getCoreDaoAkashPriceEnd,
-    getEthAkashPriceEnd,
-    getPubKey,
-    getAkashHeight,
-    toaaInfo,
-    toaaInitiate,
-    toaaCreateCertificate,
-    getAkashAddress,
-    createDeploymentAkash,
-    getDeployment,
-    createLeaseAkash,
-    createUser,
-    createAndStoreCertificateKeys,
-    closeDeployment,
-    closeDeploymentAkash,
-    closeDeploymentAkashFromAddress,
-    updateContractEVMEnd,
-    getEthereumAddress,
-    transferAkashTokens,
-    transferAkashTokensProvisorioEnd,
-    getDeploymentManifestInfo,
-    getNewAkashCertificate,
-    newCreateCertificateAkash,
-    getEcdsaPublicKeyBase64End,
-    manageFundDeployment,
-    newDeployment,
-    closeDeploymentProvisorio,
-    getCanisterAddressEVMEnd,
-    sendManifestAkash,
-    getCanisterAkashAddress,
-    fundDeploymentTest,
-    returnDeployment,
-    returnCanisterEVMAddress,
-    userExist,
-    testEvmInteraction,
+    // validateDeposit,
+    // sendManifestEnd,
+    // getBidsEnd,
+    // getAccountInfo,
+    // getHttpTest,
+    // getCoreDaoAkashPriceEnd,
+    // getEthAkashPriceEnd,
+    // getPubKey,
+    // getAkashHeight,
+    // toaaInfo,
+    // toaaInitiate,
+    // toaaCreateCertificate,
+    // getAkashAddress,
+    // createDeploymentAkash,
+    // getDeployment,
+    // createLeaseAkash,
+    // createUser,
+    // createAndStoreCertificateKeys,
+    // closeDeployment,
+    // closeDeploymentAkash,
+    // closeDeploymentAkashFromAddress,
+    // updateContractEVMEnd,
+    // getEthereumAddress,
+    // transferAkashTokens,
+    // transferAkashTokensProvisorioEnd,
+    // getDeploymentManifestInfo,
+    // getNewAkashCertificate,
+    // newCreateCertificateAkash,
+    // getEcdsaPublicKeyBase64End,
+    // manageFundDeployment,
+    // newDeployment,
+    // closeDeploymentProvisorio,
+    // getCanisterAddressEVMEnd,
+    // sendManifestAkash,
+    // getCanisterAkashAddress,
+    // fundDeploymentTest,
+    // returnDeployment,
+    // returnCanisterEVMAddress,
+    // userExist,
+    // testEvmInteraction,
+    // transformResponse: query([HttpTransformArgs], HttpResponse, (args: HttpTransformArgs) => {
+    //     return {
+    //         ...args.response,
+    //         headers: []
+    //     };
+    // }),
     selfTest,
     fetchEcdsaPk,
     issueJwt,
-    getJwk,
-    validateTeeInfrastructure,
-    httpTransform,
-    getAllModels,
-    getModelById,
-    setDefaultModel,
-    transformResponse: query([HttpTransformArgs], HttpResponse, (args: HttpTransformArgs) => {
-        return {
-            ...args.response,
-            headers: []
-        };
-    })
+    getCompressedPk,
+    //validateTeeInfrastructure,
+    //httpTransform,
+    //getAllModels,
+    //getModelById,
+    //setDefaultModel,
 });
