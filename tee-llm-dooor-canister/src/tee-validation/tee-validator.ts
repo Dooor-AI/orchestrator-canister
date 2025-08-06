@@ -15,6 +15,12 @@ export class TEEAttestationValidator {
     this.instanceName = config.instanceName
   }
 
+  /**
+   * Decodes base64 string to UTF-8 text without using Buffer or atob
+   * @param {string} base64String - Base64 encoded string to decode
+   * @returns {string} Decoded UTF-8 string
+   * @throws {Error} When base64 string is invalid
+   */
   private decodeBase64(base64String: string): string {
     try {
       // Character mapping for base64 decoding
@@ -46,6 +52,11 @@ export class TEEAttestationValidator {
     }
   }
 
+  /**
+   * Validates TEE attestation JWT and returns boolean result
+   * @param {string} attestationJWT - JWT token containing TEE attestation
+   * @returns {Promise<boolean>} True if TEE attestation is valid
+   */
   async isValidTEE(attestationJWT: string): Promise<boolean> {
     try {
       const report = await this.getValidationReport(attestationJWT)
@@ -55,6 +66,11 @@ export class TEEAttestationValidator {
     }
   }
 
+  /**
+   * Gets detailed validation report for TEE attestation JWT
+   * @param {string} attestationJWT - JWT token containing TEE attestation
+   * @returns {Promise<TEEValidationReport>} Detailed validation report with summary and errors
+   */
   async getValidationReport(attestationJWT: string): Promise<TEEValidationReport> {
     const decoded = this.decodeJWT(attestationJWT)
 
@@ -89,6 +105,11 @@ export class TEEAttestationValidator {
     }
   }
 
+  /**
+   * Decodes JWT token into header and payload objects
+   * @param {string} jwt - JWT token string to decode
+   * @returns {{ header: unknown; payload: unknown } | null} Decoded JWT parts or null if invalid
+   */
   decodeJWT(jwt: string): { header: unknown; payload: unknown } | null {
     try {
       const parts = jwt.split('.')
@@ -103,10 +124,22 @@ export class TEEAttestationValidator {
     }
   }
 
+  /**
+   * Validates basic JWT structure requirements
+   * @param {Object} decoded - Decoded JWT object with header and payload
+   * @param {unknown} decoded.header - JWT header object
+   * @param {unknown} decoded.payload - JWT payload object
+   * @returns {boolean} True if JWT structure is valid
+   */
   private validateJWTStructure(decoded: { header: unknown; payload: unknown }): boolean {
     return decoded.header !== null && decoded.payload !== null
   }
 
+  /**
+   * Validates TEE security configuration and returns detailed report
+   * @param {any} data - Security configuration data from TEE
+   * @returns {Promise<TEEValidationReport>} Security validation report with configuration details
+   */
   async validateSecurityConfiguration(data: any): Promise<TEEValidationReport> {
     try {
       if (!data) {
@@ -170,6 +203,12 @@ export class TEEAttestationValidator {
     }
   }
 
+  /**
+   * Performs complete TEE validation combining JWT attestation and security configuration
+   * @param {string} jwtAttestation - JWT token containing TEE attestation
+   * @param {any} dataSecurity - Security configuration data from TEE
+   * @returns {Promise<any>} Comprehensive validation report with all security assessments
+   */
   async validateCompleteTEE(jwtAttestation: string, dataSecurity: any): Promise<any> {
     try {
       const jwtValidation = await this.getValidationReport(jwtAttestation)

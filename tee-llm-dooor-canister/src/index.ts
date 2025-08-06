@@ -9,7 +9,11 @@ import { LLMService, LLMAuthHeaderProvider } from './llmEndpoints';
 import { JWTService } from './ecdsa';
 import { sha256 } from 'js-sha256';
 
-// util local p/ base64url
+/**
+ * Converts Uint8Array to Base64URL string for JWT body hash calculation
+ * @param {Uint8Array} u8 - Input byte array to encode
+ * @returns {string} Base64URL encoded string
+ */
 function b64url(u8: Uint8Array): string {
   const table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let out = '';
@@ -60,34 +64,62 @@ export default class DooorCanister {
   }
 
   // ===== LLM =====
+  /**
+   * Retrieves all available LLM models with JWT authentication
+   * @returns {Promise<string>} JSON string containing list of models with metadata
+   */
   @update([], IDL.Text)
   async getAllModels(): Promise<string> {
     return await this.llmService.getAllModels();
   }
 
+  /**
+   * Retrieves specific model information by ID with JWT authentication
+   * @param {string} modelId - Unique identifier of the model
+   * @returns {Promise<string>} JSON string containing model details
+   */
   @update([IDL.Text], IDL.Text)
   async getModelById(modelId: string): Promise<string> {
     return await this.llmService.getModelById(modelId);
   }
 
+  /**
+   * Sets a specific model as the system default with JWT authentication
+   * @param {string} modelId - Unique identifier of the model to set as default
+   * @returns {Promise<string>} JSON string containing operation result
+   */
   @update([IDL.Text], IDL.Text)
   async setDefaultModel(modelId: string): Promise<string> {
     return await this.llmService.setDefaultModel(modelId);
   }
 
   // ===== TEE =====
+  /**
+   * Performs complete TEE infrastructure validation
+   * @returns {Promise<string>} JSON string containing comprehensive security report
+   */
   @update([], IDL.Text)
   async validateTeeInfrastructure(): Promise<string> {
     return await this.teeService.validateCompleteInfrastructure();
   }
 
   // ===== Config JWT/t-ECDSA =====
+  /**
+   * Configures the ECDSA key name for JWT signing operations
+   * @param {string} name - Key name identifier (e.g., "dfx_test_key", "key_1")
+   * @returns {Promise<string>} "ok" on success
+   */
   @update([IDL.Text], IDL.Text)
   async jwt_configureKey(name: string): Promise<string> {
     this.jwt.configureKey(name);
     return 'ok';
   }
 
+  /**
+   * Configures the cycles allocation for ECDSA signing operations
+   * @param {bigint} cycles - Number of cycles to allocate (minimum ~26.2B recommended)
+   * @returns {Promise<string>} "ok" on success
+   */
   @update([IDL.Nat64], IDL.Text)
   async jwt_configureCycles(cycles: bigint): Promise<string> {
     this.jwt.configureCycles(cycles);
@@ -95,34 +127,64 @@ export default class DooorCanister {
   }
 
   // ===== JWT / t-ECDSA =====
+  /**
+   * Fetches and caches the ECDSA public key from the management canister
+   * @returns {Promise<string>} Status message indicating success or already initialized
+   */
   @update([], IDL.Text)
   async jwt_fetchEcdsaPk(): Promise<string> {
     return await this.jwt.fetchEcdsaPk();
   }
 
+  /**
+   * Issues a JWT token with current timestamp
+   * @param {string} sub - Subject claim for the JWT token
+   * @returns {Promise<string>} JWT token string
+   */
   @update([IDL.Text], IDL.Text)
   async jwt_issueJwt(sub: string): Promise<string> {
     const { jwt } = await this.jwt.issueJwt(sub);
     return jwt;
   }
 
+  /**
+   * Issues a JWT token with specified timestamp
+   * @param {string} sub - Subject claim for the JWT token
+   * @param {bigint} now_sec - Unix timestamp in seconds
+   * @returns {Promise<string>} JWT token string
+   */
   @update([IDL.Text, IDL.Nat64], IDL.Text)
   async jwt_issueJwtAt(sub: string, now_sec: bigint): Promise<string> {
     const { jwt } = await this.jwt.issueJwtAt(sub, now_sec);
     return jwt;
   }
 
+  /**
+   * Returns the compressed ECDSA public key (SEC1 format, 33 bytes)
+   * @returns {Uint8Array} Compressed public key as byte array
+   */
   @query([], IDL.Vec(IDL.Nat8))
   jwt_getCompressedPk(): Uint8Array {
     return this.jwt.getCompressedPk();
   }
 
+  /**
+   * Performs a self-test of the JWT/ECDSA system
+   * @returns {Promise<string>} JWT token string for testing
+   */
   @update([], IDL.Text)
   async jwt_selfTest(): Promise<string> {
     return await this.jwt.selfTest();
   }
 
   // ====== TESTE LOCAL: só constrói os headers que seriam enviados ======
+  /**
+   * Builds HTTP authentication headers with JWT token for testing
+   * @param {string} method - HTTP method ("get" or "post")
+   * @param {string} url - Target URL for the request
+   * @param {[] | [Uint8Array]} bodyOpt - Optional request body as byte array
+   * @returns {Promise<Array<{name: string, value: string}>>} Array of HTTP headers including Authorization
+   */
   @update([IDL.Text, IDL.Text, IDL.Opt(IDL.Vec(IDL.Nat8))],
           IDL.Vec(IDL.Record({ name: IDL.Text, value: IDL.Text })))
   async llm_buildAuthHeaders(method: string, url: string, bodyOpt: [] | [Uint8Array]) {
@@ -131,12 +193,21 @@ export default class DooorCanister {
     return await this.llmService.buildAuthHeaders(m as 'get' | 'post', url, body);
   }
 
+  /**
+   * Returns the compressed ECDSA public key in hexadecimal format
+   * @returns {string} Compressed public key as hex string (66 characters, 0x02/0x03 prefix)
+   */
   @query([], IDL.Text)
   jwt_getCompressedPkHex(): string {
     return this.jwt.getCompressedPkHex();
   }
 
   // ===== HTTP transform =====
+  /**
+   * HTTP response transform function for ICP outcalls
+   * @param {http_transform_args} args - HTTP response arguments
+   * @returns {http_request_result} Transformed HTTP response
+   */
   @query([http_transform_args], http_request_result)
   httpTransform(args: http_transform_args): http_request_result {
     return { ...args.response, headers: [] };

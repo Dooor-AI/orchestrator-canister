@@ -3,7 +3,10 @@
  * Contains interfaces for API responses and service configurations
  */
 
-// HTTP request configuration interface
+/**
+ * HTTP request configuration interface for ICP outcalls
+ * Defines the structure for making HTTP requests to external services
+ */
 export interface HttpRequestConfig {
     url: string;
     method: 'get' | 'post';
@@ -11,7 +14,10 @@ export interface HttpRequestConfig {
     body?: [] | [Uint8Array | number[]];
 }
 
-// LLM service response interfaces
+/**
+ * Individual LLM model response interface
+ * Represents a single language model with its metadata and capabilities
+ */
 export interface LLMModelResponse {
     id: string;
     name: string;
@@ -22,6 +28,10 @@ export interface LLMModelResponse {
     updatedAt: string;
 }
 
+/**
+ * LLM models list response interface
+ * Represents a paginated list of language models with metadata
+ */
 export interface LLMModelsListResponse {
     models: LLMModelResponse[];
     total: number;
@@ -29,6 +39,10 @@ export interface LLMModelsListResponse {
     limit: number;
 }
 
+/**
+ * LLM default model response interface
+ * Represents the response when setting or retrieving the default model
+ */
 export interface LLMDefaultModelResponse {
     success: boolean;
     message: string;
@@ -39,7 +53,10 @@ export interface LLMDefaultModelResponse {
     };
 }
 
-// TEE validation interfaces
+/**
+ * TEE infrastructure validation report interface
+ * Comprehensive report containing all TEE validation results and security assessments
+ */
 export interface TEEInfrastructureReport {
     timestamp: string;
     validation_status: 'PASSED' | 'FAILED' | 'ERROR';
@@ -76,13 +93,20 @@ export interface TEEInfrastructureReport {
     error_message?: string;
 }
 
-// Service configuration interfaces
+/**
+ * TEE service configuration interface
+ * Defines the configuration parameters for TEE validation services
+ */
 export interface TEEServiceConfig {
     projectId: string;
     zone: string;
     instanceName: string;
 }
 
+/**
+ * Service endpoints mapping interface
+ * Provides semantic mapping between service types and their operations
+ */
 export interface ServiceEndpoints {
     tee: {
         security: string;
@@ -95,7 +119,10 @@ export interface ServiceEndpoints {
     };
 }
 
-// Error handling interfaces
+/**
+ * Service error interface for error handling
+ * Standardized error structure for service-level errors
+ */
 export interface ServiceError {
     code: string;
     message: string;
@@ -104,6 +131,10 @@ export interface ServiceError {
     endpoint?: string;
 }
 
+/**
+ * Generic API response interface
+ * Standardized response structure for all API endpoints
+ */
 export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
