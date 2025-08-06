@@ -1,3 +1,5 @@
+dfx stop ; dfx start --background --clean  --network ic
+
 dfx canister create vetkeys_demo --network ic
 dfx build   --network ic
 dfx deploy  --network ic --no-wallet
