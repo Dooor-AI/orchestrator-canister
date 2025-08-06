@@ -1,141 +1,175 @@
-// src/ecdsa.ts
-// ============================================================================
-// ECDSA JWT Module (Azle 0.32 + experimental-deps)
-// - fetchEcdsaPk(): busca e cacheia a chave pública (secp256k1, comprimida 33B)
-// - issueJwt(sub): emite JWT ES256K (header.alg="ES256K") assinado via t-ECDSA
-// - getCompressedPk(): expõe a pk comprimida para verificação off-chain
-// - selfTest(): emite um token de teste (usa função interna, não chama export)
-// ----------------------------------------------------------------------------
-// Refs (Azle 0.32):
-// • Imports “runtime” a partir de 'azle/experimental'. 
-//   (ver docs de “Canister version”, “Management canister examples”) 
-// • Management canister IDL de 'azle/canisters/management'.
-// • Stable structures: usar `new StableBTreeMap(...)`.
-// • t-ECDSA: sign_with_ecdsa / ecdsa_public_key e key_id.curve { secp256k1: null }.
-// ============================================================================
+// src/backend/services/jwt_ecdsa.ts
+//
+// JWTService: emite JWT ES256K (secp256k1) usando t-ECDSA do IC.
+// - fetchEcdsaPk()        → obtém e cacheia a pk comprimida (33 B)
+// - issueJwt(sub)         → cria header.payload, hash SHA-256 e assina via sign_with_ecdsa
+// - getCompressedPk()     → retorna a pk para verificadores externos (compressed)
+// - selfTest()            → gera um token de teste
+//
+// Azle 0.32: usamos decorators só no index; aqui é uma classe "service".
+// Chamadas ao management canister via fetch("icp://aaaaa-aa/<method>")
+// com Candid encodado/decodado usando IDL.encode/IDL.decode.
+// Docs: decorators/IDL e fetch icp://  → ver referências na resposta.
 
-import {
-    Canister, ic, update, query, text, blob, Record, StableBTreeMap
-  } from 'azle/experimental';
-  import { managementCanister } from 'azle/canisters/management';
-  import { sha256 } from '@cosmjs/crypto';
-  
-  // ------------------------------- Constantes ----------------------------------
-  const JWT_TTL_SECONDS = 3600;               // 1 hora
-  const ECDSA_SIGNATURE_CYCLES = 25_000_000_000n;
-  const KEY_ID = {
-    curve: { secp256k1: null as null },       // ES256K
-    name: 'key_1'
+import { IDL } from 'azle';
+// Azle carrega js-sha256 como dependência; importamos daqui:
+import { sha256 } from 'js-sha256';
+
+// ---------------- Config ----------------
+const MGMT = 'aaaaa-aa'; // management canister
+const KEY_ID = { curve: { secp256k1: null }, name: 'key_1' };
+const JWT_TTL_SECONDS = 3600;
+
+// IDL types para os métodos t-ECDSA
+const KeyId = IDL.Record({
+  curve: IDL.Variant({ secp256k1: IDL.Null }),
+  name: IDL.Text
+});
+const EcdsaPublicKeyArgs = IDL.Record({
+  canister_id: IDL.Opt(IDL.Principal),
+  derivation_path: IDL.Vec(IDL.Vec(IDL.Nat8)), // vec<blob>
+  key_id: KeyId
+});
+const EcdsaPublicKeyReply = IDL.Record({
+  public_key: IDL.Vec(IDL.Nat8),
+  chain_code: IDL.Vec(IDL.Nat8)
+});
+
+const SignWithEcdsaArgs = IDL.Record({
+  message_hash: IDL.Vec(IDL.Nat8),            // 32 bytes (SHA-256)
+  derivation_path: IDL.Vec(IDL.Vec(IDL.Nat8)),
+  key_id: KeyId
+});
+const SignWithEcdsaReply = IDL.Record({
+  signature: IDL.Vec(IDL.Nat8)                // DER (ASN.1)
+});
+
+// ---------------- Utils ----------------
+const te = new TextEncoder();
+
+// Base64url encoding function (replaces Buffer usage)
+const b64url = (u8: Uint8Array): string => {
+  const base64 = btoa(String.fromCharCode(...u8));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
+// Converte DER (ASN.1) ECDSA → r||s (64 bytes) para JWS/JWT ES256K
+function derToJose(der: Uint8Array): Uint8Array {
+  // DER: 30 len 02 rlen r 02 slen s
+  if (der[0] !== 0x30) throw new Error('ECDSA DER: bad sequence');
+  let offset = 2; // pula 0x30 e len
+  if (der[1] & 0x80) offset = 2 + (der[1] & 0x7f); // len longa
+
+  if (der[offset] !== 0x02) throw new Error('ECDSA DER: bad int r');
+  const rLen = der[offset + 1];
+  const r = der.slice(offset + 2, offset + 2 + rLen);
+
+  let sOff = offset + 2 + rLen;
+  if (der[sOff] !== 0x02) throw new Error('ECDSA DER: bad int s');
+  const sLen = der[sOff + 1];
+  const s = der.slice(sOff + 2, sOff + 2 + sLen);
+
+  // Remove zeros à esquerda e left-pad para 32 bytes
+  const trim = (x: Uint8Array) => {
+    let i = 0; while (i < x.length - 1 && x[i] === 0) i++;
+    return x.slice(i);
   };
-  
-  // ------------------------------- Helpers -------------------------------------
-  function b64urlFromBytes(u8: Uint8Array): string {
-    const s = Buffer.from(u8).toString('base64');
-    return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function b64urlFromText(s: string): string {
-    return b64urlFromBytes(new TextEncoder().encode(s));
-  }
-  function nowSeconds(): number {
-    return Number(ic.time() / 1_000_000_000n);
-  }
-  
-  // -------------------------- Stable storage (pk) -------------------------------
+  const leftPad32 = (x: Uint8Array) => {
+    if (x.length > 32) throw new Error('ECDSA part > 32 bytes');
+    const out = new Uint8Array(32);
+    out.set(x, 32 - x.length);
+    return out;
+  };
+  const R = leftPad32(trim(r));
+  const S = leftPad32(trim(s));
+  const out = new Uint8Array(64);
+  out.set(R, 0);
+  out.set(S, 32);
+  return out;
+}
+
+// ---------------- Service ----------------
+export class JWTService {
+  private cachedPk?: Uint8Array; // compressed (33 bytes)
+
   /**
-   * Guarda a pk ECDSA (secp256k1) comprimida (33 bytes) sob a chave "main".
-   * MemoryId = 0 (ajuste se já usar esse id noutro módulo).
+   * Obtém e cacheia a P-256k1 compressed public key do subnet (33 B)
+   * @returns {Promise<string>} Status da inicialização
    */
-  const PK_STORE = new StableBTreeMap<string, Uint8Array>(0);
-  
-  // ----------------------------- Tipos Candid ----------------------------------
-  const JwtResponse = Record({ jwt: text });
-  
-  // ----------------------- Funções internas (reuso) ----------------------------
-  async function ensurePk(): Promise<void> {
-    const got = PK_STORE.get('main');
-    if ('Some' in got) return;
-  
-    const res = await ic.call(managementCanister.ecdsa_public_key, {
-      args: [{
-        canister_id: { None: null },     // Opt<Principal> = None
-        derivation_path: [] as blob[],
-        key_id: KEY_ID
-      }]
-    });
-  
-    // res.public_key é blob (Uint8Array). Esperado: 33B (comprimida)
-    PK_STORE.insert('main', res.public_key);
-  }
-  
-  async function signHashK1(hash32: Uint8Array): Promise<Uint8Array> {
-    const sigRes = await ic.call(managementCanister.sign_with_ecdsa, {
-      args: [{
-        message_hash: hash32,            // blob (Uint8Array)
-        derivation_path: [] as blob[],
-        key_id: KEY_ID
-      }],
-      cycles: ECDSA_SIGNATURE_CYCLES
-    });
-    return sigRes.signature;             // Uint8Array (r||s)
-  }
-  
-  async function issueJwtInternal(sub: string): Promise<string> {
-    await ensurePk();
-  
-    const header = { alg: 'ES256K', typ: 'JWT' };
-    const iat = nowSeconds();
-    const exp = iat + JWT_TTL_SECONDS;
-    const payload = { sub, iat, exp };
-  
-    const h = b64urlFromText(JSON.stringify(header));
-    const p = b64urlFromText(JSON.stringify(payload));
-    const data = `${h}.${p}`;
-  
-    // Hash SHA-256 do header.payload
-    const hash = sha256(new TextEncoder().encode(data)); // Uint8Array(32)
-    const sig = await signHashK1(hash);
-  
-    return `${data}.${b64urlFromBytes(sig)}`;
-  }
-  
-  // ------------------------------- Exports Azle --------------------------------
-  
-  // 1) Inicialização idempotente: busca/caches a pk
-  export const fetchEcdsaPk = update([], text, async () => {
-    await ensurePk();
+  async fetchEcdsaPk(): Promise<string> {
+    if (this.cachedPk) return 'already-initialized';
+
+    const args = {
+      canister_id: [],           // None
+      derivation_path: [],       // vazio
+      key_id: KEY_ID
+    };
+    const body = IDL.encode([EcdsaPublicKeyArgs], [args]);
+    const res = await fetch(`icp://${MGMT}/ecdsa_public_key`, { method: 'POST', body });
+    if (!res.ok) throw new Error(`ecdsa_public_key HTTP ${res.status}`);
+    const buf = new Uint8Array(await res.arrayBuffer());
+    const decoded = IDL.decode([EcdsaPublicKeyReply], buf.buffer);
+    const reply = decoded[0] as unknown as { public_key: Uint8Array };
+    this.cachedPk = new Uint8Array(reply.public_key);
     return 'ok';
-  });
-  
-  // 2) Emite JWT ES256K assinado via t-ECDSA
-  export const issueJwt = update([text], JwtResponse, async (sub: string) => {
-    const jwt = await issueJwtInternal(sub);
-    return { jwt };
-  });
-  
-  // 3) Expor a pk comprimida (33B) para verificação off-chain
-  export const getCompressedPk = query([], blob, () => {
-    const got = PK_STORE.get('main');
-    if ('None' in got) {
-      ic.trap('ECDSA pk not initialized. Call fetchEcdsaPk first.');
-    }
-    // @ts-ignore unwrap do Opt
-    return got.Some as Uint8Array;
-  });
-  
-  // 4) Self-test local (não use o export `issueJwt` aqui!)
-  export const selfTest = update([], text, async () => {
-    return await issueJwtInternal('test-user');
-  });
-  
-  // ----------------------- (Opcional) Canister wrapper -------------------------
+  }
+
   /**
-   * Se preferir expor tudo via default Canister(), descomente o bloco abaixo e
-   * importe este módulo no seu index, OU exporte nomeado como está.
+   * Emite JWT ES256K (sub, iat, exp). Assinatura t-ECDSA → DER → r||s → base64url
+   * @param {string} sub - Subject do JWT
+   * @returns {Promise<{ jwt: string }>} JWT assinado
    */
-  // export default Canister({
-  //   fetchEcdsaPk,
-  //   issueJwt,
-  //   getCompressedPk,
-  //   selfTest
-  // });
-  
+  async issueJwt(sub: string): Promise<{ jwt: string }> {
+    if (!this.cachedPk) await this.fetchEcdsaPk();
+
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + JWT_TTL_SECONDS;
+    const header = { alg: 'ES256K', typ: 'JWT' };
+    const payload = { sub, iat, exp };
+
+    const h = b64url(te.encode(JSON.stringify(header)));
+    const p = b64url(te.encode(JSON.stringify(payload)));
+    const data = `${h}.${p}`;
+
+    // sha256 → 32 bytes
+    const hashHex = sha256.update(te.encode(data)).hex();
+    const hash = Uint8Array.from(hashHex.match(/.{1,2}/g)!.map((b) => parseInt(b, 16)));
+
+    const sArgs = {
+      message_hash: hash,
+      derivation_path: [],
+      key_id: KEY_ID
+    };
+    const sBody = IDL.encode([SignWithEcdsaArgs], [sArgs]);
+    const sRes = await fetch(`icp://${MGMT}/sign_with_ecdsa`, { method: 'POST', body: sBody });
+    if (!sRes.ok) throw new Error(`sign_with_ecdsa HTTP ${sRes.status}`);
+    const sBuf = new Uint8Array(await sRes.arrayBuffer());
+    const sDecoded = IDL.decode([SignWithEcdsaReply], sBuf.buffer);
+    const sReply = sDecoded[0] as unknown as { signature: Uint8Array };
+
+    // converter DER → JOSE (r||s) e b64url
+    const jose = derToJose(new Uint8Array(sReply.signature));
+    const sigB64 = b64url(jose);
+
+    return { jwt: `${data}.${sigB64}` };
+  }
+
+  /**
+   * Retorna a chave pública comprimida (33 B) para verificação off-chain
+   * @returns {Uint8Array} Chave pública comprimida
+   */
+  getCompressedPk(): Uint8Array {
+    if (!this.cachedPk) throw new Error('ECDSA pk not initialized (call fetchEcdsaPk)');
+    return new Uint8Array(this.cachedPk);
+  }
+
+  /**
+   * Gera um token de teste
+   * @returns {Promise<string>} JWT de teste
+   */
+  async selfTest(): Promise<string> {
+    await this.fetchEcdsaPk();
+    const { jwt } = await this.issueJwt('test-user');
+    return jwt;
+  }
+}
