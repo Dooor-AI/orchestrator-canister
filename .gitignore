@@ -176,3 +176,5 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+*.pem
+*.cert

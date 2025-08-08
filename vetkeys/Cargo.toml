@@ -15,8 +15,5 @@ ic-stable-structures = "0.6"
 candid               = "0.10"
 serde                = { version = "1", features = ["derive"] }
 
-# ── crypto we really use ──────────────────────────────────────────────────
-ed25519-dalek        = { version = "2", default-features = false }
-
-# ── tame `getrandom` once and for all ─────────────────────────────────────
-getrandom            = { version = "0.2.16", default-features = false, features = ["custom"] }
+# ── tame `getrandom` to avoid wasm issues ──────────────────────────────────
+getrandom            = { version = "0.2", default-features = false, features = ["custom"] }
