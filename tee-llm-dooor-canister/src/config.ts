@@ -6,6 +6,7 @@
 // External API endpoints configuration
 
 const API_URL = 'https://dev-backend-production-6f42.up.railway.app'
+const TEE_URL = 'https://api-tee.dooor.ai'
 
 /**
  * External service URLs for TEE and LLM operations
@@ -13,8 +14,8 @@ const API_URL = 'https://dev-backend-production-6f42.up.railway.app'
  */
 export const URLS = {
     // Trusted Execution Environment endpoints
-    TEE_SECURITY: `${API_URL}/v1/tee/security-config`,
-    TEE_CONNECT: `${API_URL}/v1/tee/connect`,
+    TEE_SECURITY: `${TEE_URL}/v1/tee/security-config`,
+    TEE_CONNECT: `${TEE_URL}/v1/tee/connect`,
     
     // Large Language Model service endpoints
     LLM_MODELS: `${API_URL}/v1/llm-models`,

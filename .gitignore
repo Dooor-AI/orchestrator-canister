@@ -141,7 +141,6 @@ package-lock.json
 
 # DFX specific
 .dfx/
-canister_ids.json
 
 # Build outputs
 src/frontend/dist/

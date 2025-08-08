@@ -1,8 +1,5 @@
 import { call, canisterSelf, Principal } from 'azle';
-import {
-  http_request_args,
-  http_request_result
-} from 'azle/canisters/management/idl';
+import { http_request_args, http_request_result } from 'azle/canisters/management/idl';
 import { URLS, HTTP_SETTINGS } from './config';
 
 type HeaderKV = { name: string; value: string };

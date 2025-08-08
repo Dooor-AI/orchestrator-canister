@@ -96,13 +96,23 @@ export default class DooorCanister {
   // ===== TEE =====
   /**
    * Performs complete TEE infrastructure validation
+   * @param {string} jwt - JWT token for authentication
    * @returns {Promise<string>} JSON string containing comprehensive security report
    */
+  // mantém o antigo, mesma assinatura:
   @update([], IDL.Text)
-  async validateTeeInfrastructure(): Promise<string> {
-    return await this.teeService.validateCompleteInfrastructure();
+  validateTeeInfrastructure(): string {
+    return JSON.stringify({
+      validation_status: "ERROR",
+      error_message: "Deprecated: use validateTeeInfrastructureV2(jwt)"
+    });
   }
 
+  // novo método que recebe o JWT (determinístico, sem outcall que cause divergência):
+  @update([IDL.Text], IDL.Text)
+  async validateTeeInfrastructureV2(jwt: string): Promise<string> {
+    return await this.teeService.validateCompleteInfrastructure(jwt);
+  }
   // ===== Config JWT/t-ECDSA =====
   /**
    * Configures the ECDSA key name for JWT signing operations
@@ -186,7 +196,7 @@ export default class DooorCanister {
    * @returns {Promise<Array<{name: string, value: string}>>} Array of HTTP headers including Authorization
    */
   @update([IDL.Text, IDL.Text, IDL.Opt(IDL.Vec(IDL.Nat8))],
-          IDL.Vec(IDL.Record({ name: IDL.Text, value: IDL.Text })))
+    IDL.Vec(IDL.Record({ name: IDL.Text, value: IDL.Text })))
   async llm_buildAuthHeaders(method: string, url: string, bodyOpt: [] | [Uint8Array]) {
     const m = (method || 'get').toLowerCase() === 'post' ? 'post' : 'get';
     const body = bodyOpt.length === 1 ? bodyOpt[0] : undefined;
@@ -210,6 +220,40 @@ export default class DooorCanister {
    */
   @query([http_transform_args], http_request_result)
   httpTransform(args: http_transform_args): http_request_result {
-    return { ...args.response, headers: [] };
+    // zera headers imprevisíveis
+    const headers: { name: string; value: string }[] = [];
+
+    // tenta canonizar JSON do corpo
+    let bodyBytes: any = Uint8Array.from(args.response.body ?? []);
+    try {
+      const txt = new TextDecoder().decode(bodyBytes);
+      const val = JSON.parse(txt);
+
+      // remove/normaliza campos voláteis recursivamente
+      const DROP = new Set([
+        'timestamp', 'date', 'last_updated', 'lastUpdated', 'updatedAt', 'createdAt',
+        'configuration_hash', 'total_outbound_calls',
+        'http_call_logs', 'httpCallLogs', 'request_id', 'x-request-id', 'x_request_id'
+      ]);
+
+      const scrub = (v: any): any => {
+        if (Array.isArray(v)) return v.map(scrub);
+        if (v && typeof v === 'object') {
+          const o: any = {};
+          for (const [k, sub] of Object.entries(v)) {
+            if (!DROP.has(k)) o[k] = scrub(sub);
+          }
+          return o;
+        }
+        return v;
+      };
+
+      const canon = JSON.stringify(scrub(val)); // ordem estável
+      bodyBytes = new TextEncoder().encode(canon);
+    } catch {
+      // não era JSON? deixa o corpo como veio
+    }
+
+    return { ...args.response, headers, body: Array.from(bodyBytes) };
   }
 }
