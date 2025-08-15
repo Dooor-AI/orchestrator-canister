@@ -31,14 +31,12 @@ export class TEEService {
     /**
      * Executes HTTP request to TEE endpoints using ICP HTTP outcalls
      * @param {string} url - Target URL for the TEE request
-     * @param {'get' | 'post'} [method='get'] - HTTP method to use
-     * @param {string} [body] - Optional request body
+     * @param {'get' | 'post'} method - HTTP method to use
      * @returns {Promise<string>} Raw response from TEE endpoint
      */
     private async executeTeeRequest(
         url: string,
-        method: 'get' | 'post' = 'get',
-        body?: string
+        method: 'get' | 'post' = 'get'
     ): Promise<string> {
         const httpMethod = method === 'get' ? { get: null } : { post: null };
 
@@ -59,7 +57,7 @@ export class TEEService {
                         headers: [
                             { name: 'Content-Type', value: 'application/json' }
                         ],
-                        body: body ? [new TextEncoder().encode(body)] : [],
+                        body: [],
                         transform: [
                             {
                                 function: [canisterSelf(), 'httpTransform'] as [
@@ -82,12 +80,10 @@ export class TEEService {
      * Retrieves TEE attestation data for validation
      * Connects to TEE and extracts attestation JWT from response
      * @returns {Promise<string>} Raw attestation response data from TEE
-     * @throws {Error} When TEE attestation retrieval fails
      */
     private async retrieveTeeAttestation(): Promise<string> {
         try {
-            const requestBody = JSON.stringify({ uid: "string" });
-            return await this.executeTeeRequest(URLS.TEE_CONNECT, 'post', requestBody);
+            return await this.executeTeeRequest(URLS.TEE_CONNECT, 'post');
         } catch (error) {
             throw new Error(`Failed to retrieve TEE attestation: ${error}`);
         }
@@ -96,7 +92,6 @@ export class TEEService {
     /**
      * Retrieves TEE security configuration for validation
      * @returns {Promise<string>} Security configuration data from TEE
-     * @throws {Error} When security configuration retrieval fails
      */
     private async retrieveSecurityConfiguration(): Promise<string> {
         try {
@@ -112,13 +107,13 @@ export class TEEService {
      * using both attestation verification and security configuration validation
      * @returns {Promise<string>} JSON string containing complete validation report
      */
-    async validateCompleteInfrastructure(jwt: string): Promise<string> {
+    async validateCompleteInfrastructure(): Promise<string> {
         try {
 
-            //const attestationData = await this.retrieveTeeAttestation();
+            const attestationData = await this.retrieveTeeAttestation();
             const securityConfigData = await this.retrieveSecurityConfiguration();
 
-            const jwtAttestation = jwt;
+            const jwtAttestation = JSON.parse(attestationData).attestation_jwt;
             const securityConfig = JSON.parse(securityConfigData);
 
             // Perform comprehensive validation using the new validator logic
@@ -205,34 +200,19 @@ export class TEEService {
 }
 
 // Legacy function exports for backward compatibility (deprecated)
-/**
- * Legacy function to get TEE connect data (deprecated - use TEEService class)
- * @returns {Promise<string>} Raw attestation response data from TEE
- * @deprecated Use TEEService.retrieveTeeAttestation() instead
- */
 export async function getTeeConnect(): Promise<string> {
     const service = new TEEService();
     return await service['retrieveTeeAttestation']();
 }
 
-/**
- * Legacy function to get TEE security data (deprecated - use TEEService class)
- * @returns {Promise<string>} Security configuration data from TEE
- * @deprecated Use TEEService.retrieveSecurityConfiguration() instead
- */
 export async function getTeeSecurity(): Promise<string> {
     const service = new TEEService();
     return await service['retrieveSecurityConfiguration']();
 }
 
-/**
- * Legacy function to validate TEE (deprecated - use TEEService class)
- * @returns {Promise<any>} Validation result object
- * @deprecated Use TEEService.validateCompleteInfrastructure() instead
- */
-export async function validateTee(jwt: string): Promise<any> {
+export async function validateTee(): Promise<any> {
     const service = new TEEService();
-    const result = await service.validateCompleteInfrastructure(jwt);
+    const result = await service.validateCompleteInfrastructure();
     return JSON.parse(result);
 }
     

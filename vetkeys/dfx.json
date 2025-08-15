@@ -6,6 +6,7 @@
         "candid": "vetkeys.did"
       }
     },
+    "networks": { "local":{}, "ic":{ "providers":["https://ic0.app/"] } },
     "defaults": { "build": { "packtool": "", "args": "" } },
     "version": 1
   }

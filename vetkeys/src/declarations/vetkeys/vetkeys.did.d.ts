@@ -3,16 +3,15 @@ import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
 export type Blob = Uint8Array | number[];
+export interface BlsPk { 'pk' : Blob }
+export interface EncryptedKey { 'encrypted_key' : Blob }
 export interface _SERVICE {
-  'add_cert' : ActorMethod<[Blob], undefined>,
-  'bls_public_key' : ActorMethod<[], { 'pk' : Blob }>,
-  'list_certs' : ActorMethod<[[] | [Principal]], Array<Blob>>,
-  'sign_caller' : ActorMethod<[Blob, Blob], { 'signature' : Blob }>,
-  'sign_shutdown' : ActorMethod<
-    [Blob, Blob, Blob],
-    { 'canister_sig' : Blob, 'vetkd_sig' : Blob }
-  >,
-  'verify_shutdown' : ActorMethod<[Blob, Blob, Blob], boolean>,
+  'bls_public_key' : ActorMethod<[], BlsPk>,
+  'delete_record' : ActorMethod<[Blob], boolean>,
+  'derive_data_key' : ActorMethod<[Blob, Blob], EncryptedKey>,
+  'get_record' : ActorMethod<[Blob], [] | [Blob]>,
+  'list_record_ids' : ActorMethod<[], Array<Blob>>,
+  'put_record' : ActorMethod<[Blob, Blob], undefined>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

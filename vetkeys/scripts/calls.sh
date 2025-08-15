@@ -1,20 +1,32 @@
 #!/usr/bin/env bash
-# Assumindo dfx já iniciado e canister implantado localmente
+set -euo pipefail
 
-CID=$(dfx canister id vetkeys_demo)
+# Minimal end-to-end calls for VetKeys Private DB
+# - Uses identity-bound VetKD derivation
+# - Requires transport_pk = BLS12-381 G1 compressed (48 bytes)
 
-echo "==> Add cert (hash f00dbabe)"
-dfx canister call $CID add_cert '(vec { 0xf0; 0x0d; 0xba; 0xbe })'
+# Optional local deploy
+# dfx deploy vetkeys
 
-echo "==> List certs (caller)"
-dfx canister call $CID list_certs '(null)'
+CID="$(dfx canister id vetkeys)"
 
-echo "==> Obter pk VetKD"
-dfx canister call $CID bls_public_key '( )'
+echo "==> Generating transport_public_key BLS12-381 G1 (48 bytes) via Node (esm) under /js"
+TPK_HEX="$(cd js && node ./emit-transport-g1.mjs)"
 
-# Gera transport key (X25519) de teste via openssl
-TPK=$(openssl genpkey -algorithm X25519 | \
-      openssl pkey -pubout -outform DER | tail -c +13 | hexdump -v -e '/1 "0x%02x; "')
+RID_HEX="$(echo -n "user:profile" | hexdump -v -e '/1 "0x%02x; "')"
 
-echo "==> Assinar shutdown"
-dfx canister call $CID sign_shutdown "(vec { 0x01; 0x02 }, vec { 0xf0; 0x0d; 0xba; 0xbe }, vec { $TPK })"
+echo "==> Deriving data-key (record_id='user:profile') via VetKD (G2) + G1 transport"
+dfx canister call "$CID" derive_data_key "(vec { $RID_HEX }, vec { $TPK_HEX })"
+
+echo "==> Storing encrypted envelope (mock bytes)"
+ENV_HEX="0x01; 0x02; 0x03; 0x04;"
+dfx canister call "$CID" put_record "(vec { $RID_HEX }, vec { $ENV_HEX })"
+
+echo "==> Listing record_ids for caller"
+dfx canister call "$CID" list_record_ids
+
+echo "==> Fetching envelope"
+dfx canister call "$CID" get_record "(vec { $RID_HEX })"
+
+echo "==> Deleting record"
+dfx canister call "$CID" delete_record "(vec { $RID_HEX })"

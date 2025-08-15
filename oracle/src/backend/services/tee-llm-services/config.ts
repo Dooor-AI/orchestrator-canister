@@ -5,28 +5,19 @@
 
 // External API endpoints configuration
 
-const API_URL = 'https://dev-backend-production-6f42.up.railway.app'
-const TEE_URL = 'https://api-tee.dooor.ai'
-
-/**
- * External service URLs for TEE and LLM operations
- * Provides centralized configuration for all API endpoints
- */
+const API_URL = 'https://api-tee.dooor.ai/v1'
 export const URLS = {
     // Trusted Execution Environment endpoints
-    TEE_SECURITY: `${TEE_URL}/v1/tee/security-config`,
-    TEE_CONNECT: `${TEE_URL}/v1/tee/connect`,
+    TEE_SECURITY: `${API_URL}/tee/security-config`,
+    TEE_CONNECT: `${API_URL}/tee/connect`,
     
     // Large Language Model service endpoints
-    LLM_MODELS: `${API_URL}/v1/llm-models`,
-    LLM_MODEL_BY_ID: `${API_URL}/v1/llm-models`,
-    LLM_SET_DEFAULT: `${API_URL}/v1/llm-models`
+    LLM_MODELS: `${API_URL}/llm-models`,
+    LLM_MODEL_BY_ID: `${API_URL}/llm-models`,
+    LLM_SET_DEFAULT: `${API_URL}/llm-models`
 } as const;
 
-/**
- * HTTP request configuration settings for ICP outcalls
- * Defines limits and resource allocation for external API calls
- */
+// HTTP request configuration settings
 export const HTTP_SETTINGS = {
     // Maximum response size for HTTP requests (500KB)
     MAX_RESPONSE_BYTES: 500_000n,
@@ -35,20 +26,14 @@ export const HTTP_SETTINGS = {
     CYCLES: 60_000_000_000n
 } as const;
 
-/**
- * TEE (Trusted Execution Environment) configuration constants
- * Defines the specific TEE instance and project settings
- */
+// TEE (Trusted Execution Environment) configuration
 export const TEE_CONFIG = {
     PROJECT_ID: 'dooor-core',
     ZONE: 'us-central1-a',
     INSTANCE_NAME: 'tee-vm1'
 } as const;
 
-/**
- * Service endpoints mapping for internal use
- * Provides semantic mapping between service types and their operations
- */
+// Service endpoints mapping for internal use
 export const ENDPOINT_MAPPING = {
     LLM: {
         GET_ALL: 'getAllModels',

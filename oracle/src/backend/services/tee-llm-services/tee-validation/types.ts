@@ -1,7 +1,3 @@
-/**
- * TEE validation report interface for attestation and security validation results
- * Comprehensive report containing validation status, summary, and detailed assessments
- */
 export interface TEEValidationReport {
     valid: boolean
     summary: {

@@ -11,7 +11,6 @@ package-lock.json
 .azle/
 .vessel/
 *.wasm
-canister_ids.json
 .cache
 
 # Build artifacts
