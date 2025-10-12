@@ -31,7 +31,7 @@ if (!process.env.HOST || !process.env.CANISTER_ID || !process.env.CERT_PATH) {
 }
 
 const HOST = process.env.HOST || 'http://127.0.0.1:8000'; // dfx 0.27 usa 8000; 0.28+ costuma 4943
-const CANISTER_ID = process.env.CANISTER_ID;
+const CANISTER_ID = 'uxrrr-q7777-77774-qaaaq-cai'
 if (!CANISTER_ID) throw new Error('Set CANISTER_ID env var or provide ../.env');
 const CERT_PATH = process.env.CERT_PATH || './example.cert';
 

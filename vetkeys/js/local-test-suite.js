@@ -37,7 +37,7 @@ const defaultHost = 'http://127.0.0.1:8000';
 const HOST = process.env.HOST || defaultHost;
 
 // Resolve CANISTER_ID: prefer env, else fallback to .dfx canister_ids.json
-let CANISTER_ID = process.env.CANISTER_ID;
+let CANISTER_ID = 'uxrrr-q7777-77774-qaaaq-cai'
 if (!CANISTER_ID) {
   const idsPath = path.resolve(process.cwd(), '../.dfx/local/canister_ids.json');
   if (existsSync(idsPath)) {
