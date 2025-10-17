@@ -1,5 +1,5 @@
 ## VetKeys Private Database Canister
-DOOOR Team — July 2025
+DOOOR Team — Setember 2025
 
 ### Overview
 This canister implements a VetKD-backed private database on the
