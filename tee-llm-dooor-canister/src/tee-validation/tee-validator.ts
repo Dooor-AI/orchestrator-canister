@@ -74,7 +74,6 @@ export class TEEAttestationValidator {
   async getValidationReport(attestationJWT: string): Promise<TEEValidationReport> {
     const decoded = this.decodeJWT(attestationJWT)
 
-
     if (!decoded) {
       return {
         valid: false,
@@ -89,7 +88,44 @@ export class TEEAttestationValidator {
       }
     }
 
-    const isValid = this.validateJWTStructure(decoded)
+    // Validate structure
+    const structureValid = this.validateJWTStructure(decoded)
+    if (!structureValid) {
+      return {
+        valid: false,
+        summary: {
+          trusted: false,
+          hardware: 'Google Cloud TEE',
+          project: this.projectId,
+          instance: this.instanceName,
+          zone: this.zone
+        },
+        claims: decoded.payload as Record<string, unknown>,
+        errors: ['JWT structure validation failed']
+      }
+    }
+
+    // Validate important claims
+    const payload = decoded.payload as any
+    const errors: string[] = []
+
+    if (payload.iss !== 'https://confidentialcomputing.googleapis.com') {
+      errors.push('Invalid issuer - must be Google Confidential Computing')
+    }
+
+    if (!payload.submods?.gce?.project_id || payload.submods.gce.project_id !== this.projectId) {
+      errors.push(`Project ID mismatch - expected ${this.projectId}`)
+    }
+
+    if (!payload.submods?.gce?.instance_name || payload.submods.gce.instance_name !== this.instanceName) {
+      errors.push(`Instance name mismatch - expected ${this.instanceName}`)
+    }
+
+    if (!payload.submods?.gce?.zone || payload.submods.gce.zone !== this.zone) {
+      errors.push(`Zone mismatch - expected ${this.zone}`)
+    }
+
+    const isValid = errors.length === 0
 
     return {
       valid: isValid,
@@ -101,7 +137,8 @@ export class TEEAttestationValidator {
         zone: this.zone
       },
       claims: decoded.payload as Record<string, unknown>,
-      errors: isValid ? [] : ['JWT validation failed']
+      errors: errors,
+      warnings: []
     }
   }
 
@@ -232,7 +269,9 @@ export class TEEAttestationValidator {
         },
         jwt_validation: {
           valid: jwtValidation.valid,
-          errors: jwtValidation.errors
+          errors: jwtValidation.errors,
+          warnings: jwtValidation.warnings,
+          claims: jwtValidation.claims
         },
         security_validation: {
           valid: securityValidation.valid,

@@ -37,9 +37,9 @@ if (!process.env.HOST || !process.env.CANISTER_ID) {
 
 const HOST = process.env.DFX_NETWORK === 'ic'
   ? 'https://ic0.app'
-  : (process.env.HOST || 'http://127.0.0.1:8000'); // dfx 0.27 => 8000; 0.28+ costuma 4943
+  : (process.env.HOST || 'https://ic0.app'); // dfx 0.27 => 8000; 0.28+ costuma 4943
 
-let CANISTER_ID = 'uxrrr-q7777-77774-qaaaq-cai'
+let CANISTER_ID = 'dxppq-oaaaa-aaaae-acg5q-cai'
   || (existsSync('../.dfx/local/canister_ids.json')
       ? JSON.parse(readFileSync('../.dfx/local/canister_ids.json', 'utf8')).vetkeys?.local
       : null);

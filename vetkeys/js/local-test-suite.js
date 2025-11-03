@@ -33,11 +33,11 @@ if (!process.env.HOST || !process.env.CANISTER_ID) {
 }
 
 // Resolve HOST (default aligned to dfx 0.27 port 8000)
-const defaultHost = 'http://127.0.0.1:8000';
+const defaultHost = 'https://ic0.app';
 const HOST = process.env.HOST || defaultHost;
 
 // Resolve CANISTER_ID: prefer env, else fallback to .dfx canister_ids.json
-let CANISTER_ID = 'uxrrr-q7777-77774-qaaaq-cai'
+let CANISTER_ID = 'dxppq-oaaaa-aaaae-acg5q-cai'
 if (!CANISTER_ID) {
   const idsPath = path.resolve(process.cwd(), '../.dfx/local/canister_ids.json');
   if (existsSync(idsPath)) {

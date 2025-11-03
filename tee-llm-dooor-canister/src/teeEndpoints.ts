@@ -107,6 +107,33 @@ export class TEEService {
     }
 
     /**
+     * Retrieves TEE public key for JWT signature verification
+     * @returns {Promise<string>} Public key data from TEE
+     * @throws {Error} When public key retrieval fails
+     */
+    private async retrieveTeePublicKey(): Promise<string> {
+        try {
+            return await this.executeTeeRequest(URLS.TEE_PUBLIC_KEY, 'get');
+        } catch (error) {
+            throw new Error(`Failed to retrieve TEE public key: ${error}`);
+        }
+    }
+
+    /**
+     * Retrieves Google's JWKS for JWT signature verification
+     * @returns {Promise<string>} JWKS data from Google
+     * @throws {Error} When JWKS retrieval fails
+     */
+    private async retrieveGoogleJWKS(): Promise<string> {
+        try {
+            const jwksUrl = 'https://www.googleapis.com/service_accounts/v1/jwk/signer@confidentialspace-sign.iam.gserviceaccount.com';
+            return await this.executeTeeRequest(jwksUrl, 'get');
+        } catch (error) {
+            throw new Error(`Failed to retrieve Google JWKS: ${error}`);
+        }
+    }
+
+    /**
      * Validates complete TEE infrastructure and returns comprehensive security report
      * This method performs end-to-end validation of the entire TEE system
      * using both attestation verification and security configuration validation
@@ -115,15 +142,12 @@ export class TEEService {
     async validateCompleteInfrastructure(jwt: string): Promise<string> {
         try {
 
-            //const attestationData = await this.retrieveTeeAttestation();
             const securityConfigData = await this.retrieveSecurityConfiguration();
-
-            const jwtAttestation = jwt;
             const securityConfig = JSON.parse(securityConfigData);
 
             // Perform comprehensive validation using the new validator logic
             const validationReport = await this.validator
-                .validateCompleteTEE(jwtAttestation, securityConfig);
+                .validateCompleteTEE(jwt, securityConfig);
 
             return JSON.stringify(validationReport, null, 2);
 
