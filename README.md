@@ -93,9 +93,8 @@ derive_node_key(node_id: NodeId, context: Text) -> Result<DerivedKey, Error>
 
 ## Support
 
-- **Documentation**: [docs.dooor.io](https://docs.dooor.io)
-- **Discord**: [discord.gg/dooor](https://discord.gg/dooor)
-- **Issues**: [GitHub Issues](https://github.com/your-org/dooor-icp-canister/issues)
+- **Documentation**: [About us](https://dooor.notion.site/meet-dooor)
+- **Issues**: [GitHub Issues](https://github.com/Dooor-AI)
 
 ---
 
